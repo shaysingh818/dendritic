@@ -10,7 +10,7 @@ pub struct NDArray<T> {
 }
 
 
-impl<T: Default + Clone> NDArray<T> {
+impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
 
     /// Gets the rank of the current array
     pub fn rank(&self) -> usize {
@@ -207,6 +207,44 @@ impl<T: Default + Clone> NDArray<T> {
         }
  
         Ok(result)
+    }
+
+    pub fn batch(&self, batch_size: usize) -> Result<Vec<NDArray<T>>, String> {
+       
+        if batch_size == 0 || batch_size >= self.size() {
+            return Err("Batch size out of bounds".to_string())
+        }
+
+        if self.rank() != 2 {
+            return Err("NDArray must be of rank 2".to_string())
+        }
+
+        let dim_size = batch_size * self.shape()[1];
+        let mut start_index = 0; 
+        let mut end_index = start_index + dim_size;
+
+        let mut temp_vec: Vec<T> = Vec::new();
+        let mut batches: Vec<NDArray<T>> = Vec::new();
+        
+        for item in 0..self.size() {
+
+            if end_index >= self.size()+1 {
+                break;
+            }
+
+            let temp_vec: Vec<T> = self.values()[start_index..end_index].to_vec(); 
+            let ndarray_batch: NDArray<T> = NDArray::array(
+                vec![batch_size, self.shape()[1]], 
+                temp_vec.clone()
+            ).unwrap();
+
+            batches.push(ndarray_batch); 
+            start_index += self.shape()[1]; 
+            end_index += self.shape()[1]; 
+             
+        }
+
+        Ok(batches) 
     }
 
 }

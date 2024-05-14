@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use arrow_schema::{Schema, Field, DataType};
 
 
 #[derive(Debug, Clone)]
