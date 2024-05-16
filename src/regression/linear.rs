@@ -18,7 +18,7 @@ pub struct Linear {
 
 impl Linear {
 
-    pub fn new(features: NDArray<f64>, y: NDArray<f64>, learning_rate: f64) -> Result<MultipleLinear, String> {
+    pub fn new(features: NDArray<f64>, y: NDArray<f64>, learning_rate: f64) -> Result<Linear, String> {
 
         if learning_rate < 0.0 || learning_rate > 1.0 {
             return Err("Learning rate must be between 1 and 0".to_string());
@@ -34,10 +34,6 @@ impl Linear {
             loss_function: mse
         })
     }
-}
-
-
-impl Linear {
 
     fn set_loss(&mut self, loss_func: fn(y_true: NDArray<f64>, y_pred: NDArray<f64>) -> Result<f64, String>) {
         self.loss_function = loss_func;
