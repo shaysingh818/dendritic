@@ -1,7 +1,6 @@
 use crate::ndarray::ndarray::NDArray;
 use crate::ndarray::ops::*;
 use crate::loss::mse::*;
-use crate::regression::linear::*;
 
 
 #[derive(Debug, Clone, PartialEq)]
