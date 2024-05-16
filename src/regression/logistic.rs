@@ -117,7 +117,7 @@ impl Logistic {
     }
 
 
-    fn weight_update(&mut self, y_pred: NDArray<f64>) {
+    pub fn weight_update(&mut self, y_pred: NDArray<f64>) {
         let x_t = self.features.clone().transpose().unwrap();
         let error = y_pred.subtract(self.outputs.clone()).unwrap();
         let grad = x_t.dot(error).unwrap();
@@ -125,7 +125,7 @@ impl Logistic {
         self.weights = self.weights.subtract(d_w).unwrap(); 
     }
 
-    fn bias_update(&mut self, y_pred: NDArray<f64>)  {
+    pub fn bias_update(&mut self, y_pred: NDArray<f64>)  {
         let error = y_pred.subtract(self.outputs.clone()).unwrap();
         let grad = self.learning_rate/y_pred.size() as f64;
         let db: f64 = error.scalar_mult(grad).unwrap().values().iter().sum();

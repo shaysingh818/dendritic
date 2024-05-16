@@ -34,12 +34,12 @@ impl Linear {
         })
     }
 
-    fn set_loss(&mut self, loss_func: fn(y_true: NDArray<f64>, y_pred: NDArray<f64>) -> Result<f64, String>) {
+    pub fn set_loss(&mut self, loss_func: fn(y_true: NDArray<f64>, y_pred: NDArray<f64>) -> Result<f64, String>) {
         self.loss_function = loss_func;
     }
 
 
-    fn predict(&mut self, inputs: NDArray<f64>) -> Result<NDArray<f64>, String> {
+    pub fn predict(&mut self, inputs: NDArray<f64>) -> Result<NDArray<f64>, String> {
 
         if inputs.shape() != self.features.shape() {
             return Err("Provided shape values don't match model params".to_string());
@@ -51,13 +51,13 @@ impl Linear {
     }
 
 
-    fn forward(&self) -> Result<NDArray<f64>, String> {
+    pub fn forward(&self) -> Result<NDArray<f64>, String> {
         let result = self.features.dot(self.weights.clone()).unwrap();
         let bias_add = result.scalar_add(self.bias).unwrap();
         Ok(bias_add)
     }
 
-    fn weight_update(&mut self, y_pred: NDArray<f64>) {
+    pub fn weight_update(&mut self, y_pred: NDArray<f64>) {
         let x_t = self.features.clone().transpose().unwrap();
         let error = y_pred.subtract(self.outputs.clone()).unwrap();
         let grad = x_t.dot(error).unwrap();
@@ -65,14 +65,14 @@ impl Linear {
         self.weights = self.weights.subtract(d_w).unwrap(); 
     }
 
-    fn bias_update(&mut self, y_pred: NDArray<f64>)  {
+    pub fn bias_update(&mut self, y_pred: NDArray<f64>)  {
         let error = y_pred.subtract(self.outputs.clone()).unwrap();
         let grad = self.learning_rate/y_pred.size() as f64;
         let db: f64 = error.scalar_mult(grad).unwrap().values().iter().sum();
         self.bias = self.bias - db; 
     }
 
-    fn train(&mut self, epochs: usize, log_output: bool) {
+    pub fn train(&mut self, epochs: usize, log_output: bool) {
         let mut y_pred = self.forward().unwrap();
         for epoch in 0..epochs {
             y_pred = self.forward().unwrap(); 
