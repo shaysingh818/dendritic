@@ -195,6 +195,19 @@ impl SuicideDetectionModel {
 //         assert_eq!(gtd_model.records().len(), 722); 
 
 //     }
+
+//     #[test]
+//     fn test_load_model() {
+
+//         // let x: NDArray<f64> = NDArray::load("data/logistic_testing_data/inputs").unwrap();
+//         // let y: NDArray<f64> = NDArray::load("data/logistic_testing_data/outputs").unwrap();
+
+//         // let mut loaded_model = Logistic::load("gtd_iteration1", x, y, 0.01).unwrap();
+//         // let results = loaded_model.forward().unwrap();
+
+//         // println!("{:?}", loaded_model.outputs().values());
+//         // println!("{:?}", results.values());
+//     }
 // }
 
 

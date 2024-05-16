@@ -37,6 +37,11 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
         &self.values[self.index(indices).unwrap()]
     }
 
+    /// Get generic value from provided indices
+    pub fn idx(&self, index: usize) -> &T {
+        &self.values[index]
+    }
+
     /// Create instance of NDArray, provide shape dimensions as parameter
     pub fn new(shape: Vec<usize>) -> Result<NDArray<T>, String> {
 
