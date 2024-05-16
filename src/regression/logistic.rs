@@ -1,6 +1,5 @@
 use crate::ndarray::ndarray::NDArray;
 use crate::ndarray::ops::*;
-use crate::regression::linear::base::Linear;
 use crate::loss::sigmoid::*;
 use crate::loss::mse::*;
 
