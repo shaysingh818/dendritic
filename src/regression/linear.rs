@@ -5,7 +5,7 @@ use crate::regression::linear::base::Linear;
 
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct MultipleLinear {
+pub struct Linear {
     features: NDArray<f64>,
     outputs: NDArray<f64>,
     predicted_outputs: NDArray<f64>,
@@ -16,7 +16,7 @@ pub struct MultipleLinear {
 }
 
 
-impl MultipleLinear {
+impl Linear {
 
     pub fn new(features: NDArray<f64>, y: NDArray<f64>, learning_rate: f64) -> Result<MultipleLinear, String> {
 
@@ -37,7 +37,7 @@ impl MultipleLinear {
 }
 
 
-impl Linear for MultipleLinear {
+impl Linear {
 
     fn set_loss(&mut self, loss_func: fn(y_true: NDArray<f64>, y_pred: NDArray<f64>) -> Result<f64, String>) {
         self.loss_function = loss_func;

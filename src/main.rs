@@ -5,20 +5,34 @@ pub mod models;
 
 // use crate::models::gtd::*;
 
-use crate::regression::logistic::Logistic;
+use crate::regression::ridge::*;
 use crate::ndarray::ndarray::NDArray;
 use crate::ndarray::ops::*;
+use crate::loss::rss::*;
 
 fn main()  {
 
-    let x: NDArray<f64> = NDArray::load("data/logistic_testing_data/inputs").unwrap();
-    let y: NDArray<f64> = NDArray::load("data/logistic_testing_data/outputs").unwrap();
 
-    let mut loaded_model = Logistic::load("gtd_iteration1", x, y, 0.01).unwrap();
-    let results = loaded_model.forward().unwrap();
 
-    println!("{:?}", loaded_model.outputs().values());
-    println!("{:?}", results.values()); 
+    let x: NDArray<f64> = NDArray::array(
+        vec![5, 3], 
+        vec![
+            1.0, 2.0, 3.0,
+            2.0, 3.0, 4.0, 
+            3.0, 4.0, 5.0,
+            4.0, 5.0, 6.0, 
+            5.0, 6.0, 7.0
+        ]
+    ).unwrap();
+
+    let y: NDArray<f64> = NDArray::array(
+        vec![5, 1], 
+        vec![10.0, 12.0, 14.0, 16.0, 18.0]
+    ).unwrap();
+
+    let mut model = Ridge::new(x.clone(), y.clone(), 0.01).unwrap();
+    model.train(1000, true);
+    
 
 
 }

@@ -192,6 +192,48 @@ mod ndarray_tests {
 
     }
 
+    #[test]
+    fn test_batch_ndarray() {
+
+        let x: NDArray<f64> = NDArray::array(
+            vec![10, 3], 
+            vec![
+                1.0, 2.0, 3.0,
+                2.0, 3.0, 4.0, 
+                3.0, 4.0, 5.0,
+                4.0, 5.0, 6.0, 
+                5.0, 6.0, 7.0,
+                6.0, 7.0, 8.0,
+                7.0, 8.0, 9.0, 
+                8.0, 9.0, 10.0,
+                9.0, 10.0, 11.0, 
+                10.0, 11.0, 12.0
+            ]
+        ).unwrap();
+
+        let mut batch_size: usize = 2;
+        let x_batch = x.batch(batch_size).unwrap();
+
+        let expected_batches: Vec<Vec<f64>> = vec![
+            vec![1.0, 2.0, 3.0, 2.0, 3.0, 4.0],
+            vec![2.0, 3.0, 4.0, 3.0, 4.0, 5.0],
+            vec![3.0, 4.0, 5.0, 4.0, 5.0, 6.0],
+            vec![4.0, 5.0, 6.0, 5.0, 6.0, 7.0],
+            vec![5.0, 6.0, 7.0, 6.0, 7.0, 8.0],
+            vec![6.0, 7.0, 8.0, 7.0, 8.0, 9.0],
+            vec![7.0, 8.0, 9.0, 8.0, 9.0, 10.0],
+            vec![8.0, 9.0, 10.0, 9.0, 10.0, 11.0],
+            vec![9.0, 10.0, 11.0, 10.0, 11.0, 12.0]
+        ];
+
+        let mut index = 0; 
+        for item in x_batch {
+            assert_eq!(item.values(), &expected_batches[index]);
+            index += 1; 
+        }
+
+    }
+
 }
 
 
