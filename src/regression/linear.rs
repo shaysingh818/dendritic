@@ -11,7 +11,8 @@ pub struct Linear {
     weights: NDArray<f64>, 
     bias: f64,
     learning_rate: f64,
-    loss_function: fn(y_true: NDArray<f64>, y_pred: NDArray<f64>) -> Result<f64, String>
+    loss_function: fn(y_true: NDArray<f64>, y_pred: NDArray<f64>) -> Result<f64, String>,
+    model_loss: f64
 }
 
 
@@ -30,7 +31,8 @@ impl Linear {
             weights: NDArray::new(vec![features.shape()[1], 1]).unwrap(),
             bias: 0.00,
             learning_rate: learning_rate,
-            loss_function: mse
+            loss_function: mse,
+            model_loss: 0.0
         })
     }
 
@@ -72,18 +74,56 @@ impl Linear {
         self.bias = self.bias - db; 
     }
 
-    pub fn train(&mut self, epochs: usize, log_output: bool) {
-        let mut y_pred = self.forward().unwrap();
-        for epoch in 0..epochs {
-            y_pred = self.forward().unwrap(); 
-            let loss = (self.loss_function)(y_pred.clone(), self.outputs.clone()).unwrap(); 
-            self.weight_update(y_pred.clone());
-            self.bias_update(y_pred.clone()); 
+    pub fn train(&mut self, epochs: usize, log_output: bool, batch_size: usize) {
 
-            if log_output {
-                println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
+        let mut loss: f64 = 0.0;
+
+        if batch_size > 0 {
+
+            let mut input_train: Vec<NDArray<f64>> = self.features.batch(batch_size).unwrap();
+            let mut output_train: Vec<NDArray<f64>> = self.outputs.batch(batch_size).unwrap();
+
+            for epoch in 0..epochs {
+
+                let mut batch_index = 0; 
+                for batch in &input_train {
+
+                    self.features = batch.clone(); 
+                    self.outputs = output_train[batch_index].clone();
+
+                    let mut y_pred = self.forward().unwrap();
+                    loss = (self.loss_function)(y_pred.clone(), self.outputs.clone()).unwrap(); 
+                    self.weight_update(y_pred.clone());
+                    self.bias_update(y_pred.clone()); 
+                    batch_index += 1; 
+                }
+
+                if log_output {
+                    println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
+                }
             }
+
+            self.model_loss = loss;
+
+        } else {
+
+            let mut y_pred = self.forward().unwrap();
+            for epoch in 0..epochs {
+                y_pred = self.forward().unwrap(); 
+                let loss = (self.loss_function)(y_pred.clone(), self.outputs.clone()).unwrap(); 
+                self.weight_update(y_pred.clone());
+                self.bias_update(y_pred.clone()); 
+
+                if log_output {
+                    println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
+                }
+            }
+
+            self.model_loss = loss; 
+
         }
+
+
     }
 
 }

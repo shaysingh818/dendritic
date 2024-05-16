@@ -37,7 +37,7 @@ mod linear {
         let loss_before_train = mse(y.clone(), pre_train_results).unwrap();
         assert_eq!(loss_before_train, 204.0);
 
-        model.train(1000, false);
+        model.train(1000, false, 0);
 
         let result = model.predict(x).unwrap();
         let loss_after_train = mse(y.clone(), result).unwrap();

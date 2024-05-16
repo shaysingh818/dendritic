@@ -40,24 +40,24 @@ impl Ridge {
     }
 
 
-    fn forward(&self) -> Result<NDArray<f64>, String> {
+    pub fn forward(&self) -> Result<NDArray<f64>, String> {
         let result = self.features.dot(self.weights.clone()).unwrap();
         let bias_add = result.scalar_add(self.bias).unwrap();
         Ok(bias_add)
     }
 
-    fn weight_update(&mut self, y_pred: NDArray<f64>) {
+    pub fn weight_update(&mut self, y_pred: NDArray<f64>) {
 
 
 
         // self.weights = self.weights.subtract(d_w).unwrap(); 
     }
 
-    fn bias_update(&mut self, y_pred: NDArray<f64>)  {
+    pub fn bias_update(&mut self, y_pred: NDArray<f64>)  {
         // self.bias = self.bias - db; 
     }
 
-    fn shrinkage_penalty(&self) -> f64 {
+    pub fn shrinkage_penalty(&self) -> f64 {
         let mut sum = 0.0; 
         for item in self.weights.values() {
             sum += item.powf(2.0);
@@ -82,9 +82,6 @@ impl Ridge {
             }
         }
     }
-
-
-
 
 
 }
