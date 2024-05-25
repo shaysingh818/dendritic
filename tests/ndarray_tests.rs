@@ -211,7 +211,7 @@ mod ndarray_tests {
             ]
         ).unwrap();
 
-        let mut batch_size: usize = 2;
+        let batch_size: usize = 2;
         let x_batch = x.batch(batch_size).unwrap();
 
         let expected_batches: Vec<Vec<f64>> = vec![
@@ -504,6 +504,53 @@ mod ops {
                 assert_eq!(err, "Indice order must be same length as rank"); 
             }
         }
+
+    }
+
+
+    #[test]
+    fn test_sum_axis() {
+
+        /* set 2d array */
+        let x: NDArray<f64> = NDArray::load("data/linear_testing_data/inputs").unwrap();
+        let y: NDArray<f64> = NDArray::load("data/linear_testing_data/outputs").unwrap();
+        let w: NDArray<f64> = NDArray::load("data/linear_testing_data/weights").unwrap();
+        let b: NDArray<f64> = NDArray::load("data/linear_testing_data/bias").unwrap();
+
+        let x_sum = x.sum_axis(1).unwrap(); 
+        let expected_x_vals = vec![11.0, 20.0, 29.0];
+        let expected_shape: Vec<usize> = vec![1, 3];
+
+        assert_eq!(x_sum.values(), &expected_x_vals);
+        assert_eq!(x_sum.shape(), &expected_shape);
+        assert_eq!(x_sum.rank(), 2); 
+
+        let y_sum = y.sum_axis(1).unwrap();
+        let expected_y_shape: Vec<usize> = vec![1, 1];
+        let expected_y_vals = vec![70.0];
+
+        assert_eq!(y_sum.shape(), &expected_y_shape);
+        assert_eq!(y_sum.values(), &expected_y_vals);
+        assert_eq!(y_sum.rank(), 2); 
+
+        // test linear operation 
+        let dot_op = x.dot(w).unwrap();
+        let scale_op = dot_op.scale_add(b).unwrap();
+        let error = y.subtract(scale_op).unwrap(); 
+
+        let db = error.sum_axis(1).unwrap();
+        let expected_db_shape: Vec<usize> = vec![1, 1];
+        let expected_db_vals = vec![65.0];
+
+        assert_eq!(db.shape(), &expected_db_shape);
+        assert_eq!(db.values(), &expected_db_vals);
+        assert_eq!(db.rank(), 2); 
+
+
+        // zero axis sum
+        let _y_zero_axis_sum = y.sum_axis(0).unwrap();
+
+
 
     }
 }

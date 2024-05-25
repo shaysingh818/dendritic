@@ -6,7 +6,6 @@ use steepgrad::loss;
 mod linear {
 
     use crate::ndarray::ndarray::NDArray;
-    use crate::ndarray::ops::*;
     use crate::loss::mse::*;
     use crate::regression::linear::*;
 
@@ -34,13 +33,13 @@ mod linear {
         model.set_loss(mse); 
 
         let pre_train_results = model.predict(x.clone()).unwrap();
-        let loss_before_train = mse(y.clone(), pre_train_results).unwrap();
+        let loss_before_train = mse(&y, &pre_train_results).unwrap();
         assert_eq!(loss_before_train, 204.0);
 
         model.train(1000, false, 0);
 
         let result = model.predict(x).unwrap();
-        let loss_after_train = mse(y.clone(), result).unwrap();
+        let loss_after_train = mse(&y, &result).unwrap();
         let train_loss_results = loss_after_train < 0.01;
         assert_eq!(train_loss_results, true); 
 

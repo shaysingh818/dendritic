@@ -8,9 +8,7 @@ mod frame_test {
     use std::sync::Arc;
     use arrow::csv::*;
     use arrow_schema::{Schema, Field, DataType};
-    use arrow_array::types::ByteArrayType;
-    use arrow_array::cast::AsArray;
-    use arrow_array::array::{StringArray, Float64Array};
+    use arrow_array::array::{Float64Array};
 
     #[test]
     fn test_create_frame() {
