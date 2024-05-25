@@ -9,7 +9,8 @@ pub trait Ops {
     fn load(filepath: &str) -> std::io::Result<NDArray<f64>>;
     fn apply(&self, loss_func: fn(value: f64) -> f64) -> Result<NDArray<f64>, String>;  
     fn mult(&self, other: NDArray<f64>) -> Result <NDArray<f64 >, String>; 
-    fn add(&self, other: NDArray<f64>) -> Result <NDArray<f64 >, String>; 
+    fn add(&self, other: NDArray<f64>) -> Result <NDArray<f64 >, String>;
+    fn sum_axis(&self, axis: usize) -> Result<NDArray<f64>, String>; 
     fn subtract(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
     fn dot(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
     fn scale_add(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
@@ -144,6 +145,48 @@ impl Ops for NDArray<f64> {
 
         Ok(result)
     }
+
+
+    fn sum_axis(&self, axis: usize) -> Result<NDArray<f64>, String> {
+
+        if axis > self.rank()-1 {
+            return Err("Sum Axis: Axis greater than rank".to_string())
+        }
+
+        if self.rank() > 2 {
+            return Err("Sum Axis: Not supported for rank 2 or higher values yet".to_string());
+        }
+
+        let mut axis_shape = axis; 
+        if axis == 0 {
+            axis_shape = 1; 
+        }
+
+        let sum_stride = self.size() / self.shape()[axis];
+        let axis_stride = self.shape()[axis.clone()];
+        let result_shape: Vec<usize> = vec![axis_shape, axis_stride];
+        let mut result = NDArray::new(result_shape.clone()).unwrap();
+
+        let mut idx = 0; 
+        let mut sum: f64 = 0.0; 
+        let mut stride_counter = 0; 
+        for item in self.values() {
+
+            if stride_counter == sum_stride {
+                let _ = result.set_idx(idx, sum);  
+                stride_counter = 0;
+                sum = 0.0;
+                idx += 1;  
+            }
+
+            sum += item;
+            stride_counter += 1;
+        }
+
+        let _ = result.set_idx(idx, sum); 
+        Ok(result)
+    } 
+
 
     /// Perform dot product of current NDArray on another NDArray instance
     fn dot(&self, value: NDArray<f64>) -> Result<NDArray<f64>, String> {

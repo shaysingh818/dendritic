@@ -11,7 +11,7 @@ pub struct Linear {
     weights: NDArray<f64>, 
     bias: f64,
     learning_rate: f64,
-    loss_function: fn(y_true: NDArray<f64>, y_pred: NDArray<f64>) -> Result<f64, String>,
+    loss_function: fn(y_true: &NDArray<f64>, y_pred: &NDArray<f64>) -> Result<f64, String>,
     model_loss: f64
 }
 
@@ -36,7 +36,7 @@ impl Linear {
         })
     }
 
-    pub fn set_loss(&mut self, loss_func: fn(y_true: NDArray<f64>, y_pred: NDArray<f64>) -> Result<f64, String>) {
+    pub fn set_loss(&mut self, loss_func: fn(y_true: &NDArray<f64>, y_pred: &NDArray<f64>) -> Result<f64, String>) {
         self.loss_function = loss_func;
     }
 
@@ -80,8 +80,8 @@ impl Linear {
 
         if batch_size > 0 {
 
-            let mut input_train: Vec<NDArray<f64>> = self.features.batch(batch_size).unwrap();
-            let mut output_train: Vec<NDArray<f64>> = self.outputs.batch(batch_size).unwrap();
+            let input_train: Vec<NDArray<f64>> = self.features.batch(batch_size).unwrap();
+            let output_train: Vec<NDArray<f64>> = self.outputs.batch(batch_size).unwrap();
 
             for epoch in 0..epochs {
 
@@ -91,10 +91,10 @@ impl Linear {
                     self.features = batch.clone(); 
                     self.outputs = output_train[batch_index].clone();
 
-                    let mut y_pred = self.forward().unwrap();
-                    loss = (self.loss_function)(y_pred.clone(), self.outputs.clone()).unwrap(); 
+                    let y_pred = self.forward().unwrap();
+                    loss = (self.loss_function)(&y_pred, &self.outputs).unwrap(); 
                     self.weight_update(y_pred.clone());
-                    self.bias_update(y_pred.clone()); 
+                    self.bias_update(y_pred); 
                     batch_index += 1; 
                 }
 
@@ -107,12 +107,12 @@ impl Linear {
 
         } else {
 
-            let mut y_pred = self.forward().unwrap();
+            self.forward().unwrap();
             for epoch in 0..epochs {
-                y_pred = self.forward().unwrap(); 
-                let loss = (self.loss_function)(y_pred.clone(), self.outputs.clone()).unwrap(); 
+                let  y_pred = self.forward().unwrap(); 
+                let loss = (self.loss_function)(&y_pred, &self.outputs).unwrap(); 
                 self.weight_update(y_pred.clone());
-                self.bias_update(y_pred.clone()); 
+                self.bias_update(y_pred); 
 
                 if log_output {
                     println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);

@@ -11,7 +11,7 @@ pub struct Ridge {
     weights: NDArray<f64>, 
     bias: f64,
     learning_rate: f64,
-    loss_function: fn(y_true: NDArray<f64>, y_pred: NDArray<f64>) -> Result<f64, String>,
+    loss_function: fn(y_true: &NDArray<f64>, y_pred: &NDArray<f64>) -> Result<f64, String>,
     model_loss: f64,
     lambda: f64
 }
@@ -46,14 +46,11 @@ impl Ridge {
         Ok(bias_add)
     }
 
-    pub fn weight_update(&mut self, y_pred: NDArray<f64>) {
-
-
-
+    pub fn weight_update(&mut self, _y_pred: NDArray<f64>) {
         // self.weights = self.weights.subtract(d_w).unwrap(); 
     }
 
-    pub fn bias_update(&mut self, y_pred: NDArray<f64>)  {
+    pub fn bias_update(&mut self, _y_pred: NDArray<f64>)  {
         // self.bias = self.bias - db; 
     }
 
@@ -67,15 +64,15 @@ impl Ridge {
 
 
     pub fn train(&mut self, epochs: usize, log_output: bool) {
-        let mut y_pred = self.forward().unwrap();
+        self.forward().unwrap();
         for epoch in 0..epochs {
-            y_pred = self.forward().unwrap(); 
-            let mse = (self.loss_function)(y_pred.clone(), self.outputs.clone()).unwrap();
+            let y_pred = self.forward().unwrap(); 
+            let mse = (self.loss_function)(&y_pred, &self.outputs).unwrap();
             let penalty =  self.shrinkage_penalty();
             let loss = mse + penalty; 
 
             self.weight_update(y_pred.clone());
-            self.bias_update(y_pred.clone()); 
+            self.bias_update(y_pred); 
 
             if log_output {
                 println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);

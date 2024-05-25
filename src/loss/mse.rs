@@ -1,7 +1,7 @@
 use crate::ndarray::ndarray::NDArray;
 
 
-pub fn mse(y_true: NDArray<f64>, y_pred: NDArray<f64>) -> Result<f64, String>  {
+pub fn mse(y_true: &NDArray<f64>, y_pred: &NDArray<f64>) -> Result<f64, String>  {
 
     if y_true.size() != y_pred.size() {
         return Err("Size of y values do not match".to_string());

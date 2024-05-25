@@ -4,13 +4,11 @@ use arrow::json::*;
 use std::sync::Arc;
 use arrow_array::RecordBatch;
 use arrow_schema::{Schema, Field, DataType};
-use arrow_array::array::{StringArray, Float64Array};
+use arrow_array::array::{Float64Array};
 
 
 use crate::ndarray::ndarray::NDArray;
-use crate::ndarray::ops::*;
 use crate::regression::logistic::Logistic;
-use crate::loss::mse::*;
 
 
 #[derive(Serialize)]
@@ -140,7 +138,7 @@ impl SuicideDetectionModel {
             .collect();
 
 
-        let mut suicides: Vec<f64> = batch.column(3)
+        let suicides: Vec<f64> = batch.column(3)
             .as_any()
             .downcast_ref::<Float64Array>()
             .unwrap()
