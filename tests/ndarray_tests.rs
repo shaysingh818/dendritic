@@ -548,7 +548,8 @@ mod ops {
 
 
         // zero axis sum
-        let _y_zero_axis_sum = y.sum_axis(0).unwrap();
+        let y_zero_axis_sum = y.sum_axis(1).unwrap();
+        println!("{:?}", y_zero_axis_sum.values()); 
 
 
 
