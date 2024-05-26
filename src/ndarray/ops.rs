@@ -157,14 +157,17 @@ impl Ops for NDArray<f64> {
             return Err("Sum Axis: Not supported for rank 2 or higher values yet".to_string());
         }
 
-        let mut axis_shape = axis; 
         if axis == 0 {
-            axis_shape = 1; 
+            let mut result = NDArray::new(vec![1,1]).unwrap();
+            let sum: f64 = self.values().iter().sum();
+            let _ = result.set_idx(0, sum);
+            return Ok(result);
         }
+
 
         let sum_stride = self.size() / self.shape()[axis];
         let axis_stride = self.shape()[axis.clone()];
-        let result_shape: Vec<usize> = vec![axis_shape, axis_stride];
+        let result_shape: Vec<usize> = vec![axis, axis_stride];
         let mut result = NDArray::new(result_shape.clone()).unwrap();
 
         let mut idx = 0; 

@@ -548,10 +548,13 @@ mod ops {
 
 
         // zero axis sum
-        let y_zero_axis_sum = y.sum_axis(1).unwrap();
-        println!("{:?}", y_zero_axis_sum.values()); 
+        let y_zero_axis_sum = y.sum_axis(0).unwrap();
+        let expected_yz_shape: Vec<usize> = vec![1, 1];
+        let expected_yz_vals = vec![70.0];
 
-
+        assert_eq!(y_zero_axis_sum.shape(), &expected_yz_shape);
+        assert_eq!(y_zero_axis_sum.values(), &expected_yz_vals);
+        assert_eq!(y_zero_axis_sum.rank(), 2);
 
     }
 }

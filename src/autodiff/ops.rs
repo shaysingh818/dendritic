@@ -42,7 +42,7 @@ where
 }
 
 
-impl <RHS, LHS>Node for Dot<RHS, LHS>
+impl <RHS, LHS> Node for Dot<RHS, LHS>
 where
     RHS: Node,
     LHS: Node,    
@@ -65,13 +65,13 @@ where
         self.gradient = Value::new(&upstream_gradient).into();
 
         let rhs_t = self.rhs().value().transpose().unwrap();
-        let lhs_t = self.lhs().value().transpose().unwrap();
+        let lhs_t = self.lhs().value().transpose().unwrap();   
 
         let rhs_grad = rhs_t.dot(upstream_gradient.clone()).unwrap();
         let lhs_grad = upstream_gradient.dot(lhs_t).unwrap();
 
-        self.rhs().backward(lhs_grad);
-        self.lhs().backward(rhs_grad);
+        self.rhs().backward(rhs_grad);
+        self.lhs().backward(lhs_grad);
 
     }
 
