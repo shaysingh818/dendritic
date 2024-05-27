@@ -188,8 +188,7 @@ mod autodiff_test {
 
             let y_pred = linear.value();
             let loss = mse(&y, &y_pred);
-            let error = y_pred.subtract(y.clone()).unwrap();
-            println!("Loss: {:?}", loss); 
+            let error = y_pred.subtract(y.clone()).unwrap(); 
 
             linear.backward(error);
 

@@ -110,7 +110,7 @@ impl Linear {
             linear.forward();
 
             let y_pred = linear.value();
-            let loss = mse(&self.outputs.val(), &y_pred);
+            let loss = (self.loss_function)(&self.outputs.val(), &y_pred);
             let error = y_pred.subtract(self.outputs.val()).unwrap();
 
             linear.backward(error);
@@ -169,7 +169,7 @@ impl Linear {
                 linear.forward();
 
                 let y_pred = linear.value();
-                loss = mse(&self.outputs.val(), &y_pred).unwrap();
+                loss = (self.loss_function)(&self.outputs.val(), &y_pred).unwrap();
                 let error = y_pred.subtract(self.outputs.val()).unwrap();
 
                 linear.backward(error);

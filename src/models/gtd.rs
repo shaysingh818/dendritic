@@ -163,7 +163,7 @@ impl SuicideDetectionModel {
         let batch = self.create_batch(); 
         let (inputs, outputs) = self.process_features(batch);
         self.model = Logistic::new(inputs, outputs, 0.1).unwrap();
-        self.model.train(5000, true, 10);
+        self.model.train(5000, true);
     }
 
     pub fn save_parameters(&mut self, filepath: &str) -> std::io::Result<()> {
