@@ -228,10 +228,9 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
         let mut start_index = 0; 
         let mut end_index = start_index + dim_size;
 
-        let mut temp_vec: Vec<T> = Vec::new();
         let mut batches: Vec<NDArray<T>> = Vec::new();
         
-        for item in 0..self.size() {
+        for _item in 0..self.size() {
 
             if end_index >= self.size()+1 {
                 break;

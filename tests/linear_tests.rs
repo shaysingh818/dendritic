@@ -12,37 +12,151 @@ mod linear {
 
 
     #[test]
-    fn linear_model() {
+    fn test_linear_model() {
 
-        let x: NDArray<f64> = NDArray::array(
-            vec![5, 3], 
-            vec![
-                1.0, 2.0, 3.0,
-                2.0, 3.0, 4.0, 
-                3.0, 4.0, 5.0,
-                4.0, 5.0, 6.0, 
-                5.0, 6.0, 7.0
-            ]
+        let x_path = "data/linear_testing_data/inputs";
+        let y_path = "data/linear_testing_data/outputs"; 
+
+        let x: NDArray<f64> = NDArray::load(x_path).unwrap();
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
+        let model = Linear::new(
+            x.clone(), y.clone(), 0.01
         ).unwrap();
 
-        let y: NDArray<f64> = NDArray::array(
-            vec![5, 1], 
-            vec![10.0, 12.0, 14.0, 16.0, 18.0]
-        ).unwrap();
+        assert_eq!(model.features.val().shape(), x.shape()); 
+        assert_eq!(model.features.val().rank(), 2); 
+        assert_eq!(
+            model.features.val().values(), 
+            x.values()
+        );
 
+        assert_eq!(model.outputs.val().shape(), y.shape()); 
+        assert_eq!(model.outputs.val().rank(), 2); 
+        assert_eq!(
+            model.outputs.val().values(), 
+            y.values()
+        );
+
+        let expected_shape = vec![model.features.val().shape()[1], 1];
+        assert_eq!(model.weights.val().shape(), &expected_shape); 
+        assert_eq!(model.weights.val().rank(), 2);
+        for item in model.weights.val().values() {
+            let expected: f64 = 0.0;
+            assert_eq!(item, &expected); 
+        }
+
+        let expected_shape = vec![1, 1];
+        assert_eq!(model.bias.val().shape(), &expected_shape); 
+        assert_eq!(model.bias.val().rank(), 2);
+        for item in model.bias.val().values() {
+            let expected: f64 = 0.0;
+            assert_eq!(item, &expected); 
+        }
+    }
+
+    #[test]
+    fn test_linear_train() {
+    
+        let x_path = "data/linear_testing_data/inputs";
+        let y_path = "data/linear_testing_data/outputs"; 
+
+        let x: NDArray<f64> = NDArray::load(x_path).unwrap();
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
         let mut model = Linear::new(x.clone(), y.clone(), 0.01).unwrap();
-        model.set_loss(mse); 
 
-        let pre_train_results = model.predict(x.clone()).unwrap();
-        let loss_before_train = mse(y.clone(), pre_train_results).unwrap();
-        assert_eq!(loss_before_train, 204.0);
+        let weights_binding = model.weights.val(); 
+        let bias_binding = model.bias.val();
+        let weights_prior = weights_binding.values(); 
+        let bias_prior = bias_binding.values(); 
 
-        model.train(1000, false, 0);
+        model.train(1000, false);
 
-        let result = model.predict(x).unwrap();
-        let loss_after_train = mse(y.clone(), result).unwrap();
-        let train_loss_results = loss_after_train < 0.01;
-        assert_eq!(train_loss_results, true); 
+        let w_binding = model.weights.val(); 
+        let b_binding = model.bias.val(); 
+        let weights_after = w_binding.values(); 
+        let bias_after = b_binding.values(); 
+
+        assert_ne!(weights_prior, weights_after); 
+        assert_ne!(bias_prior, bias_after);
+
+        let results = model.predict(x);
+        let loss = mse(&results, &y).unwrap(); 
+        let loss_condition = loss < 0.1; 
+        assert_eq!(loss_condition, true); 
+    }
+
+    #[test]
+    fn test_linear_sgd() {
+
+        let x_path = "data/linear_testing_data/inputs";
+        let y_path = "data/linear_testing_data/outputs"; 
+
+        let batch_size: usize = 2; 
+        let x: NDArray<f64> = NDArray::load(x_path).unwrap();
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
+        let mut model = Linear::new(
+            x.clone(), y.clone(), 0.01
+        ).unwrap();
+
+        let weights_binding = model.weights.val(); 
+        let bias_binding = model.bias.val();
+        let weights_prior = weights_binding.values(); 
+        let bias_prior = bias_binding.values(); 
+
+        model.sgd(500, false, 2);
+
+        let w_binding = model.weights.val(); 
+        let b_binding = model.bias.val(); 
+        let weights_after = w_binding.values(); 
+        let bias_after = b_binding.values();
+
+        assert_ne!(weights_prior, weights_after); 
+        assert_ne!(bias_prior, bias_after);
+        let x_train = x.batch(batch_size).unwrap();
+        let y_train = y.batch(batch_size).unwrap();
+
+        let results = model.predict(x_train[1].clone());
+        let loss = mse(&results, &y_train[1].clone()).unwrap(); 
+        let loss_condition = loss < 0.1; 
+        assert_eq!(loss_condition, true); 
 
     }
+
+    
+    #[test]
+    fn test_linear_save_load() -> std::io::Result<()> {
+
+        let model_path = "data/models/linear";
+        let x_path = "data/linear_testing_data/inputs";
+        let y_path = "data/linear_testing_data/outputs"; 
+
+        let batch_size: usize = 2; 
+        let x: NDArray<f64> = NDArray::load(x_path).unwrap();
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
+
+        let mut model = Linear::new(
+            x.clone(), y.clone(), 0.01
+        ).unwrap();
+
+        model.sgd(500, false, 2);
+        model.save(model_path).unwrap();
+
+
+        let x_train = x.batch(batch_size).unwrap();
+        let y_train = y.batch(batch_size).unwrap();
+
+        let mut loaded_model = Linear::load(
+            model_path, x.clone(), y.clone(), 0.01
+        ).unwrap();
+
+        let results = loaded_model.predict(x_train[1].clone());
+        let loss = mse(&results, &y_train[1].clone()).unwrap(); 
+        let loss_condition = loss < 0.1; 
+        assert_eq!(loss_condition, true); 
+
+        Ok(())
+
+    }
+
+
 }
