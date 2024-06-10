@@ -1,6 +1,7 @@
 use steepgrad::loss; 
 use steepgrad::ndarray;
 use steepgrad::autodiff;
+use steepgrad::regression;
 
 #[cfg(test)]
 mod autodiff_test {
@@ -10,13 +11,18 @@ mod autodiff_test {
     use crate::autodiff::node::*; 
     use crate::autodiff::ops::*; 
     use crate::loss::mse::*;
+    use crate::regression::ridge::*;
 
 
     #[test]
     fn test_value_instance() {
 
-        let y: NDArray<f64> = NDArray::load("data/linear_testing_data/outputs").unwrap();
-        let x: NDArray<f64> = NDArray::load("data/linear_testing_data/inputs").unwrap(); 
+        let x_path = "data/linear_testing_data/inputs"; 
+        let y_path = "data/linear_testing_data/outputs";
+
+        let x: NDArray<f64> = NDArray::load(x_path).unwrap();
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
+
         let mut x_value = Value::new(&x); 
 
         let expected_shape = vec![5, 3]; 
@@ -45,9 +51,14 @@ mod autodiff_test {
     #[test]
     fn test_dot_node() {
 
-        let x: NDArray<f64> = NDArray::load("data/linear_testing_data/inputs").unwrap(); 
-        let w: NDArray<f64> = NDArray::load("data/linear_testing_data/weights").unwrap();
-        let y: NDArray<f64> = NDArray::load("data/linear_testing_data/outputs").unwrap();
+        let x_path = "data/linear_testing_data/inputs"; 
+        let y_path = "data/linear_testing_data/outputs";
+        let w_path = "data/linear_testing_data/weights";
+
+        let x: NDArray<f64> = NDArray::load(x_path).unwrap();
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
+        let w: NDArray<f64> = NDArray::load(w_path).unwrap();
+
         let x_value = Value::new(&x); 
         let w_value = Value::new(&w); 
 
@@ -84,8 +95,12 @@ mod autodiff_test {
     #[test]
     fn test_scale_add_node() {
 
-        let y: NDArray<f64> = NDArray::load("data/linear_testing_data/outputs").unwrap();
-        let b: NDArray<f64> = NDArray::load("data/linear_testing_data/bias").unwrap();
+        let y_path = "data/linear_testing_data/outputs"; 
+        let b_path = "data/linear_testing_data/bias";
+
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
+        let b: NDArray<f64> = NDArray::load(b_path).unwrap();
+
         let y_value = Value::new(&y); 
         let b_value = Value::new(&b); 
 
@@ -112,10 +127,15 @@ mod autodiff_test {
     #[test]
     fn test_linear_node_mut() {
 
-        let x: NDArray<f64> = NDArray::load("data/linear_testing_data/inputs").unwrap();
-        let y: NDArray<f64> = NDArray::load("data/linear_testing_data/outputs").unwrap();
-        let w: NDArray<f64> = NDArray::load("data/linear_testing_data/weights").unwrap();
-        let b: NDArray<f64> = NDArray::load("data/linear_testing_data/bias").unwrap();
+        let x_path = "data/linear_testing_data/inputs"; 
+        let y_path = "data/linear_testing_data/outputs";
+        let w_path = "data/linear_testing_data/weights";
+        let b_path = "data/linear_testing_data/bias";
+
+        let x: NDArray<f64> = NDArray::load(x_path).unwrap();
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
+        let w: NDArray<f64> = NDArray::load(w_path).unwrap();
+        let b: NDArray<f64> = NDArray::load(b_path).unwrap();
 
         let inputs = Value::new(&x);
         let weights = Value::new(&w);
@@ -147,25 +167,25 @@ mod autodiff_test {
         let expected_error: Vec<f64> = vec![9.0, 11.0, 13.0, 15.0, 17.0];   
         assert_eq!(error.values(), &expected_error); 
 
-        /*
+    
         linear.backward(error);
         let expected_w_grad = vec![215.0, 280.0, 345.0];
-        assert_eq!(weights.grad().values(), &expected_w_grad);
+        assert_eq!(inputs.grad().values(), &expected_w_grad);
  
-        for item in inputs.grad().values() {
-            let expected: f64 = 0.0;
-            assert_eq!(item, &expected); 
-        } */
-
     }
 
     #[test]
     fn test_linear_graph() {
 
-        let x: NDArray<f64> = NDArray::load("data/linear_testing_data/inputs").unwrap();
-        let y: NDArray<f64> = NDArray::load("data/linear_testing_data/outputs").unwrap();
-        let w: NDArray<f64> = NDArray::load("data/linear_testing_data/weights").unwrap();
-        let b: NDArray<f64> = NDArray::load("data/linear_testing_data/bias").unwrap();
+        let x_path = "data/linear_testing_data/inputs"; 
+        let y_path = "data/linear_testing_data/outputs";
+        let w_path = "data/linear_testing_data/weights";
+        let b_path = "data/linear_testing_data/bias";
+
+        let x: NDArray<f64> = NDArray::load(x_path).unwrap();
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
+        let w: NDArray<f64> = NDArray::load(w_path).unwrap();
+        let b: NDArray<f64> = NDArray::load(b_path).unwrap();
 
         // temp loss vars
         let mut first_loss = 0.0; 
@@ -216,4 +236,84 @@ mod autodiff_test {
         assert_eq!(loss_condition, true); 
 
     }
+
+    #[test]
+    fn test_regularization_forward() {
+
+        let w_path = "data/ridge_testing_data/weights";
+        let w: NDArray<f64> = NDArray::load(w_path).unwrap();
+
+        let lambda: NDArray<f64> = NDArray::array(
+            vec![1, 1], vec![2.0]
+        ).unwrap();
+
+
+        let expected_shape = vec![1, 1];
+        let expected_val = vec![24.0]; 
+        let weights = Value::new(&w);
+        let lambda_val = Value::new(&lambda); 
+
+        let mut reg = Regularization::new(
+            weights.clone(),
+            lambda_val.clone(),
+            0.01
+        );
+
+        reg.forward();
+        let output_binding = reg.output.borrow().clone();
+        let outputs = output_binding.val();
+
+        assert_eq!(outputs.rank(), 2); 
+        assert_eq!(outputs.values(), &expected_val);
+        assert_eq!(outputs.shape(), &expected_shape); 
+
+    }
+
+
+    #[test]
+    fn test_regularization_backward() {
+
+        let y_path = "data/linear_testing_data/outputs";
+        let w_path = "data/ridge_testing_data/weights";
+        let w: NDArray<f64> = NDArray::load(w_path).unwrap();
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
+
+        let learning_rate = 0.01;
+        let lambda: NDArray<f64> = NDArray::array(
+            vec![1, 1], vec![2.0]
+        ).unwrap();
+
+        let weights = Value::new(&w);
+        let lambda_val = Value::new(&lambda); 
+
+        let mut reg = Regularization::new(
+            weights.clone(),
+            lambda_val.clone(),
+            0.01
+        );
+
+        let expected_shape = vec![1, 1];
+        let expected_val = vec![24.0]; 
+        let expected_grad_shape = vec![3, 1];
+        let expected_grad_values = vec![0.016, 0.016, 0.016];
+
+        reg.forward();
+        let output_binding = reg.output.borrow().clone();
+        let outputs = output_binding.val();
+
+        assert_eq!(outputs.rank(), 2); 
+        assert_eq!(outputs.values(), &expected_val);
+        assert_eq!(outputs.shape(), &expected_shape); 
+
+        reg.backward(y);
+        let grad = reg.grad();
+
+        assert_eq!(grad.rank(), 2); 
+        assert_eq!(grad.values(), &expected_grad_values);
+        assert_eq!(grad.shape(), &expected_grad_shape); 
+
+    }
+
+
+
 }

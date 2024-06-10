@@ -5,15 +5,22 @@ use std::io::{BufWriter, Read, Write};
 /// Generic operations performed for NDArray with f64 type
 pub trait Ops {
 
+    // mutator ops
+    fn square(&self) -> Result<NDArray<f64>, String>;
+    fn sum(&self) -> Result<NDArray<f64>, String>; 
+
     fn save(&self, filepath: &str) -> std::io::Result<()>; 
     fn load(filepath: &str) -> std::io::Result<NDArray<f64>>;
-    fn apply(&self, loss_func: fn(value: f64) -> f64) -> Result<NDArray<f64>, String>;  
+    fn apply(&self, loss_func: fn(value: f64) -> f64) -> Result<NDArray<f64>, String>; 
+    fn axis(&self, axis: usize) -> Result<Vec<NDArray<f64>>, String>;  
     fn mult(&self, other: NDArray<f64>) -> Result <NDArray<f64 >, String>; 
     fn add(&self, other: NDArray<f64>) -> Result <NDArray<f64 >, String>;
     fn sum_axis(&self, axis: usize) -> Result<NDArray<f64>, String>; 
     fn subtract(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
     fn dot(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
     fn scale_add(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
+ 
+    fn scale_mult(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
     fn transpose(self) -> Result<NDArray<f64>, String>;
     fn permute(self, indice_order: Vec<usize>) -> Result<NDArray<f64>, String>;  
     fn norm(&self, p: usize) -> Result<NDArray<f64>, String>;
@@ -70,6 +77,48 @@ impl Ops for NDArray<f64> {
         Ok(result)
     }
 
+
+    fn axis(&self, axis: usize) -> Result<Vec<NDArray<f64>>, String> {
+
+        if axis > self.rank() {
+            return Err("Axis: axis is greater than rank".to_string());
+        }
+
+        let results: Vec<NDArray<f64>> = Vec::new(); 
+        let axis_result_count = self.shape()[axis]; 
+        let stride = 0;
+
+
+        Ok(results)
+
+    }
+
+
+    fn square(&self) -> Result<NDArray<f64>, String> {
+
+        let mut result = NDArray::new(self.shape().to_vec()).unwrap();
+        for index in 0..self.size() {
+            let value = self.values()[index]; 
+            let raised = value.powf(2.0); 
+            let _ = result.set_idx(index, raised);
+        }
+
+        Ok(result)
+    }
+
+
+    fn sum(&self) -> Result<NDArray<f64>, String> {
+
+        let sum_val = self.values().iter().sum();
+        let mut result = NDArray::array(
+            vec![1, 1],
+            vec![sum_val]
+        ).unwrap();
+
+        Ok(result)
+
+    }
+
     /// Add two NDArray's and get resulting NDArray instance
     fn add(&self, value: NDArray<f64>) -> Result<NDArray<f64>, String> {
 
@@ -101,13 +150,14 @@ impl Ops for NDArray<f64> {
 
         /* rank mismatch */
         if self.rank() != other.rank() {
-            return Err("Add: Rank Mismatch".to_string());
+            return Err("Mult: Rank Mismatch".to_string());
         }
 
         let curr_shape: &Vec<usize> = self.shape();
         let mut result = NDArray::new(curr_shape.to_vec()).unwrap();
         if self.size() != other.values().len() {
-            return Err("Add: Size mismatch for arrays".to_string());
+            println!("{:?} {:?}", self.size(), other.values().len()); 
+            return Err("Mult: Size mismatch for arrays".to_string());
         }
 
         let mut counter = 0; 
@@ -271,6 +321,33 @@ impl Ops for NDArray<f64> {
         Ok(result)
 
     }
+
+
+    fn scale_mult(&self, value: NDArray<f64>) -> Result<NDArray<f64>, String> {
+    
+        let value_shape = value.shape();
+        if value_shape[0] != 1 {
+            return Err("Scale add must have a vector dimension (1, N)".to_string());
+        }
+
+        let mut total_counter = 0; 
+        let mut counter = 0;
+        let vector_values = value.values();
+        let curr_shape: &Vec<usize> = self.shape();
+        let mut result = NDArray::new(curr_shape.to_vec()).unwrap();
+        for item in self.values() {
+            if counter == value.size() {
+                counter = 0;
+            }
+             let add_result = item * vector_values[counter];
+             let _ = result.set_idx(total_counter, add_result);
+             total_counter += 1; 
+        }
+
+        Ok(result)
+    }
+
+
 
     /// Tranpose current NDArray instance, works only on rank 2 values
     fn transpose(self) -> Result<NDArray<f64>, String> {
