@@ -8,6 +8,8 @@ pub trait Ops {
     // mutator ops
     fn square(&self) -> Result<NDArray<f64>, String>;
     fn sum(&self) -> Result<NDArray<f64>, String>; 
+    fn abs(&self) -> Result<NDArray<f64>, String>;
+    fn signum(&self) -> Result<NDArray<f64>, String>;
 
     fn save(&self, filepath: &str) -> std::io::Result<()>; 
     fn load(filepath: &str) -> std::io::Result<NDArray<f64>>;
@@ -118,6 +120,39 @@ impl Ops for NDArray<f64> {
         Ok(result)
 
     }
+
+
+    fn abs(&self) -> Result<NDArray<f64>, String> {
+
+        let abs: Vec<f64> = self.values().into_iter().map(
+            |val| val.abs()
+        ).collect();
+
+        let mut result = NDArray::array(
+            self.shape().to_vec(), abs
+        ).unwrap();
+
+        Ok(result)
+    }
+
+
+    fn signum(&self) -> Result<NDArray<f64>, String> {
+
+        let mut result = NDArray::new(self.shape().to_vec()).unwrap();
+        for index in 0..self.size() {
+            let value = self.values()[index]; 
+            if value < 0.0 {
+                let _ = result.set_idx(index, -1.0);
+            } else if value > 0.0 {
+                let _ = result.set_idx(index, 1.0);
+            } else { 
+                let _ = result.set_idx(index, 0.0);
+            }
+        }
+
+        Ok(result)
+    }
+
 
     /// Add two NDArray's and get resulting NDArray instance
     fn add(&self, value: NDArray<f64>) -> Result<NDArray<f64>, String> {

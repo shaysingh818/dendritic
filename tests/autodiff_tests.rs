@@ -1,7 +1,6 @@
 use steepgrad::loss; 
 use steepgrad::ndarray;
 use steepgrad::autodiff;
-use steepgrad::regression;
 
 #[cfg(test)]
 mod autodiff_test {
@@ -9,9 +8,9 @@ mod autodiff_test {
     use crate::ndarray::ndarray::NDArray;
     use crate::ndarray::ops::*;
     use crate::autodiff::node::*; 
-    use crate::autodiff::ops::*; 
+    use crate::autodiff::ops::*;
+    use crate::autodiff::regularizers::*; 
     use crate::loss::mse::*;
-    use crate::regression::ridge::*;
 
 
     #[test]
@@ -238,7 +237,7 @@ mod autodiff_test {
     }
 
     #[test]
-    fn test_regularization_forward() {
+    fn test_l2_regularization_forward() {
 
         let w_path = "data/ridge_testing_data/weights";
         let w: NDArray<f64> = NDArray::load(w_path).unwrap();
@@ -253,7 +252,7 @@ mod autodiff_test {
         let weights = Value::new(&w);
         let lambda_val = Value::new(&lambda); 
 
-        let mut reg = Regularization::new(
+        let mut reg = L2Regularization::new(
             weights.clone(),
             lambda_val.clone(),
             0.01
@@ -271,7 +270,7 @@ mod autodiff_test {
 
 
     #[test]
-    fn test_regularization_backward() {
+    fn test_l2_regularization_backward() {
 
         let y_path = "data/linear_testing_data/outputs";
         let w_path = "data/ridge_testing_data/weights";
@@ -286,10 +285,10 @@ mod autodiff_test {
         let weights = Value::new(&w);
         let lambda_val = Value::new(&lambda); 
 
-        let mut reg = Regularization::new(
+        let mut reg = L2Regularization::new(
             weights.clone(),
             lambda_val.clone(),
-            0.01
+            learning_rate
         );
 
         let expected_shape = vec![1, 1];
@@ -314,6 +313,51 @@ mod autodiff_test {
 
     }
 
+
+    #[test]
+    fn test_l1_regularization_forward() {
+
+        let y_path = "data/linear_testing_data/outputs";
+        let w_path = "data/ridge_testing_data/weights";
+
+        let w: NDArray<f64> = NDArray::load(w_path).unwrap();
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
+
+        let lambda: NDArray<f64> = NDArray::array(
+            vec![1, 1], vec![2.0]
+        ).unwrap();
+
+        let expected_shape = vec![1, 1];
+        let expected_val = vec![12.0];
+        let expected_grad_shape = vec![3, 1];
+        let expected_grad = vec![0.004, 0.004, 0.004];
+
+        let weights = Value::new(&w);
+        let lambda_val = Value::new(&lambda);
+        let learning_rate = 0.01;
+
+        let mut reg = L1Regularization::new(
+            weights.clone(),
+            lambda_val.clone(),
+            learning_rate
+        );
+
+        reg.forward();
+        let output_binding = reg.output.borrow().clone();
+        let outputs = output_binding.val();
+
+        assert_eq!(outputs.rank(), 2); 
+        assert_eq!(outputs.values(), &expected_val);
+        assert_eq!(outputs.shape(), &expected_shape); 
+
+        reg.backward(y);
+        let grad = reg.grad();
+
+        assert_eq!(grad.rank(), 2); 
+        assert_eq!(grad.values(), &expected_grad);
+        assert_eq!(grad.shape(), &expected_grad_shape); 
+
+    }
 
 
 }

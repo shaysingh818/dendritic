@@ -2,11 +2,12 @@ use crate::ndarray::ndarray::NDArray;
 use crate::ndarray::ops::*;
 use crate::loss::mse::*;
 use crate::autodiff::node::{Node, Value};
+use crate::autodiff::regularizers::*; 
 use crate::autodiff::ops::*; 
 use std::fs;
 
 
-pub struct Ridge {
+pub struct Lasso {
     pub features: Value<NDArray<f64>>,
     pub outputs: Value<NDArray<f64>>,
     pub weights: Value<NDArray<f64>>, 
@@ -19,13 +20,13 @@ pub struct Ridge {
 }
 
 
-impl Ridge {
+impl Lasso {
 
     pub fn new(
         features: NDArray<f64>, 
         y: NDArray<f64>,
         lambda: f64, 
-        learning_rate: f64) -> Result<Ridge, String> {
+        learning_rate: f64) -> Result<Lasso, String> {
 
         if learning_rate < 0.0 || learning_rate > 1.0 {
             return Err("Learning rate must be between 1 and 0".to_string());
@@ -65,7 +66,7 @@ impl Ridge {
         linear.value() 
     }
 
-
+    
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         let weights_file = format!("{}/weights", filepath);
@@ -84,7 +85,7 @@ impl Ridge {
         features: NDArray<f64>, 
         y: NDArray<f64>, 
         learning_rate: f64,
-        lambda: f64) -> std::io::Result<Ridge> {
+        lambda: f64) -> std::io::Result<Lasso> {
 
         let weights_file = format!("{}/weights", filepath);
         let bias_path = format!("{}/bias", filepath); 
@@ -98,7 +99,7 @@ impl Ridge {
             vec![1, 1], vec![lambda]
         ).unwrap();
 
-        Ok(Ridge {
+        Ok(Lasso {
             features: inputs.clone(),
             outputs: outputs.clone(),
             weights: Value::new(&load_weights),
@@ -118,7 +119,7 @@ impl Ridge {
             self.bias.clone()
         );
 
-        let mut reg = Regularization::new(
+        let mut reg = L1Regularization::new(
             self.weights.clone(),
             self.lambda.clone(),
             self.learning_rate
@@ -144,14 +145,14 @@ impl Ridge {
             let w_update = self.weights.val().subtract(w_grad).unwrap();
             let reg_w = reg.grad();
             let dw = w_update.subtract(reg_w).unwrap();
-            self.weights.set_val(&dw); 
+            self.weights.set_val(&dw);
 
             /* update biases */
             let b_collapse = self.bias.grad().sum_axis(1).unwrap();
             let db = b_collapse.scalar_mult(
                 self.learning_rate/y_pred.size() as f64
             ).unwrap();
-            self.bias.set_val(&db); 
+            self.bias.set_val(&db);
 
             if log_output {
                 println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
@@ -161,9 +162,9 @@ impl Ridge {
 
     }
 
- 
-    pub fn sgd(&mut self, epochs: usize, log_output: bool, batch_size: usize) {
 
+    pub fn sgd(&mut self, epochs: usize, log_output: bool, batch_size: usize) {
+        
         let mut loss: f64 = 0.0;
         let x_train_binding = self.features.val();
         let y_train_binding = self.outputs.val();
@@ -175,12 +176,11 @@ impl Ridge {
             self.bias.clone()
         );
 
-        let mut reg = Regularization::new(
+        let mut reg = L1Regularization::new(
             self.weights.clone(),
             self.lambda.clone(),
             self.learning_rate
         );
-
 
         for epoch in 0..epochs {
 
@@ -201,38 +201,33 @@ impl Ridge {
                 let error = y_pred.subtract(self.outputs.val()).unwrap();
 
                 linear.backward(error.clone());
-                reg.backward(error); 
+                reg.backward(error);
 
-                /* update weights */
                 let w_grad = self.features.grad().scalar_mult(
                     self.learning_rate/y_pred.size() as f64
                 ).unwrap();
+
                 let w_update = self.weights.val().subtract(w_grad).unwrap();
                 let reg_w = reg.grad();
                 let dw = w_update.subtract(reg_w).unwrap();
-                self.weights.set_val(&dw); 
+                self.weights.set_val(&dw);
 
                 /* update biases */
                 let b_collapse = self.bias.grad().sum_axis(1).unwrap();
                 let db = b_collapse.scalar_mult(
                     self.learning_rate/y_pred.size() as f64
                 ).unwrap();
-                self.bias.set_val(&db); 
-
+                self.bias.set_val(&db);
+                
                 batch_index += 1; 
-            }
 
-            if log_output {
-                println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
+                if log_output {
+                    println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
+                }
+
             }
-            
         }
 
-
-
-        
-
     }
-
 
 }
