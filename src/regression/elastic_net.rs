@@ -138,7 +138,7 @@ impl ElasticNet {
             l2_reg.forward();
 
             let y_pred = linear.value();
-            let loss = (self.loss_function)(&self.outputs.val(), &y_pred);
+            let loss = (self.loss_function)(&self.outputs.val(), &y_pred).unwrap();
             let error = y_pred.subtract(self.outputs.val()).unwrap();
             let l1_error = error.scale_add(l1_reg.value()).unwrap();
             let l2_error = error.scale_add(l2_reg.value()).unwrap();
@@ -167,6 +167,84 @@ impl ElasticNet {
 
             if log_output {
                 println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
+            }
+
+        }
+
+    }
+
+
+    pub fn sgd(&mut self, epochs: usize, log_output: bool, batch_size: usize) {
+
+        let mut loss: f64 = 0.0;
+        let x_train_binding = self.features.val();
+        let y_train_binding = self.outputs.val();
+        let x_train = x_train_binding.batch(batch_size).unwrap();
+        let y_train = y_train_binding.batch(batch_size).unwrap();
+
+        let mut linear = ScaleAdd::new(
+            Dot::new(self.features.clone(), self.weights.clone()),
+            self.bias.clone()
+        );
+
+        let mut l1_reg = L1Regularization::new(
+            self.weights.clone(),
+            self.lambda.clone(),
+            self.learning_rate
+        );
+
+        let mut l2_reg = L2Regularization::new(
+            self.weights.clone(),
+            self.lambda.clone(),
+            self.learning_rate
+        );
+
+        for epoch in 0..epochs {
+
+            let mut batch_index = 0;
+            for batch in &x_train {
+
+                self.features.set_val(&batch);
+                self.outputs.set_val(&y_train[batch_index]);
+
+                linear.forward();
+                l1_reg.forward();
+                l2_reg.forward();
+
+                let y_pred = linear.value();
+                loss = (self.loss_function)(&self.outputs.val(), &y_pred).unwrap();
+                let error = y_pred.subtract(self.outputs.val()).unwrap();
+                let l1_error = error.scale_add(l1_reg.value()).unwrap();
+                let l2_error = error.scale_add(l2_reg.value()).unwrap();
+
+                linear.backward(error.clone()); 
+                l1_reg.backward(error.clone());
+                l2_reg.backward(error);
+
+                let w_grad = self.features.grad().scalar_mult(
+                    self.learning_rate/y_pred.size() as f64
+                ).unwrap();
+
+                let w_update = self.weights.val().subtract(w_grad).unwrap();
+                let l1_reg_w = l1_reg.grad(); 
+                let l2_reg_w = l2_reg.grad(); 
+                let reg_w = l1_reg_w.add(l2_reg_w).unwrap(); 
+                let dw = w_update.subtract(reg_w).unwrap();
+                self.weights.set_val(&dw);
+
+                /* update biases */
+                let b_collapse = self.bias.grad().sum_axis(1).unwrap();
+                let db = b_collapse.scalar_mult(
+                    self.learning_rate/y_pred.size() as f64
+                ).unwrap();
+                self.bias.set_val(&db);
+
+                batch_index += 1; 
+
+                if log_output {
+                    println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
+                }
+
             }
 
         }

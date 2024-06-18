@@ -131,7 +131,7 @@ impl Lasso {
             reg.forward();
 
             let y_pred = linear.value();
-            let loss = (self.loss_function)(&self.outputs.val(), &y_pred);
+            let loss = (self.loss_function)(&self.outputs.val(), &y_pred).unwrap();
             let error = y_pred.subtract(self.outputs.val()).unwrap();
             let final_output = error.scale_add(reg.value()).unwrap();
 

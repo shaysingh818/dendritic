@@ -118,7 +118,7 @@ impl Logistic {
                 .apply(self.activation_function)
                 .unwrap();
 
-            let loss = (self.loss_function)(&self.outputs.val(), &y_pred);
+            let loss = (self.loss_function)(&self.outputs.val(), &y_pred).unwrap();
             let error = y_pred.subtract(self.outputs.val()).unwrap();
 
             logistic.backward(error);
