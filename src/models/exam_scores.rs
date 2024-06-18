@@ -1,12 +1,10 @@
 use postgres::{Client, NoTls, Error};
 use serde::{Serialize};
 use std::sync::Arc;
-use std::fs::File; 
 use arrow_schema::{Schema, Field, DataType};
 use arrow_array::RecordBatch;
 use arrow_array::array::{Float64Array};
 use arrow::json::*;
-use bigdecimal::BigDecimal;
 
 use crate::ndarray::ndarray::NDArray;
 use crate::regression::ridge::Ridge;
@@ -40,9 +38,7 @@ impl ExamScoresModel {
         pg_user: String, 
         pg_pass: String,
         database: String,
-        view_name: String,
-        lambda: f64, 
-        learning_rate: f64) -> Self {
+        view_name: String) -> Self {
 
         Self {
             records: Vec::new(),
@@ -129,16 +125,16 @@ impl ExamScoresModel {
         let mut high = self.process_column(batch.clone(), 0);
         let mut low = self.process_column(batch.clone(), 1);
         let mut open = self.process_column(batch.clone(), 2);
-        //let mut market_cap = self.process_column(batch.clone(), 3);
-        //let mut volume = self.process_column(batch.clone(), 4);
-        let mut close = self.process_column(batch.clone(), 5);
+        let mut market_cap = self.process_column(batch.clone(), 3);
+        let mut volume = self.process_column(batch.clone(), 4);
+        let close = self.process_column(batch.clone(), 5);
 
         let mut feature_vec: Vec<f64> = Vec::new();
         feature_vec.append(&mut high);
         feature_vec.append(&mut low);
         feature_vec.append(&mut open);
-        //feature_vec.append(&mut market_cap);
-        //feature_vec.append(&mut volume);
+        feature_vec.append(&mut market_cap);
+        feature_vec.append(&mut volume);
 
         let input: NDArray<f64> = NDArray::array(
             vec![close.len(), 3], 

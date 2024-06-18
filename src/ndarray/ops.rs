@@ -87,9 +87,8 @@ impl Ops for NDArray<f64> {
         }
 
         let results: Vec<NDArray<f64>> = Vec::new(); 
-        let axis_result_count = self.shape()[axis]; 
-        let stride = 0;
-
+        let _axis_result_count = self.shape()[axis]; 
+        let _stride = 0;
 
         Ok(results)
 
@@ -112,7 +111,7 @@ impl Ops for NDArray<f64> {
     fn sum(&self) -> Result<NDArray<f64>, String> {
 
         let sum_val = self.values().iter().sum();
-        let mut result = NDArray::array(
+        let result = NDArray::array(
             vec![1, 1],
             vec![sum_val]
         ).unwrap();
@@ -128,7 +127,7 @@ impl Ops for NDArray<f64> {
             |val| val.abs()
         ).collect();
 
-        let mut result = NDArray::array(
+        let result = NDArray::array(
             self.shape().to_vec(), abs
         ).unwrap();
 

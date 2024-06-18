@@ -221,10 +221,10 @@ impl Lasso {
                 
                 batch_index += 1; 
 
-                if log_output {
-                    println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
-                }
+            }
 
+            if log_output {
+                println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
             }
         }
 

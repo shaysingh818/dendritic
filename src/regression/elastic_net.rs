@@ -144,8 +144,8 @@ impl ElasticNet {
             let l2_error = error.scale_add(l2_reg.value()).unwrap();
 
             linear.backward(error.clone()); 
-            l1_reg.backward(error.clone());
-            l2_reg.backward(error);
+            l1_reg.backward(l1_error.clone());
+            l2_reg.backward(l2_error);
 
             let w_grad = self.features.grad().scalar_mult(
                 self.learning_rate/y_pred.size() as f64
@@ -218,8 +218,8 @@ impl ElasticNet {
                 let l2_error = error.scale_add(l2_reg.value()).unwrap();
 
                 linear.backward(error.clone()); 
-                l1_reg.backward(error.clone());
-                l2_reg.backward(error);
+                l1_reg.backward(l1_error);
+                l2_reg.backward(l2_error);
 
                 let w_grad = self.features.grad().scalar_mult(
                     self.learning_rate/y_pred.size() as f64
@@ -241,10 +241,10 @@ impl ElasticNet {
 
                 batch_index += 1; 
 
-                if log_output {
-                    println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
-                }
+            }
 
+            if log_output {
+                println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
             }
 
         }

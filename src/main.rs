@@ -13,8 +13,7 @@ fn main()  {
         "<PG_USER>".to_string(),
         "<PG_PASSWORD>".to_string(),
         "KAGGLE".to_string(),
-        "MONERO".to_string(),
-        0.001, 0.01
+        "MONERO".to_string()
     );
     model.train();
 
