@@ -557,4 +557,136 @@ mod ops {
         assert_eq!(y_zero_axis_sum.rank(), 2);
 
     }
+
+
+    #[test]
+    fn test_square_ndarray() {
+
+        let x = NDArray::array(vec![3, 3], vec![
+            2.0,2.0,2.0,
+            2.0,2.0,2.0,
+            2.0,2.0,2.0,
+        ]).unwrap();
+
+        let x_expected = vec![
+            4.0,4.0,4.0,
+            4.0,4.0,4.0,
+            4.0,4.0,4.0,
+        ];
+
+        let x_shape = vec![3, 3];
+        let expected_shape = vec![3, 1];
+        let expected = vec![4.0, 4.0, 4.0];  
+        let w_path = "data/ridge_testing_data/weights";
+        let w: NDArray<f64> = NDArray::load(w_path).unwrap();
+        let w_square = w.square().unwrap();
+
+        assert_eq!(w_square.rank(), 2); 
+        assert_eq!(w_square.values(), &expected);
+        assert_eq!(w_square.shape(), &expected_shape);
+
+        let x_square = x.square().unwrap();
+
+        assert_eq!(x_square.rank(), 2); 
+        assert_eq!(x_square.shape(), &x_shape); 
+        assert_eq!(x_square.values(), &x_expected); 
+
+    }
+
+
+    #[test]
+    fn test_sum_ndarray() {
+
+        let x = NDArray::array(vec![3, 3], vec![
+            2.0,2.0,2.0,
+            2.0,2.0,2.0,
+            2.0,2.0,2.0,
+        ]).unwrap();
+
+        let w_path = "data/ridge_testing_data/weights";
+        let w: NDArray<f64> = NDArray::load(w_path).unwrap();
+
+        let w_expected = vec![6.0];
+        let x_expected = vec![18.0];
+        let expected_shape = vec![1, 1];
+
+        let w_square = w.sum().unwrap();
+
+        assert_eq!(w_square.rank(), 2); 
+        assert_eq!(w_square.values(), &w_expected);
+        assert_eq!(w_square.shape(), &expected_shape);
+
+        let x_square = x.sum().unwrap();
+
+        assert_eq!(x_square.rank(), 2); 
+        assert_eq!(x_square.shape(), &expected_shape); 
+        assert_eq!(x_square.values(), &x_expected); 
+
+    }
+
+
+    #[test]
+    fn test_abs_ndarray() {
+
+        let x = NDArray::array(vec![3, 3], vec![
+            2.0,-2.0,3.0,
+            -4.0,5.0,-6.0,
+            7.0,-8.0,9.0,
+        ]).unwrap();
+
+        let expected_abs = vec![
+            2.0, 2.0, 3.0,
+            4.0, 5.0, 6.0, 
+            7.0, 8.0, 9.0
+        ];
+
+        let expected_shape = vec![3, 3];
+        let x_abs = x.abs().unwrap();
+
+        assert_eq!(x_abs.rank(), 2); 
+        assert_eq!(x_abs.shape(), &expected_shape); 
+        assert_eq!(x_abs.values(), &expected_abs); 
+
+        let w = NDArray::array(vec![3, 1], vec![
+            0.10,-0.02, -1.32,
+        ]).unwrap();
+
+        let expected_w = vec![
+            0.10, 0.02, 1.32,
+        ];
+
+        let expected_w_shape = vec![3, 1];
+        let w_abs = w.abs().unwrap();
+
+        assert_eq!(w_abs.rank(), 2); 
+        assert_eq!(w_abs.shape(), &expected_w_shape); 
+        assert_eq!(w_abs.values(), &expected_w); 
+
+    }
+
+    #[test]
+    fn test_signum_ndarray() {
+
+        let x = NDArray::array(vec![3, 3], vec![
+            2.0,-2.0,3.0,
+            -4.0,0.0,-6.0,
+            7.0,-8.0,9.0,
+        ]).unwrap();
+
+        let expected_shape = vec![3, 3];
+        let x_sig = x.signum().unwrap();
+
+        let expected_x = vec![
+            1.0, -1.0, 1.0,
+            -1.0, 0.0, -1.0,
+            1.0, -1.0, 1.0
+        ];
+
+        assert_eq!(x_sig.rank(), 2); 
+        assert_eq!(x_sig.shape(), &expected_shape); 
+        assert_eq!(x_sig.values(), &expected_x); 
+
+    }
+
+
 }
