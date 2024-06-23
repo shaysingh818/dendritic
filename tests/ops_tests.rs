@@ -16,7 +16,7 @@ mod ndarray_ops {
 
         /* asserts */ 
         assert_eq!(rank, 2); 
-        assert_eq!(shape, &expected_shape);
+        assert_eq!(shape.values(), expected_shape);
 
     }
 

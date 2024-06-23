@@ -12,12 +12,11 @@ mod ridge_test {
     use crate::loss::mse::*;
     use crate::regression::ridge::*;
 
-
     #[test]
     fn test_ridge_model_train() {
 
-        let x_path = "data/ridge_testing_data/inputs"; 
-        let y_path = "data/ridge_testing_data/outputs";
+        let x_path = "data/linear_modeling_data/inputs"; 
+        let y_path = "data/linear_modeling_data/outputs";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -41,8 +40,8 @@ mod ridge_test {
     #[test]
     fn test_ridge_sgd() {
 
-        let x_path = "data/ridge_testing_data/inputs"; 
-        let y_path = "data/ridge_testing_data/outputs";
+        let x_path = "data/linear_modeling_data/inputs"; 
+        let y_path = "data/linear_modeling_data/outputs";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -72,8 +71,8 @@ mod ridge_test {
     #[test]
     fn test_ridge_weight_regularization() {
 
-        let x_path = "data/ridge_testing_data/inputs"; 
-        let y_path = "data/ridge_testing_data/outputs";
+        let x_path = "data/linear_modeling_data/inputs"; 
+        let y_path = "data/linear_modeling_data/outputs";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -111,8 +110,8 @@ mod ridge_test {
     fn test_save_load_ridge_model() {
 
         let model_path = "data/models/ridge";
-        let x_path = "data/ridge_testing_data/inputs"; 
-        let y_path = "data/ridge_testing_data/outputs";
+        let x_path = "data/linear_modeling_data/inputs"; 
+        let y_path = "data/linear_modeling_data/outputs";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -145,6 +144,6 @@ mod ridge_test {
         let l_condition = loaded_output.values() > &expected_predictions;
         assert_eq!(l_condition, true);
 
-    }
+    }  
 
 }

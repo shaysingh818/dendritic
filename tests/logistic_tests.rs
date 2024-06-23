@@ -13,8 +13,8 @@ mod logistic_tests {
     #[test]
     fn test_logistic_model() {
 
-        let x_path = "data/logistic_testing_data/inputs";
-        let y_path = "data/logistic_testing_data/outputs"; 
+        let x_path = "data/logistic_modeling_data/inputs";
+        let y_path = "data/logistic_modeling_data/outputs"; 
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -23,22 +23,22 @@ mod logistic_tests {
             x.clone(), y.clone(), 0.01)
         .unwrap();
 
-        assert_eq!(model.features.val().shape(), x.shape()); 
+        assert_eq!(model.features.val().shape().values(), x.shape().values()); 
         assert_eq!(model.features.val().rank(), 2); 
         assert_eq!(
             model.features.val().values(), 
             x.values()
         );
 
-        assert_eq!(model.outputs.val().shape(), y.shape()); 
+        assert_eq!(model.outputs.val().shape().values(), y.shape().values()); 
         assert_eq!(model.outputs.val().rank(), 2); 
         assert_eq!(
             model.outputs.val().values(), 
             y.values()
         );
 
-        let expected_shape = vec![model.features.val().shape()[1], 1];
-        assert_eq!(model.weights.val().shape(), &expected_shape); 
+        let expected_shape = vec![model.features.val().shape().dim(1), 1];
+        assert_eq!(model.weights.val().shape().values(), expected_shape); 
         assert_eq!(model.weights.val().rank(), 2);
         for item in model.weights.val().values() {
             let expected: f64 = 0.0;
@@ -46,7 +46,7 @@ mod logistic_tests {
         }
 
         let expected_shape = vec![1, 1];
-        assert_eq!(model.bias.val().shape(), &expected_shape); 
+        assert_eq!(model.bias.val().shape().values(), expected_shape); 
         assert_eq!(model.bias.val().rank(), 2);
         for item in model.bias.val().values() {
             let expected: f64 = 0.0;
@@ -58,8 +58,8 @@ mod logistic_tests {
     #[test]
     fn test_logistic_train() {
 
-        let x_path = "data/logistic_testing_data/inputs";
-        let y_path = "data/logistic_testing_data/outputs"; 
+        let x_path = "data/logistic_modeling_data/inputs";
+        let y_path = "data/logistic_modeling_data/outputs"; 
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -93,8 +93,8 @@ mod logistic_tests {
     #[test]
     fn test_logistic_sgd() {
         
-        let x_path = "data/logistic_testing_data/inputs";
-        let y_path = "data/logistic_testing_data/outputs"; 
+        let x_path = "data/logistic_modeling_data/inputs";
+        let y_path = "data/logistic_modeling_data/outputs"; 
 
         let batch_size: usize = 2; 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
@@ -128,13 +128,12 @@ mod logistic_tests {
 
     }
 
-
     #[test]
     fn test_linear_save_load() -> std::io::Result<()> {
 
         let model_path = "data/models/logistic";
-        let x_path = "data/logistic_testing_data/inputs";
-        let y_path = "data/logistic_testing_data/outputs"; 
+        let x_path = "data/logistic_modeling_data/inputs";
+        let y_path = "data/logistic_modeling_data/outputs"; 
 
         let batch_size: usize = 2; 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();

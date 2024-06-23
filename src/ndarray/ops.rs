@@ -10,6 +10,7 @@ pub trait Ops {
     fn sum(&self) -> Result<NDArray<f64>, String>; 
     fn abs(&self) -> Result<NDArray<f64>, String>;
     fn signum(&self) -> Result<NDArray<f64>, String>;
+    fn mean_nd(&self, axis: usize) -> Result<Vec<f64>, String>;
 
     fn save(&self, filepath: &str) -> std::io::Result<()>; 
     fn load(filepath: &str) -> std::io::Result<NDArray<f64>>;
@@ -70,7 +71,7 @@ impl Ops for NDArray<f64> {
     /// Apply loss function on values in ndarray
     fn apply(&self, loss_func: fn(value: f64) -> f64) -> Result<NDArray<f64>, String> {   
         let mut index = 0; 
-        let mut result = NDArray::new(self.shape().to_vec()).unwrap(); 
+        let mut result = NDArray::new(self.shape().values()).unwrap(); 
         for x in self.values() {
             let loss_val = loss_func(*x); 
             let _ = result.set_idx(index, loss_val);
@@ -82,22 +83,73 @@ impl Ops for NDArray<f64> {
 
     fn axis(&self, axis: usize) -> Result<Vec<NDArray<f64>>, String> {
 
-        if axis > self.rank() {
-            return Err("Axis: axis is greater than rank".to_string());
+        if axis > self.rank() - 1 { 
+            return Err("Axis: Selected axis larger than rank".to_string());
         }
 
-        let results: Vec<NDArray<f64>> = Vec::new(); 
-        let _axis_result_count = self.shape()[axis]; 
-        let _stride = 0;
+        let mut stride = 0; 
+        let mut counter = self.rank();
+        let mut shape_counter = 1;
+        let mut temp_stride = 1;
+
+        let mut axis_stride = self.shape().dim(axis);
+        let mut remainder_length = self.shape().dim(axis);
+        let mut results: Vec<NDArray<f64>> = Vec::new();
+
+        for item in 0..self.rank() { 
+            let temp = temp_stride * self.shape().dim(counter-1);
+            stride = temp/self.shape().dim(counter-1);
+            temp_stride *= self.shape().dim(counter-1);
+            counter -= 1;
+
+            if item == axis {
+                break;
+            }
+
+            let shape_temp = self.shape().dim(shape_counter);
+            axis_stride = remainder_length + shape_counter;
+            println!("Axis stride: {:?} {:?}", remainder_length, shape_counter); 
+            remainder_length = shape_temp * shape_counter;
+            shape_counter += 1;
+        }
+
+        println!("Remainder Length: {:?}", remainder_length);
+
+        /*
+        for index in 0..remainder_length {
+
+            let mut idx_tracker = 0; 
+            let mut idx = index;
+            let mut values: Vec<f64> = Vec::new();
+            let base_case = self.size()/self.shape()[axis];
+
+            if axis == 0 {
+                idx = index * base_case;
+            }
+
+            while idx < self.size() { 
+                values.push(self.values()[idx]);
+                idx += stride; 
+                idx_tracker += 1; 
+
+                if axis == 0 && idx_tracker == base_case {
+                    break; 
+                }
+            }
+
+            let stride_array: NDArray<f64> = NDArray::array(
+                vec![values.len(), 1], values
+            ).unwrap();
+            results.push(stride_array); 
+        }*/ 
 
         Ok(results)
-
     }
 
 
     fn square(&self) -> Result<NDArray<f64>, String> {
 
-        let mut result = NDArray::new(self.shape().to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().values()).unwrap();
         for index in 0..self.size() {
             let value = self.values()[index]; 
             let raised = value.powf(2.0); 
@@ -128,7 +180,7 @@ impl Ops for NDArray<f64> {
         ).collect();
 
         let result = NDArray::array(
-            self.shape().to_vec(), abs
+            self.shape().values(), abs
         ).unwrap();
 
         Ok(result)
@@ -137,7 +189,7 @@ impl Ops for NDArray<f64> {
 
     fn signum(&self) -> Result<NDArray<f64>, String> {
 
-        let mut result = NDArray::new(self.shape().to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().values()).unwrap();
         for index in 0..self.size() {
             let value = self.values()[index]; 
             if value < 0.0 {
@@ -153,6 +205,20 @@ impl Ops for NDArray<f64> {
     }
 
 
+    fn mean_nd(&self, axis: usize) -> Result<Vec<f64>, String> {
+
+        let mut results: Vec<f64> = Vec::new(); 
+        let axis_values = self.axis(axis).unwrap(); 
+        for axis_val in axis_values {
+            let sum_vals: f64 = axis_val.values().iter().sum(); 
+            let avg: f64 = sum_vals / axis_val.values().len() as f64;
+            results.push(avg); 
+        }
+
+        Ok(results)
+    }
+
+
     /// Add two NDArray's and get resulting NDArray instance
     fn add(&self, value: NDArray<f64>) -> Result<NDArray<f64>, String> {
 
@@ -161,9 +227,7 @@ impl Ops for NDArray<f64> {
             return Err("Add: Rank Mismatch".to_string());
         }
 
-
-        let curr_shape: &Vec<usize> = self.shape();
-        let mut result = NDArray::new(curr_shape.to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().values()).unwrap();
         if self.size() != value.values().len() {
             return Err("Add: Size mismatch for arrays".to_string());
         }
@@ -187,8 +251,7 @@ impl Ops for NDArray<f64> {
             return Err("Mult: Rank Mismatch".to_string());
         }
 
-        let curr_shape: &Vec<usize> = self.shape();
-        let mut result = NDArray::new(curr_shape.to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().values()).unwrap();
         if self.size() != other.values().len() {
             println!("{:?} {:?}", self.size(), other.values().len()); 
             return Err("Mult: Size mismatch for arrays".to_string());
@@ -213,8 +276,7 @@ impl Ops for NDArray<f64> {
             return Err("Subtract: Rank Mismatch".to_string());
         }
 
-        let curr_shape: &Vec<usize> = self.shape();
-        let mut result = NDArray::new(curr_shape.to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().values()).unwrap();
         if self.size() != value.values().len() {
             return Err("Subtract: Size mismatch for arrays".to_string());
         }
@@ -249,8 +311,8 @@ impl Ops for NDArray<f64> {
         }
 
 
-        let sum_stride = self.size() / self.shape()[axis];
-        let axis_stride = self.shape()[axis.clone()];
+        let sum_stride = self.size() / self.shape().dim(axis);
+        let axis_stride = self.shape().dim(axis.clone());
         let result_shape: Vec<usize> = vec![axis, axis_stride];
         let mut result = NDArray::new(result_shape.clone()).unwrap();
 
@@ -287,11 +349,11 @@ impl Ops for NDArray<f64> {
             return Err("Dot: Requires rank 2 values".to_string());
         }
 
-        if self.shape()[self.rank()-1] != value.shape()[0] {
+        if self.shape().dim(self.rank()-1) != value.shape().dim(0) {
             return Err("Dot: Rows must equal columns".to_string());
         }
 
-        let new_shape: Vec<usize> = vec![self.shape()[0], value.shape()[self.rank()-1]];
+        let new_shape: Vec<usize> = vec![self.shape().dim(0), value.shape().dim(self.rank()-1)];
         let mut result = NDArray::new(new_shape).unwrap();
 
         /* stride values to stay in constant time */ 
@@ -301,12 +363,13 @@ impl Ops for NDArray<f64> {
         let mut stride = 0;  
         for counter in 0..result.size() {
 
-            if stride == value.shape()[self.rank()-1]  {
+            if stride == value.shape().dim(self.rank()-1)  {
                 row_counter += 1;
                 stride = 0; 
             }
 
-            if col_counter >= value.shape()[value.rank()-1]-1 {
+            let col_dim = value.shape().dim(value.rank()-1);
+            if col_counter >= col_dim-1 {
                 col_counter = 0; 
             }
 
@@ -333,16 +396,14 @@ impl Ops for NDArray<f64> {
     /// Add values by scalar for current NDArray instance
     fn scale_add(&self, value: NDArray<f64>) -> Result<NDArray<f64>, String> {
 
-        let value_shape = value.shape();
-        if value_shape[0] != 1 {
+        if value.shape().dim(0) != 1 {
             return Err("Scale add must have a vector dimension (1, N)".to_string());
         }
 
         let mut total_counter = 0; 
         let mut counter = 0;
         let vector_values = value.values();
-        let curr_shape: &Vec<usize> = self.shape();
-        let mut result = NDArray::new(curr_shape.to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().values()).unwrap();
         for item in self.values() {
             if counter == value.size() {
                 counter = 0;
@@ -360,15 +421,14 @@ impl Ops for NDArray<f64> {
     fn scale_mult(&self, value: NDArray<f64>) -> Result<NDArray<f64>, String> {
     
         let value_shape = value.shape();
-        if value_shape[0] != 1 {
+        if value_shape.dim(0) != 1 {
             return Err("Scale add must have a vector dimension (1, N)".to_string());
         }
 
         let mut total_counter = 0; 
         let mut counter = 0;
         let vector_values = value.values();
-        let curr_shape: &Vec<usize> = self.shape();
-        let mut result = NDArray::new(curr_shape.to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().values()).unwrap();
         for item in self.values() {
             if counter == value.size() {
                 counter = 0;
@@ -391,10 +451,7 @@ impl Ops for NDArray<f64> {
         }
 
         let mut index = 0;
-        let shape = self.shape();
-        let mut reversed_shape = shape.clone();  
-        reversed_shape.reverse();
-        let mut result = NDArray::new(reversed_shape.to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().reverse()).unwrap();
 
         for _item in self.values() {
 
@@ -421,14 +478,9 @@ impl Ops for NDArray<f64> {
             return Err("Indice order must be same length as rank".to_string());
         }
 
-        let mut index = 0; 
-        let curr_shape = self.shape();
-        let mut new_shape = Vec::new();
-        for item in &indice_order {
-            new_shape.push(curr_shape[*item]);
-        }
-
-        let mut result = NDArray::new(new_shape).unwrap();
+        let mut index = 0;
+        let permuted_shape = self.shape().permute(indice_order.clone());
+        let mut result = NDArray::new(permuted_shape).unwrap();
         for _item in self.values() {
 
             let indices = self.indices(index).unwrap();
@@ -456,7 +508,7 @@ impl Ops for NDArray<f64> {
 
         //
 
-        let mut result = NDArray::new(self.shape().to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().values()).unwrap();
         for index in 0..self.size() {
             let value = self.values()[index]; 
             let raised = value.powf(p as f64); 
@@ -477,7 +529,7 @@ impl Ops for NDArray<f64> {
 
 
     fn scalar_subtract(&self, scalar: f64) -> Result<NDArray<f64>, String> {
-        let mut result = NDArray::new(self.shape().to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().values()).unwrap();
         for index in 0..self.size() {
             let value = self.values()[index] - scalar; 
             let _ = result.set_idx(index, value);
@@ -487,7 +539,7 @@ impl Ops for NDArray<f64> {
 
 
     fn scalar_add(&self, scalar: f64) -> Result<NDArray<f64>, String> {
-        let mut result = NDArray::new(self.shape().to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().values()).unwrap();
         for index in 0..self.size() {
             let value = self.values()[index] + scalar; 
             let _ = result.set_idx(index, value);
@@ -497,7 +549,7 @@ impl Ops for NDArray<f64> {
 
 
     fn scalar_mult(&self, scalar: f64) -> Result<NDArray<f64>, String> {
-        let mut result = NDArray::new(self.shape().to_vec()).unwrap();
+        let mut result = NDArray::new(self.shape().values()).unwrap();
         for index in 0..self.size() {
             let value = self.values()[index] * scalar; 
             let _ = result.set_idx(index, value);

@@ -1,8 +1,10 @@
 {
-  "shape": [
-    2,
-    3
-  ],
+  "shape": {
+    "shape": [
+      2,
+      3
+    ]
+  },
   "size": 6,
   "rank": 2,
   "values": [

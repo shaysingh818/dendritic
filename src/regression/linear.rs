@@ -28,7 +28,7 @@ impl Linear {
             return Err("Learning rate must be between 1 and 0".to_string());
         }
 
-        let weights = NDArray::new(vec![features.shape()[1], 1]).unwrap();
+        let weights = NDArray::new(vec![features.shape().dim(1), 1]).unwrap();
         let bias = NDArray::new(vec![1, 1]).unwrap();
         let inputs = Value::new(&features); 
         let outputs = Value::new(&y);

@@ -16,8 +16,8 @@ mod autodiff_test {
     #[test]
     fn test_value_instance() {
 
-        let x_path = "data/linear_testing_data/inputs"; 
-        let y_path = "data/linear_testing_data/outputs";
+        let x_path = "data/linear_modeling_data/inputs"; 
+        let y_path = "data/linear_modeling_data/outputs";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -25,34 +25,33 @@ mod autodiff_test {
         let mut x_value = Value::new(&x); 
 
         let expected_shape = vec![5, 3]; 
-        assert_eq!(x_value.val().shape(), &expected_shape); 
+        assert_eq!(x_value.val().shape().values(), expected_shape); 
         assert_eq!(x_value.val().size(), 15);
         assert_eq!(x_value.val().rank(), 2); 
 
-        assert_eq!(x_value.grad().shape(), &expected_shape); 
+        assert_eq!(x_value.grad().shape().values(), expected_shape); 
         assert_eq!(x_value.grad().size(), 15);
         assert_eq!(x_value.grad().rank(), 2); 
         x_value.set_val(&y);  
 
         let new_val_shape = vec![5, 1]; 
-        assert_eq!(x_value.val().shape(), &new_val_shape); 
+        assert_eq!(x_value.val().shape().values(), new_val_shape); 
         assert_eq!(x_value.val().size(), 5);
         assert_eq!(x_value.val().rank(), 2);
         x_value.set_grad(&y);
 
-        assert_eq!(x_value.grad().shape(), &new_val_shape); 
+        assert_eq!(x_value.grad().shape().values(), new_val_shape); 
         assert_eq!(x_value.grad().size(), 5);
-        assert_eq!(x_value.grad().rank(), 2);
+        assert_eq!(x_value.grad().rank(), 2); 
 
     }
-
 
     #[test]
     fn test_dot_node() {
 
-        let x_path = "data/linear_testing_data/inputs"; 
-        let y_path = "data/linear_testing_data/outputs";
-        let w_path = "data/linear_testing_data/weights";
+        let x_path = "data/linear_modeling_data/inputs"; 
+        let y_path = "data/linear_modeling_data/outputs";
+        let w_path = "data/linear_modeling_data/weights";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -64,7 +63,7 @@ mod autodiff_test {
         let mut dot_op = Dot::new(x_value.clone(), w_value.clone());
         let expected_output_shape = vec![5, 1];
 
-        assert_eq!(dot_op.value().shape(), &expected_output_shape);
+        assert_eq!(dot_op.value().shape().values(), expected_output_shape);
         assert_eq!(dot_op.value().rank(), 2);
         assert_eq!(dot_op.value().size(), 5);
         dot_op.forward();
@@ -79,7 +78,7 @@ mod autodiff_test {
         dot_op.backward(output.clone());
 
         let expected_ws = vec![-230.0, -300.0, -370.0];
-        assert_eq!(x_value.grad().shape(), w.shape()); 
+        assert_eq!(x_value.grad().shape().values(), w.shape().values()); 
         assert_eq!(x_value.grad().rank(), 2); 
         assert_eq!(x_value.grad().values(), &expected_ws);
 
@@ -91,11 +90,12 @@ mod autodiff_test {
         
     }
 
+
     #[test]
     fn test_scale_add_node() {
 
-        let y_path = "data/linear_testing_data/outputs"; 
-        let b_path = "data/linear_testing_data/bias";
+        let y_path = "data/linear_modeling_data/outputs"; 
+        let b_path = "data/linear_modeling_data/bias";
 
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
         let b: NDArray<f64> = NDArray::load(b_path).unwrap();
@@ -108,7 +108,7 @@ mod autodiff_test {
         let expected_vals = vec![11.0, 13.0, 15.0, 17.0, 19.0];
         scale_op.forward(); 
 
-        assert_eq!(scale_op.value().shape(), &expected_output_shape);
+        assert_eq!(scale_op.value().shape().values(), expected_output_shape);
         assert_eq!(scale_op.value().rank(), 2);
         assert_eq!(scale_op.value().size(), 5);
         assert_eq!(scale_op.value().values(), &expected_vals);
@@ -118,18 +118,20 @@ mod autodiff_test {
 
         let expected_b_grad = vec![-1.0, -1.0, -1.0, -1.0, -1.0];
         assert_eq!(b_value.grad().values(), &expected_b_grad);
-        assert_eq!(b_value.grad().shape(), y.shape());
+        assert_eq!(b_value.grad().shape().values(), y.shape().values());
         assert_eq!(b_value.grad().rank(), y.rank());
 
     }
 
+
+
     #[test]
     fn test_linear_node_mut() {
 
-        let x_path = "data/linear_testing_data/inputs"; 
-        let y_path = "data/linear_testing_data/outputs";
-        let w_path = "data/linear_testing_data/weights";
-        let b_path = "data/linear_testing_data/bias";
+        let x_path = "data/linear_modeling_data/inputs"; 
+        let y_path = "data/linear_modeling_data/outputs";
+        let w_path = "data/linear_modeling_data/weights";
+        let b_path = "data/linear_modeling_data/bias";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -176,10 +178,10 @@ mod autodiff_test {
     #[test]
     fn test_linear_graph() {
 
-        let x_path = "data/linear_testing_data/inputs"; 
-        let y_path = "data/linear_testing_data/outputs";
-        let w_path = "data/linear_testing_data/weights";
-        let b_path = "data/linear_testing_data/bias";
+        let x_path = "data/linear_modeling_data/inputs"; 
+        let y_path = "data/linear_modeling_data/outputs";
+        let w_path = "data/linear_modeling_data/weights";
+        let b_path = "data/linear_modeling_data/bias";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -236,10 +238,11 @@ mod autodiff_test {
 
     }
 
+
     #[test]
     fn test_l2_regularization_forward() {
 
-        let w_path = "data/ridge_testing_data/weights";
+        let w_path = "data/linear_modeling_data/weights_reg";
         let w: NDArray<f64> = NDArray::load(w_path).unwrap();
 
         let lambda: NDArray<f64> = NDArray::array(
@@ -264,7 +267,7 @@ mod autodiff_test {
 
         assert_eq!(outputs.rank(), 2); 
         assert_eq!(outputs.values(), &expected_val);
-        assert_eq!(outputs.shape(), &expected_shape); 
+        assert_eq!(outputs.shape().values(), expected_shape); 
 
     }
 
@@ -272,8 +275,8 @@ mod autodiff_test {
     #[test]
     fn test_l2_regularization_backward() {
 
-        let y_path = "data/linear_testing_data/outputs";
-        let w_path = "data/ridge_testing_data/weights";
+        let y_path = "data/linear_modeling_data/outputs";
+        let w_path = "data/linear_modeling_data/weights_reg";
         let w: NDArray<f64> = NDArray::load(w_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
@@ -302,14 +305,14 @@ mod autodiff_test {
 
         assert_eq!(outputs.rank(), 2); 
         assert_eq!(outputs.values(), &expected_val);
-        assert_eq!(outputs.shape(), &expected_shape); 
+        assert_eq!(outputs.shape().values(), expected_shape); 
 
         reg.backward(y);
         let grad = reg.grad();
 
         assert_eq!(grad.rank(), 2); 
         assert_eq!(grad.values(), &expected_grad_values);
-        assert_eq!(grad.shape(), &expected_grad_shape); 
+        assert_eq!(grad.shape().values(), expected_grad_shape); 
 
     }
 
@@ -317,8 +320,8 @@ mod autodiff_test {
     #[test]
     fn test_l1_regularization_forward() {
 
-        let y_path = "data/linear_testing_data/outputs";
-        let w_path = "data/ridge_testing_data/weights";
+        let y_path = "data/linear_modeling_data/outputs";
+        let w_path = "data/linear_modeling_data/weights_reg";
 
         let w: NDArray<f64> = NDArray::load(w_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -348,16 +351,16 @@ mod autodiff_test {
 
         assert_eq!(outputs.rank(), 2); 
         assert_eq!(outputs.values(), &expected_val);
-        assert_eq!(outputs.shape(), &expected_shape); 
+        assert_eq!(outputs.shape().values(), expected_shape); 
 
         reg.backward(y);
         let grad = reg.grad();
 
         assert_eq!(grad.rank(), 2); 
         assert_eq!(grad.values(), &expected_grad);
-        assert_eq!(grad.shape(), &expected_grad_shape); 
+        assert_eq!(grad.shape().values(), expected_grad_shape); 
 
-    }
+    } 
 
 
 }

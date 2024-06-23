@@ -13,8 +13,8 @@ mod lasso {
     #[test]
     fn test_lasso_model_train() {
 
-        let x_path = "data/ridge_testing_data/inputs";
-        let y_path = "data/ridge_testing_data/outputs";
+        let x_path = "data/linear_modeling_data/inputs";
+        let y_path = "data/linear_modeling_data/outputs";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -37,8 +37,8 @@ mod lasso {
     #[test]
     fn test_lasso_sgd() {
 
-        let x_path = "data/ridge_testing_data/inputs"; 
-        let y_path = "data/ridge_testing_data/outputs";
+        let x_path = "data/linear_modeling_data/inputs"; 
+        let y_path = "data/linear_modeling_data/outputs";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -69,8 +69,8 @@ mod lasso {
     fn test_lasso_save_load() -> std::io::Result<()> {
 
         let model_path = "data/models/lasso";
-        let x_path = "data/linear_testing_data/inputs";
-        let y_path = "data/linear_testing_data/outputs"; 
+        let x_path = "data/linear_modeling_data/inputs";
+        let y_path = "data/linear_modeling_data/outputs"; 
 
         let batch_size: usize = 2; 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();

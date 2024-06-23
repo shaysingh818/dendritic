@@ -15,7 +15,7 @@ mod ndarray_tests {
 
         /* asserts */ 
         assert_eq!(rank, 2); 
-        assert_eq!(shape, &expected_shape);
+        assert_eq!(shape.values(), expected_shape);
     }
 
     #[test]
@@ -30,7 +30,7 @@ mod ndarray_tests {
         let expected_vals = vec![0.0,0.0,1.0,1.0];
 
         /* asserts */ 
-        assert_eq!(shape, &expected_shape);
+        assert_eq!(shape.values(), expected_shape);
         assert_eq!(rank, 2);
         assert_eq!(values, &expected_vals);
         assert_eq!(expected_size, values.len()); 
@@ -47,7 +47,7 @@ mod ndarray_tests {
         /* valid reshape */ 
         let mut n: NDArray<f64> = NDArray::array(vec![2, 3], vec![0.0,0.0,1.0,1.0,2.0,2.0]).unwrap();
         let _ = n.reshape(vec![3, 2]); 
-        assert_eq!(n.shape(), &vec![3, 2]);
+        assert_eq!(n.shape().values(), vec![3, 2]);
 
         /* rank mismatch */
         let mut x: NDArray<f64> = NDArray::array(vec![2, 4], vec![0.0,0.0,1.0,1.0,2.0,2.0,3.0,3.0]).unwrap();
@@ -246,27 +246,58 @@ mod ops {
     #[test]
     fn test_save_load_ndarray() {
 
+        let inputs = vec![
+            1.0, 2.0, 3.0, 2.0, 3.0, 4.0, 3.0, 4.0, 
+            5.0, 4.0, 5.0, 6.0, 5.0, 6.0, 7.0
+        ];
+
+        let outputs = vec![10.0, 12.0, 14.0, 16.0, 18.0];
+        let weights = vec![0.0, 0.0, 0.0];
+        let weights_reg = vec![2.0, 2.0, 2.0];
+        let bias = vec![1.0];
+
+        /* for logistic data */
+        let inputs_logistic = vec![
+            1.0, 2.0, 3.0, -1.0, 2.0, 1.0, 2.0, -2.0, 0.0, -1.0, 
+            -1.0, 2.0, 1.0, 1.0, 0.0, -2.0, 2.0, 1.0, 1.0, -1.0,
+            0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, -1.0, -1.0, -1.0
+        ];
+
+        let outputs_logistic = vec![0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0];
+
         /* set 2d array */
-        let n: NDArray<f64> = NDArray::array(vec![2, 3], vec![0.0,0.0,1.0,1.0,2.0,2.0]).unwrap();
-        let _ = n.save("data/testfile");
+        let x: NDArray<f64> = NDArray::array(vec![5, 3], inputs.clone()).unwrap();
+        let y: NDArray<f64> = NDArray::array(vec![5, 1], outputs).unwrap();
+        let w: NDArray<f64> = NDArray::array(vec![3, 1], weights).unwrap();
+        let b: NDArray<f64> = NDArray::array(vec![1, 1], bias).unwrap();
+        let log_x: NDArray<f64> = NDArray::array(vec![10, 3], inputs_logistic).unwrap();
+        let log_y: NDArray<f64> = NDArray::array(vec![10, 1], outputs_logistic).unwrap();
+
+        let w_reg: NDArray<f64> = NDArray::array(
+            vec![3, 1], weights_reg
+        ).unwrap();
+
+
+        //let _ = log_x.save("data/logistic_modeling_data/inputs");
+        //let _ = log_y.save("data/logistic_modeling_data/outputs");
+        //let _ = x.save("data/linear_modeling_data/inputs");
+        //let _ = y.save("data/linear_modeling_data/outputs");
+        //let _ = w.save("data/linear_modeling_data/weights");
+        //let _ = w_reg.save("data/linear_modeling_data/weights_reg");
 
         /* load from saved ndarray */ 
-        let loaded: NDArray<f64> = NDArray::load("data/testfile").unwrap();
+        let loaded: NDArray<f64> = NDArray::load("data/linear_modeling_data/inputs").unwrap();
         let shape = loaded.shape();
         let rank = loaded.rank();
         let values = loaded.values();
 
         /* expected attributes */
-        let expected_shape : Vec<usize> = vec![2, 3];
-        let expected_size = 6; 
-        let expected_vals = vec![0.0,0.0,1.0,1.0,2.0,2.0];
-
-        assert_eq!(shape, &expected_shape);
-        assert_eq!(values.len(), expected_size);
-        assert_eq!(values, &expected_vals);
+        assert_eq!(shape.values(), vec![5, 3]);
+        assert_eq!(values.len(), 15);
+        assert_eq!(values, &inputs);
         assert_eq!(rank, 2);
 
-    }
+    } 
 
     #[test]
     fn test_add_ndarray() {
@@ -282,7 +313,7 @@ mod ops {
         assert_eq!(result.rank(), 2); 
         assert_eq!(result.values(), &expected_vals);
         assert_eq!(result.values().len(), 6);
-        assert_eq!(result.shape(), &expected_shape);
+        assert_eq!(result.shape().values(), expected_shape);
         
         /* failure case */
         let z: NDArray<f64> = NDArray::array(vec![2, 3], vec![0.0,0.0,1.0,1.0,2.0,2.0]).unwrap();
@@ -322,7 +353,7 @@ mod ops {
         assert_eq!(result.rank(), 2); 
         assert_eq!(result.values(), &expected_vals);
         assert_eq!(result.values().len(), 6);
-        assert_eq!(result.shape(), &expected_shape);
+        assert_eq!(result.shape().values(), expected_shape);
         
         /* failure case */
         let z: NDArray<f64> = NDArray::array(vec![2, 3], vec![0.0,0.0,1.0,1.0,2.0,2.0]).unwrap();
@@ -360,7 +391,7 @@ mod ops {
         let expected_shape = vec![4, 3];
         
         assert_eq!(result.values(), &expected_vals);
-        assert_eq!(result.shape(), &expected_shape);
+        assert_eq!(result.shape().values(), expected_shape);
         assert_eq!(result.values().len(), 12); 
         assert_eq!(result.rank(), 2);
         
@@ -374,7 +405,7 @@ mod ops {
         
 
         assert_eq!(result.values(), &expected_vals);
-        assert_eq!(result.shape(), &expected_shape);
+        assert_eq!(result.shape().values(), expected_shape);
         assert_eq!(result.values().len(), 12); 
         assert_eq!(result.rank(), 2);
 
@@ -418,7 +449,7 @@ mod ops {
         assert_eq!(result.rank(), 2); 
         assert_eq!(result.values(), &expected_vals);
         assert_eq!(result.values().len(), 6);
-        assert_eq!(result.shape(), &expected_shape);
+        assert_eq!(result.shape().values(), expected_shape);
         
         /* set 2d array */
         let a = NDArray::array(vec![4, 3], vec![0.0,0.0,0.0,2.0,2.0,2.0,2.0,2.0,2.0,4.0,4.0,4.0]).unwrap();
@@ -431,7 +462,7 @@ mod ops {
         assert_eq!(result_two.rank(), 2); 
         assert_eq!(result_two.values(), &expected_vals_two);
         assert_eq!(result_two.values().len(), 12);
-        assert_eq!(result_two.shape(), &expected_shape_two);
+        assert_eq!(result_two.shape().values(), expected_shape_two);
 
         /* failure case */
         let o = NDArray::array(vec![4, 3], vec![0.0,0.0,0.0,2.0,2.0,2.0,2.0,2.0,2.0,4.0,4.0,4.0]).unwrap();
@@ -456,7 +487,7 @@ mod ops {
         let expected_shape : Vec<usize> = vec![3, 4];
         let expected_vals = vec![1.0,1.0,0.0,0.0,2.0,2.0,0.0,0.0,3.0,3.0,2.0,0.0];
 
-        assert_eq!(x_transpose.shape(), &expected_shape);
+        assert_eq!(x_transpose.shape().values(), expected_shape);
         assert_eq!(x_transpose.rank(), 2);
         assert_eq!(x_transpose.size(), 12);
         assert_eq!(x_transpose.values(), &expected_vals);
@@ -469,7 +500,7 @@ mod ops {
         assert_eq!(y.rank(), 3); 
         assert_eq!(y.values(), &expected_vals_two);
         assert_eq!(y.values().len(), 8);
-        assert_eq!(y.shape(), &expected_shape_two);
+        assert_eq!(y.shape().values(), expected_shape_two);
 
         let rank_mismatch = y.transpose();
         match rank_mismatch {
@@ -490,7 +521,7 @@ mod ops {
         let expected_vals = vec![1.0,1.0,0.0,0.0,2.0,2.0,0.0,0.0,3.0,3.0,2.0,0.0];
         let result = x.permute(vec![1, 0]).unwrap();
 
-        assert_eq!(result.shape(), &expected_shape);
+        assert_eq!(result.shape().values(), expected_shape);
         assert_eq!(result.rank(), 2);
         assert_eq!(result.size(), 12);
         assert_eq!(result.values(), &expected_vals);
@@ -508,41 +539,44 @@ mod ops {
     }
 
 
+
     #[test]
     fn test_sum_axis() {
 
         /* set 2d array */
-        let x: NDArray<f64> = NDArray::load("data/linear_testing_data/inputs").unwrap();
-        let y: NDArray<f64> = NDArray::load("data/linear_testing_data/outputs").unwrap();
-        let w: NDArray<f64> = NDArray::load("data/linear_testing_data/weights").unwrap();
-        let b: NDArray<f64> = NDArray::load("data/linear_testing_data/bias").unwrap();
+        let x: NDArray<f64> = NDArray::load("data/linear_modeling_data/inputs").unwrap();
+        let y: NDArray<f64> = NDArray::load("data/linear_modeling_data/outputs").unwrap();
+        let w: NDArray<f64> = NDArray::load("data/linear_modeling_data/weights").unwrap();
+        let b: NDArray<f64> = NDArray::load("data/linear_modeling_data/bias").unwrap();
 
         let x_sum = x.sum_axis(1).unwrap(); 
         let expected_x_vals = vec![11.0, 20.0, 29.0];
         let expected_shape: Vec<usize> = vec![1, 3];
 
         assert_eq!(x_sum.values(), &expected_x_vals);
-        assert_eq!(x_sum.shape(), &expected_shape);
+        assert_eq!(x_sum.shape().values(), expected_shape);
         assert_eq!(x_sum.rank(), 2); 
 
         let y_sum = y.sum_axis(1).unwrap();
         let expected_y_shape: Vec<usize> = vec![1, 1];
         let expected_y_vals = vec![70.0];
 
-        assert_eq!(y_sum.shape(), &expected_y_shape);
+        assert_eq!(y_sum.shape().values(), expected_y_shape);
         assert_eq!(y_sum.values(), &expected_y_vals);
         assert_eq!(y_sum.rank(), 2); 
+
 
         // test linear operation 
         let dot_op = x.dot(w).unwrap();
         let scale_op = dot_op.scale_add(b).unwrap();
         let error = y.subtract(scale_op).unwrap(); 
 
+
         let db = error.sum_axis(1).unwrap();
         let expected_db_shape: Vec<usize> = vec![1, 1];
         let expected_db_vals = vec![65.0];
 
-        assert_eq!(db.shape(), &expected_db_shape);
+        assert_eq!(db.shape().values(), expected_db_shape);
         assert_eq!(db.values(), &expected_db_vals);
         assert_eq!(db.rank(), 2); 
 
@@ -552,9 +586,9 @@ mod ops {
         let expected_yz_shape: Vec<usize> = vec![1, 1];
         let expected_yz_vals = vec![70.0];
 
-        assert_eq!(y_zero_axis_sum.shape(), &expected_yz_shape);
+        assert_eq!(y_zero_axis_sum.shape().values(), expected_yz_shape);
         assert_eq!(y_zero_axis_sum.values(), &expected_yz_vals);
-        assert_eq!(y_zero_axis_sum.rank(), 2);
+        assert_eq!(y_zero_axis_sum.rank(), 2);  
 
     }
 
@@ -577,21 +611,21 @@ mod ops {
         let x_shape = vec![3, 3];
         let expected_shape = vec![3, 1];
         let expected = vec![4.0, 4.0, 4.0];  
-        let w_path = "data/ridge_testing_data/weights";
+        let w_path = "data/linear_modeling_data/weights_reg";
         let w: NDArray<f64> = NDArray::load(w_path).unwrap();
         let w_square = w.square().unwrap();
 
         assert_eq!(w_square.rank(), 2); 
         assert_eq!(w_square.values(), &expected);
-        assert_eq!(w_square.shape(), &expected_shape);
+        assert_eq!(w_square.shape().values(), expected_shape);
 
         let x_square = x.square().unwrap();
 
         assert_eq!(x_square.rank(), 2); 
-        assert_eq!(x_square.shape(), &x_shape); 
+        assert_eq!(x_square.shape().values(), x_shape); 
         assert_eq!(x_square.values(), &x_expected); 
 
-    }
+    } 
 
 
     #[test]
@@ -603,7 +637,7 @@ mod ops {
             2.0,2.0,2.0,
         ]).unwrap();
 
-        let w_path = "data/ridge_testing_data/weights";
+        let w_path = "data/linear_modeling_data/weights_reg";
         let w: NDArray<f64> = NDArray::load(w_path).unwrap();
 
         let w_expected = vec![6.0];
@@ -614,15 +648,17 @@ mod ops {
 
         assert_eq!(w_square.rank(), 2); 
         assert_eq!(w_square.values(), &w_expected);
-        assert_eq!(w_square.shape(), &expected_shape);
+        assert_eq!(w_square.shape().values(), expected_shape);
 
         let x_square = x.sum().unwrap();
 
         assert_eq!(x_square.rank(), 2); 
-        assert_eq!(x_square.shape(), &expected_shape); 
+        assert_eq!(x_square.shape().values(), expected_shape); 
         assert_eq!(x_square.values(), &x_expected); 
 
     }
+
+
 
 
     #[test]
@@ -644,7 +680,7 @@ mod ops {
         let x_abs = x.abs().unwrap();
 
         assert_eq!(x_abs.rank(), 2); 
-        assert_eq!(x_abs.shape(), &expected_shape); 
+        assert_eq!(x_abs.shape().values(), expected_shape); 
         assert_eq!(x_abs.values(), &expected_abs); 
 
         let w = NDArray::array(vec![3, 1], vec![
@@ -659,7 +695,7 @@ mod ops {
         let w_abs = w.abs().unwrap();
 
         assert_eq!(w_abs.rank(), 2); 
-        assert_eq!(w_abs.shape(), &expected_w_shape); 
+        assert_eq!(w_abs.shape().values(), expected_w_shape); 
         assert_eq!(w_abs.values(), &expected_w); 
 
     }
@@ -683,10 +719,134 @@ mod ops {
         ];
 
         assert_eq!(x_sig.rank(), 2); 
-        assert_eq!(x_sig.shape(), &expected_shape); 
+        assert_eq!(x_sig.shape().values(), expected_shape); 
         assert_eq!(x_sig.values(), &expected_x); 
 
     }
+
+
+    #[test]
+    fn test_get_axis() {
+
+        let x = NDArray::array(vec![4, 3], vec![
+            1.0,2.0,3.0,
+            2.0,3.0,4.0,
+            3.0,4.0,5.0,
+            4.0,5.0,6.0
+        ]).unwrap();
+
+        let expected_x_cols = vec![
+            vec![1.0, 2.0, 3.0, 4.0],
+            vec![2.0, 3.0, 4.0, 5.0],
+            vec![3.0, 4.0, 5.0, 6.0]
+        ];
+
+        let expected_x_rows = vec![
+            vec![1.0, 2.0, 3.0],
+            vec![2.0, 3.0, 4.0],
+            vec![3.0, 4.0, 5.0],
+            vec![4.0, 5.0, 6.0]
+        ];
+
+        //let x_rows = x.axis(0).unwrap(); 
+        //let x_cols = x.axis(1).unwrap();
+
+
+        /*
+        assert_eq!(x_rows.len(), 4); 
+        assert_eq!(x_cols.len(), 3);
+
+        let mut index = 0; 
+        for item in x_rows {
+            assert_eq!(item.values(), &expected_x_rows[index]);
+            assert_eq!(item.values().len(), 3); 
+            index += 1; 
+        }
+
+        index = 0; 
+        for item in x_cols {
+            assert_eq!(item.values(), &expected_x_cols[index]);
+            assert_eq!(item.values().len(), 4); 
+            index += 1; 
+        } 
+
+        let x_3d = NDArray::array(vec![4, 2, 2], vec![
+            1.0,2.0,5.0,6.0,3.0,4.0,
+            7.0,8.0,9.0,10.0,13.0,
+            14.0,11.0,12.0,15.0,16.0
+        ]).unwrap();
+
+
+        let expected_x_3d_rows = vec![
+            vec![1.0, 2.0, 5.0, 6.0],
+            vec![3.0, 4.0, 7.0, 8.0],
+            vec![9.0, 10.0, 13.0, 14.0],
+            vec![11.0, 12.0, 15.0, 16.0]
+        ];
+
+        let expected_x_3d_cols = vec![
+            vec![1.0, 5.0, 3.0, 7.0, 9.0, 13.0, 11.0, 15.0],
+            vec![2.0, 6.0, 4.0, 8.0, 10.0, 14.0, 12.0, 16.0]
+        ];
+
+        let expected_x_3d_3 = vec![
+            vec![1.0, 3.0, 9.0, 11.0],
+            vec![2.0, 4.0, 10.0, 12.0],
+            vec![5.0, 7.0, 13.0, 15.0],
+            vec![6.0, 8.0, 14.0, 16.0]
+        ];
+
+        let x_3d_rows = x_3d.axis(0).unwrap();  
+        let x_3d_cols = x_3d.axis(1).unwrap(); 
+        let x_3d_3 = x_3d.axis(2).unwrap();
+
+        index = 0; 
+        for item in x_3d_rows {
+            assert_eq!(item.values(), &expected_x_3d_rows[index]);
+            assert_eq!(item.values().len(), 4); 
+            index += 1; 
+        } 
+
+        index = 0; 
+        for item in x_3d_cols {
+            assert_eq!(item.values(), &expected_x_3d_cols[index]);
+            assert_eq!(item.values().len(), 8); 
+            index += 1; 
+        } 
+
+
+        index = 0; 
+        for item in x_3d_3 {
+            assert_eq!(item.values(), &expected_x_3d_3[index]);
+            assert_eq!(item.values().len(), 4); 
+            index += 1; 
+        } */
+
+
+        let x_4d = NDArray::array(vec![2, 2, 2, 2], vec![
+            1.0, 2.0, 3.0, 4.0,
+            5.0, 6.0, 7.0, 8.0,
+            9.0, 10.0, 11.0, 12.0,
+            13.0, 14.0, 15.0, 16.0
+        ]).unwrap();
+
+        //let x_4d_rows = x_4d.axis(0).unwrap();  
+        //let x_4d_cols = x_4d.axis(1).unwrap(); 
+        //let x_4d_3 = x_4d.axis(2).unwrap();
+        //let x_4d_4 = x_4d.axis(3).unwrap();
+
+
+        /*
+        let mut index = 0; 
+        for item in x_4d_4 {
+            println!("{:?}", item.values()); 
+            //assert_eq!(item.values(), &expected_x_3d_rows[index]);
+            //assert_eq!(item.values().len(), 4); 
+            index += 1; 
+        } */
+
+
+    }  
 
 
 }

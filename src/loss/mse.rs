@@ -27,7 +27,7 @@ pub fn mse_prime(y_true: NDArray<f64>, y_pred: NDArray<f64>) -> Result<NDArray<f
     }
 
     let mut index = 0;
-    let mut result = NDArray::new(y_true.shape().to_vec()).unwrap();
+    let mut result = NDArray::new(y_true.shape().values()).unwrap();
     for item in y_true.values() {
         let diff = item - y_pred.values()[index];
         let val = diff * 2.0/y_true.size() as f64;

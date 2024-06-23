@@ -14,8 +14,8 @@ mod elastic {
     #[test]
     fn test_elastic_net_model_train() {
 
-        let x_path = "data/ridge_testing_data/inputs";
-        let y_path = "data/ridge_testing_data/outputs";
+        let x_path = "data/linear_modeling_data/inputs";
+        let y_path = "data/linear_modeling_data/outputs";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -45,8 +45,8 @@ mod elastic {
     fn test_elastic_sgd() {
 
         let batch_size = 2; 
-        let x_path = "data/ridge_testing_data/inputs"; 
-        let y_path = "data/ridge_testing_data/outputs";
+        let x_path = "data/linear_modeling_data/inputs"; 
+        let y_path = "data/linear_modeling_data/outputs";
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -79,8 +79,8 @@ mod elastic {
     fn test_elastic_load_save() {
 
         let model_path = "data/models/lasso";
-        let x_path = "data/linear_testing_data/inputs";
-        let y_path = "data/linear_testing_data/outputs"; 
+        let x_path = "data/linear_modeling_data/inputs";
+        let y_path = "data/linear_modeling_data/outputs"; 
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
@@ -113,6 +113,6 @@ mod elastic {
         assert_eq!(condition, true); 
 
 
-    }
+    } 
 
 }

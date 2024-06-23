@@ -1,9 +1,9 @@
 use serde::{Serialize, Deserialize};
-
+use crate::ndarray::shape::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct NDArray<T> {
-    shape: Vec<usize>,
+    shape: Shape,
     size: usize,
     rank: usize,
     values: Vec<T>
@@ -18,7 +18,7 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
     }
 
     /// Returns the shape dimensions of the array
-    pub fn shape(&self) -> &Vec<usize> {
+    pub fn shape(&self) -> &Shape {
         &self.shape
     }
 
@@ -52,7 +52,7 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
         }
 
         Ok(Self {
-            shape: shape,
+            shape: Shape::new(shape),
             size: calculated_size,
             rank: calculated_rank,
             values: vec![T::default(); calculated_size],
@@ -74,7 +74,7 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
         }
 
         Ok(Self {
-            shape: shape,
+            shape: Shape::new(shape),
             size: calculated_size,
             rank: calculated_rank,
             values: values,
@@ -97,7 +97,7 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
             return Err("New Shape values don't match size of array".to_string());
         }
 
-        self.shape = shape_vals;
+        self.shape = Shape::new(shape_vals);
         Ok(())
     }
 
@@ -113,7 +113,7 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
         let mut counter = self.rank;  
         for _n in 0..self.rank {
             let temp = stride * indices[counter-1]; 
-            let curr_shape = self.shape[counter-1];
+            let curr_shape = self.shape.dim(counter-1);
             stride *= curr_shape;
             index += temp;  
             counter -= 1; 
@@ -137,7 +137,7 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
         let mut count = self.rank-1; 
         let mut curr_index = index; 
         for _n in 0..self.rank-1 {
-            let dim_size = self.shape[count];
+            let dim_size = self.shape.dim(count);
             indexs[count] = curr_index % dim_size; 
             curr_index /= dim_size; 
             count -= 1;
@@ -179,7 +179,7 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
     /// Get rows dimension associated with multi dimensional array
     pub fn rows(&self, index: usize) -> Result<Vec<T>, String> {
 
-        let dim_shape = self.shape()[0];
+        let dim_shape = self.shape.dim(0);
         let result_length = self.size() / dim_shape;
         let values = self.values();
         let mut start_index = index * result_length;
@@ -199,7 +199,7 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
     pub fn cols(&self, index: usize) -> Result<Vec<T>, String> {
 
         let mut result = Vec::new();
-        let dim_shape = self.shape()[1];
+        let dim_shape = self.shape.dim(1);
         let values = self.values();
         let result_length = self.size() / dim_shape;
         let stride = dim_shape;
@@ -224,7 +224,7 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
             return Err("NDArray must be of rank 2".to_string())
         }
 
-        let dim_size = batch_size * self.shape()[1];
+        let dim_size = batch_size * self.shape.dim(1);
         let mut start_index = 0; 
         let mut end_index = start_index + dim_size;
 
@@ -238,13 +238,13 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
 
             let temp_vec: Vec<T> = self.values()[start_index..end_index].to_vec(); 
             let ndarray_batch: NDArray<T> = NDArray::array(
-                vec![batch_size, self.shape()[1]], 
+                vec![batch_size, self.shape.dim(1)], 
                 temp_vec.clone()
             ).unwrap();
 
             batches.push(ndarray_batch); 
-            start_index += self.shape()[1]; 
-            end_index += self.shape()[1]; 
+            start_index += self.shape.dim(1); 
+            end_index += self.shape.dim(1); 
              
         }
 
