@@ -30,6 +30,10 @@ impl Shape {
         cloned_shape
     }
 
+    pub fn remove(&mut self, index: usize) {
+        self.values.remove(index);
+    }
+
     /// Permute indices in shape vector
     pub fn permute(&self, indice_order: Vec<usize>) -> Vec<usize> {
         let mut new_shape: Vec<usize> = Vec::new();
@@ -69,46 +73,36 @@ impl Shape {
         indexs
     }
 
-    /// Get stride for provided axis (dimension)
-    pub fn stride(&self, axis: usize) -> usize {
-   
-        let mut stride = 0; 
-        let mut counter = self.values.len();
-        let mut temp_stride = 1;
-
-        for item in 0..self.values.len() { 
-            let temp = temp_stride * self.values[counter-1];
-            stride = temp/self.values[counter-1];
-            temp_stride *= self.values[counter-1];
-            counter -= 1;
-
-            if item == axis {
-                break;
-            }
+    pub fn multi_index(&self, flat_index: usize) -> Vec<usize> {
+        let mut indices = Vec::new(); 
+        let mut flat_index = flat_index; 
+        for dim in self.values.iter().rev() {
+            indices.push(flat_index % dim); 
+            flat_index /= dim; 
         }
-
-        stride
+        indices.reverse();
+        indices
     }
 
     /// Get stride for provided axis (dimension)
-    pub fn axis_length(&self, axis: usize) -> usize {
-  
-        let mut shape_counter = 1;
-        let mut temp_stride = 1;
-        let mut remainder_length = self.values[axis];
+    pub fn strides(&self) -> Vec<usize> {
 
-        for item in 0..self.values.len() {
-
-            if item == axis {
-                break
-            }
-
-            let shape_temp = self.values[shape_counter];
-            remainder_length = shape_temp * shape_counter;
-            shape_counter += 1;
+        let byte_size = 8;
+        let mut counter = self.values.len()-1;
+        let mut strides = Vec::new(); 
+        let mut base_case = byte_size;
+        strides.push(base_case);
+ 
+        for item in 0..self.values.len()-1 {
+            let val = self.values[counter] * base_case;
+            base_case = val; 
+            strides.push(val); 
+            counter -= 1; 
         }
 
-        remainder_length
+        let mut final_strides = strides.clone();
+        final_strides.reverse();
+        final_strides
 
     }
 

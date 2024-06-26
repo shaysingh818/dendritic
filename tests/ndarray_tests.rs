@@ -748,103 +748,52 @@ mod ops {
             vec![4.0, 5.0, 6.0]
         ];
 
-        //let x_rows = x.axis(0).unwrap(); 
-        //let x_cols = x.axis(1).unwrap();
 
-
-        /*
-        assert_eq!(x_rows.len(), 4); 
-        assert_eq!(x_cols.len(), 3);
-
-        let mut index = 0; 
-        for item in x_rows {
-            assert_eq!(item.values(), &expected_x_rows[index]);
-            assert_eq!(item.values().len(), 3); 
-            index += 1; 
+        for row in 0..x.shape().dim(0) {
+            let item = x.axis(0, row).unwrap();
+            assert_eq!(item, expected_x_rows[row]);
         }
 
-        index = 0; 
-        for item in x_cols {
-            assert_eq!(item.values(), &expected_x_cols[index]);
-            assert_eq!(item.values().len(), 4); 
-            index += 1; 
-        } 
+        for col in 0..x.shape().dim(1) {
+            let item = x.axis(1, col).unwrap();
+            assert_eq!(item, expected_x_cols[col]);
+        }  
 
-        let x_3d = NDArray::array(vec![4, 2, 2], vec![
-            1.0,2.0,5.0,6.0,3.0,4.0,
-            7.0,8.0,9.0,10.0,13.0,
-            14.0,11.0,12.0,15.0,16.0
-        ]).unwrap();
+        let x_4d = NDArray::load("data/ndarray/4d_array").unwrap();
 
-
-        let expected_x_3d_rows = vec![
-            vec![1.0, 2.0, 5.0, 6.0],
-            vec![3.0, 4.0, 7.0, 8.0],
-            vec![9.0, 10.0, 13.0, 14.0],
-            vec![11.0, 12.0, 15.0, 16.0]
+        let x_4d_row = x_4d.axis(0, 0).unwrap();
+        let x_4d_row_expected = vec![
+            0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0
         ];
+        assert_eq!(x_4d_row, x_4d_row_expected);
 
-        let expected_x_3d_cols = vec![
-            vec![1.0, 5.0, 3.0, 7.0, 9.0, 13.0, 11.0, 15.0],
-            vec![2.0, 6.0, 4.0, 8.0, 10.0, 14.0, 12.0, 16.0]
+
+        let x_4d_col_expected = vec![
+            0.0, 1.0, 2.0, 3.0, 8.0, 9.0, 10.0, 11.0, 16.0,
+            17.0, 18.0, 19.0, 24.0, 25.0, 26.0, 27.0
         ];
+        let x_4d_col = x_4d.axis(1, 0).unwrap();
+        assert_eq!(x_4d_col, x_4d_col_expected); 
 
-        let expected_x_3d_3 = vec![
-            vec![1.0, 3.0, 9.0, 11.0],
-            vec![2.0, 4.0, 10.0, 12.0],
-            vec![5.0, 7.0, 13.0, 15.0],
-            vec![6.0, 8.0, 14.0, 16.0]
+        let x_4d_3_expected = vec![
+            0.0, 1.0, 4.0, 5.0, 8.0, 9.0, 12.0, 13.0,
+            16.0, 17.0, 20.0, 21.0, 24.0, 25.0, 28.0, 29.0
         ];
-
-        let x_3d_rows = x_3d.axis(0).unwrap();  
-        let x_3d_cols = x_3d.axis(1).unwrap(); 
-        let x_3d_3 = x_3d.axis(2).unwrap();
-
-        index = 0; 
-        for item in x_3d_rows {
-            assert_eq!(item.values(), &expected_x_3d_rows[index]);
-            assert_eq!(item.values().len(), 4); 
-            index += 1; 
-        } 
-
-        index = 0; 
-        for item in x_3d_cols {
-            assert_eq!(item.values(), &expected_x_3d_cols[index]);
-            assert_eq!(item.values().len(), 8); 
-            index += 1; 
-        } 
-
-
-        index = 0; 
-        for item in x_3d_3 {
-            assert_eq!(item.values(), &expected_x_3d_3[index]);
-            assert_eq!(item.values().len(), 4); 
-            index += 1; 
-        } */
-
-
-        let x_4d = NDArray::array(vec![2, 2, 2, 2], vec![
-            1.0, 2.0, 3.0, 4.0,
-            5.0, 6.0, 7.0, 8.0,
-            9.0, 10.0, 11.0, 12.0,
-            13.0, 14.0, 15.0, 16.0
-        ]).unwrap();
-
-        //let x_4d_rows = x_4d.axis(0).unwrap();  
-        //let x_4d_cols = x_4d.axis(1).unwrap(); 
-        //let x_4d_3 = x_4d.axis(2).unwrap();
-        //let x_4d_4 = x_4d.axis(3).unwrap();
-
+        let x_4d_3 = x_4d.axis(2, 0).unwrap();
+        assert_eq!(x_4d_3, x_4d_3_expected); 
 
         /*
-        let mut index = 0; 
-        for item in x_4d_4 {
-            println!("{:?}", item.values()); 
-            //assert_eq!(item.values(), &expected_x_3d_rows[index]);
-            //assert_eq!(item.values().len(), 4); 
-            index += 1; 
-        } */
+        let x_4d_4_expected = vec![
+            1.0, 3.0, 5.0, 7.0, 9.0, 11.0, 13.0, 15.0,
+            17.0, 19.0, 21.0, 23.0, 25.0, 27.0, 29.0, 31.0
+        ];
+        let x_4d_4 = x_4d.axis(3, 0).unwrap();
+        assert_eq!(x_4d_4, x_4d_4_expected); */ 
 
+
+        let x_5d = NDArray::load("data/ndarray/5d_array").unwrap();
+        let x_5d_col = x_5d.axis(2, 0).unwrap();
+        //println!("{:?}", x_5d_col);  
 
     }  
 

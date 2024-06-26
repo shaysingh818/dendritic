@@ -15,7 +15,7 @@ pub trait Ops {
     fn save(&self, filepath: &str) -> std::io::Result<()>; 
     fn load(filepath: &str) -> std::io::Result<NDArray<f64>>;
     fn apply(&self, loss_func: fn(value: f64) -> f64) -> Result<NDArray<f64>, String>; 
-    fn axis(&self, axis: usize) -> Result<Vec<NDArray<f64>>, String>;  
+    fn axis(&self, axis: usize, index: usize) -> Result<Vec<f64>, String>;  
     fn mult(&self, other: NDArray<f64>) -> Result <NDArray<f64 >, String>; 
     fn add(&self, other: NDArray<f64>) -> Result <NDArray<f64 >, String>;
     fn sum_axis(&self, axis: usize) -> Result<NDArray<f64>, String>; 
@@ -81,69 +81,32 @@ impl Ops for NDArray<f64> {
     }
 
 
-    fn axis(&self, axis: usize) -> Result<Vec<NDArray<f64>>, String> {
+    fn axis(&self, axis: usize, index: usize) -> Result<Vec<f64>, String> {
 
         if axis > self.rank() - 1 { 
             return Err("Axis: Selected axis larger than rank".to_string());
         }
 
-        let mut stride = 0; 
-        let mut counter = self.rank();
-        let mut shape_counter = 1;
-        let mut temp_stride = 1;
-
-        let mut axis_stride = self.shape().dim(axis);
-        let mut remainder_length = self.shape().dim(axis);
-        let mut results: Vec<NDArray<f64>> = Vec::new();
-
-        for item in 0..self.rank() { 
-            let temp = temp_stride * self.shape().dim(counter-1);
-            stride = temp/self.shape().dim(counter-1);
-            temp_stride *= self.shape().dim(counter-1);
-            counter -= 1;
-
-            if item == axis {
-                break;
-            }
-
-            let shape_temp = self.shape().dim(shape_counter);
-            axis_stride = remainder_length + shape_counter;
-            println!("Axis stride: {:?} {:?}", remainder_length, shape_counter); 
-            remainder_length = shape_temp * shape_counter;
-            shape_counter += 1;
+        if index > self.shape().dim(axis)-1 {
+            return Err("Axis: Index for value is too large".to_string()); 
         }
 
-        println!("Remainder Length: {:?}", remainder_length);
+        let mut values = Vec::new();
+        let mut new_shape = self.shape().clone();
+        new_shape.remove(axis);
 
-        /*
-        for index in 0..remainder_length {
+        let mut slice_size = self.shape().dim(axis); 
+        let mut outer_size = new_shape.values().iter().product::<usize>();
 
-            let mut idx_tracker = 0; 
-            let mut idx = index;
-            let mut values: Vec<f64> = Vec::new();
-            let base_case = self.size()/self.shape()[axis];
+        for item in 0..outer_size {
+            let multi_index = new_shape.multi_index(item);
+            let mut full_index = multi_index.clone();
+            full_index.insert(axis, index); 
+            let flat_index = self.index(full_index).unwrap();
+            values.push(self.values()[flat_index]);
+        }
 
-            if axis == 0 {
-                idx = index * base_case;
-            }
-
-            while idx < self.size() { 
-                values.push(self.values()[idx]);
-                idx += stride; 
-                idx_tracker += 1; 
-
-                if axis == 0 && idx_tracker == base_case {
-                    break; 
-                }
-            }
-
-            let stride_array: NDArray<f64> = NDArray::array(
-                vec![values.len(), 1], values
-            ).unwrap();
-            results.push(stride_array); 
-        }*/ 
-
-        Ok(results)
+        Ok(values)
     }
 
 
@@ -208,10 +171,11 @@ impl Ops for NDArray<f64> {
     fn mean_nd(&self, axis: usize) -> Result<Vec<f64>, String> {
 
         let mut results: Vec<f64> = Vec::new(); 
-        let axis_values = self.axis(axis).unwrap(); 
-        for axis_val in axis_values {
-            let sum_vals: f64 = axis_val.values().iter().sum(); 
-            let avg: f64 = sum_vals / axis_val.values().len() as f64;
+        let shape_axis = self.shape().dim(axis);
+        for item in 0..shape_axis {
+            let axis_vals = self.axis(axis, item).unwrap();  
+            let sum_vals: f64 = axis_vals.iter().sum(); 
+            let avg: f64 = sum_vals / axis_vals.len() as f64;
             results.push(avg); 
         }
 
