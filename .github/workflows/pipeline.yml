@@ -49,3 +49,32 @@ jobs:
       working-directory: "./autodiff"
       run: cargo test --color always
 
+  preprocessing:
+    runs-on: ubuntu-20.04
+    needs: [ndarray]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      working-directory: "./preprocessing"
+      run: cargo build --color always
+
+    - name: Test
+      working-directory: "./preprocessing"
+      run: cargo test --color always
+
+  regression:
+    runs-on: ubuntu-20.04
+    needs: [ndarray, metrics, autodiff, preprocessing]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      working-directory: "./regression"
+      run: cargo build --color always
+
+    - name: Test
+      working-directory: "./regression"
+      run: cargo test --color always
+
+
