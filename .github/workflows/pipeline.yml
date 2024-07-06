@@ -8,27 +8,16 @@ on:
 
 jobs:
 
-
-  unit-test:
+  ndarray:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
 
     - name: Build
+      working-directory: "./ndarray"
       run: cargo build --color always
 
-    - name: Unit Test
+    - name: Test
+      working-directory: "./ndarray"
       run: cargo test --color always
 
-  documentation:
-    needs: [unit-test]
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Publish Docs
-      run: | 
-        cargo doc --no-deps
-        rm -rf ./docs
-        echo "<meta http-equiv=\"refresh\" content=\"0; url=hydra/index.html\">" > target/doc/index.html
-        cp -r target/doc ./docs

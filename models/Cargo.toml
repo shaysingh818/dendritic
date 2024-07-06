@@ -1,0 +1,27 @@
+[package]
+name = "models"
+version = { workspace = true  } 
+edition = { workspace = true }
+description = "Package of trained machine learning models for steepgrad"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ndarray = { workspace = true }
+regression = { workspace = true }
+preprocessing = { workspace = true }
+metrics = { workspace = true }
+autodiff = { workspace = true }
+rand = "0.8"
+serde = { version = "1.0.126", features = ["derive"] }
+serde_json = "1.0.64"
+arrow = "51.0.0"
+arrow-schema = "51.0.0"
+arrow-array = "51.0.0"
+arrow-json = "51.0.0"
+postgres = "0.19.7"
+parquet = "52.0.0"
+bigdecimal = "0.4.4"
+csv = "1.3.0"
+
+
