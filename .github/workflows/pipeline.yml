@@ -37,7 +37,7 @@ jobs:
 
   autodiff:
     runs-on: ubuntu-20.04
-    needs: [ndarray, metrics]
+    needs: [ndarray]
     steps:
     - uses: actions/checkout@v2
 
