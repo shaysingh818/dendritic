@@ -21,3 +21,31 @@ jobs:
       working-directory: "./ndarray"
       run: cargo test --color always
 
+  metrics:
+    runs-on: ubuntu-20.04
+    needs: [ndarray]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      working-directory: "./metrics"
+      run: cargo build --color always
+
+    - name: Test
+      working-directory: "./metrics"
+      run: cargo test --color always
+
+  autodiff:
+    runs-on: ubuntu-20.04
+    needs: [ndarray, metrics]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      working-directory: "./autodiff"
+      run: cargo build --color always
+
+    - name: Test
+      working-directory: "./autodiff"
+      run: cargo test --color always
+
