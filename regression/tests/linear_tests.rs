@@ -4,7 +4,7 @@ mod linear {
 
     use ndarray::ndarray::NDArray;
     use ndarray::ops::*;
-    use metrics::mse::*;
+    use metrics::loss::*;
     use regression::linear::*;
 
     #[test]

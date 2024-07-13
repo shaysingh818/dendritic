@@ -20,9 +20,11 @@ pub trait Ops {
     fn sum_axis(&self, axis: usize) -> Result<NDArray<f64>, String>; 
     fn subtract(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
     fn dot(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
+    fn dot_v2(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
     fn scale_add(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
     fn mean(&self, axis: usize) -> Result<Vec<f64>, String>;
     fn stdev(&self, axis: usize) -> Result<Vec<f64>, String>;
+    fn argmax(&self, axis: usize) -> NDArray<f64>;
 
     fn scale_mult(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
     fn transpose(self) -> Result<NDArray<f64>, String>;
@@ -105,8 +107,7 @@ impl Ops for NDArray<f64> {
             let flat_index = self.index(full_index).unwrap();
             values.push(self.values()[flat_index]);
         }
-
-        
+ 
         Ok(NDArray::array(new_shape.values(),values).unwrap()) 
     }
 
@@ -201,6 +202,38 @@ impl Ops for NDArray<f64> {
         }
 
         Ok(results)
+    }
+
+
+    fn argmax(&self, axis: usize) -> NDArray<f64> {
+
+
+        // this only works for a row (for now)
+        let mut results = Vec::new();
+        let shape = self.shape().dim(axis);
+        for idx in 0..shape {
+            let axis_value = self.axis(axis, idx).unwrap();
+
+            let mut curr_max = 0.0; 
+            let mut index = 0; 
+            let mut final_index = 0;
+            for item in axis_value.values() {
+                if item > &curr_max {
+                    curr_max = *item;
+                    final_index = index; 
+                }
+                index += 1;
+            }
+
+            results.push(final_index as f64);
+        }
+
+        let result = NDArray::array(
+            vec![shape, 1],
+            results
+        ).unwrap();
+        result
+
     }
 
 
@@ -354,7 +387,7 @@ impl Ops for NDArray<f64> {
             }
 
             let col_dim = value.shape().dim(value.rank()-1);
-            if col_counter >= col_dim-1 {
+            if col_counter == col_dim {
                 col_counter = 0; 
             }
 
@@ -365,6 +398,65 @@ impl Ops for NDArray<f64> {
             let mut value = 0.0; 
             for item in 0..curr.len() {
                 value += curr[item] * val[item];
+            }
+            result.set_idx(counter, value).unwrap(); 
+
+            
+            // counter += 1; 
+            col_counter += 1;
+            stride += 1;  
+                    
+        }
+
+        Ok(result)
+    }
+
+
+    /// Perform dot product of current NDArray on another NDArray instance
+    fn dot_v2(&self, value: NDArray<f64>) -> Result<NDArray<f64>, String> {
+
+        /* rank mismatch */
+        if self.rank() != value.rank() {
+            return Err("Dot: Rank Mismatch".to_string());
+        }
+
+        if self.rank() != 2 {
+            return Err("Dot: Requires rank 2 values".to_string());
+        }
+
+        if self.shape().dim(self.rank()-1) != value.shape().dim(0) {
+            return Err("Dot: Rows must equal columns".to_string());
+        }
+
+        let new_shape: Vec<usize> = vec![self.shape().dim(0), value.shape().dim(self.rank()-1)];
+        let mut result = NDArray::new(new_shape).unwrap();
+
+        /* stride values to stay in constant time */ 
+        // let mut counter = 0; 
+        let mut row_counter = 0; 
+        let mut col_counter = 0; 
+        let mut stride = 0;  
+        for counter in 0..result.size() {
+
+            if stride == value.shape().dim(self.rank()-1)  {
+                row_counter += 1;
+                stride = 0; 
+            }
+
+            let col_dim = value.shape().dim(value.rank()-1);
+            if col_counter == col_dim {
+                col_counter = 0; 
+            }
+
+            let row = self.rows(row_counter).unwrap();
+            let col = value.cols(col_counter).unwrap();
+            //println!("{:?}", row); 
+
+            //println!("{:?}", col); 
+            /* multiply */ 
+            let mut value = 0.0; 
+            for item in 0..col.len() {
+                value += row[item] * col[item];
             }
             result.set_idx(counter, value).unwrap(); 
 

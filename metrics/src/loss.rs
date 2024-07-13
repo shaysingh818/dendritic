@@ -36,3 +36,19 @@ pub fn binary_cross_entropy(y_hat: &NDArray<f64>, y_true: &NDArray<f64>) -> Resu
     Ok(result)
 }
 
+
+pub fn categorical_cross_entropy(y_hat: &NDArray<f64>, y_true: &NDArray<f64>) -> Result<f64, String> {
+
+    let mut index = 0;
+    let mut result = 0.0;  
+    for y in y_true.values() {
+        let y_pred = y_hat.values()[index];
+        let diff = -y * y_pred.ln();
+        result += diff;
+        index += 1;
+    }
+
+    Ok(result * 1.0/y_hat.size() as f64)
+
+}
+

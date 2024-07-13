@@ -9,7 +9,7 @@ use arrow_array::array::{Float64Array};
 
 use ndarray::ndarray::NDArray;
 use regression::logistic::Logistic;
-
+use metrics::activations::*;
 
 #[derive(Serialize)]
 pub struct Suicide {
@@ -50,6 +50,7 @@ impl SuicideDetectionModel {
             model: Logistic::new(
                  NDArray::new(vec![1, 1]).unwrap(),
                  NDArray::new(vec![1, 1]).unwrap(),
+                 sigmoid_vec,
                  0.01
             ).unwrap()
         }
@@ -162,7 +163,7 @@ impl SuicideDetectionModel {
     pub fn train_model(&mut self) {
         let batch = self.create_batch(); 
         let (inputs, outputs) = self.process_features(batch);
-        self.model = Logistic::new(inputs, outputs, 0.1).unwrap();
+        self.model = Logistic::new(inputs, outputs, sigmoid_vec, 0.1).unwrap();
         self.model.train(5000, true);
     }
 

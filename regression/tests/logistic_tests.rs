@@ -5,7 +5,8 @@ mod logistic_tests {
     use regression::logistic::Logistic;
     use ndarray::ndarray::NDArray;
     use ndarray::ops::*;
-    use metrics::mse::*;
+    use metrics::loss::*;
+    use metrics::activations::*;
 
     #[test]
     fn test_logistic_model() {
@@ -17,8 +18,11 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let model = Logistic::new(
-            x.clone(), y.clone(), 0.01)
-        .unwrap();
+            x.clone(), 
+            y.clone(), 
+            sigmoid_vec,
+            0.01
+        ).unwrap();
 
         assert_eq!(model.features.val().shape().values(), x.shape().values()); 
         assert_eq!(model.features.val().rank(), 2); 
@@ -62,7 +66,10 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let mut model = Logistic::new(
-            x.clone(), y.clone(), 0.01
+            x.clone(), 
+            y.clone(), 
+            sigmoid_vec,
+            0.01
         ).unwrap();
 
         let weights_binding = model.weights.val(); 
@@ -98,7 +105,10 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let mut model = Logistic::new(
-            x.clone(), y.clone(), 0.001
+            x.clone(), 
+            y.clone(), 
+            sigmoid_vec,
+            0.001
         ).unwrap();
 
         let weights_binding = model.weights.val(); 
@@ -138,7 +148,10 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let mut model = Logistic::new(
-            x.clone(), y.clone(), 0.001
+            x.clone(),
+            y.clone(), 
+            sigmoid_vec,
+            0.001
         ).unwrap();
 
         model.sgd(1000, false, 2);
@@ -148,7 +161,11 @@ mod logistic_tests {
         let y_train = y.batch(batch_size).unwrap();
 
         let mut loaded_model = Logistic::load(
-            model_path, x.clone(), y.clone(), 0.01
+            model_path, 
+            x.clone(), 
+            y.clone(), 
+            sigmoid_vec,
+            0.01
         ).unwrap();
 
         let results = loaded_model.predict(x_train[1].clone());
@@ -157,6 +174,19 @@ mod logistic_tests {
         assert_eq!(loss_condition, true); 
 
         Ok(())
+
+    }
+
+    #[test]
+    fn test_multi_class_logistic() {
+
+        // multi class data
+        let x_path = "data/logistic_modeling_data/multi_class_input";
+        let y_path = "data/logistic_modeling_data/multi_class_output";
+
+        let x_train = NDArray::load(x_path).unwrap();
+        let y_train = NDArray::load(y_path).unwrap();
+
 
     }
 

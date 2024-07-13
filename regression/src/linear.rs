@@ -1,6 +1,6 @@
 use ndarray::ndarray::NDArray;
 use ndarray::ops::*;
-use metrics::mse::*;
+use metrics::loss::*;
 use autodiff::node::{Node, Value};
 use autodiff::ops::*; 
 use std::fs;

@@ -10,7 +10,7 @@ use ndarray::ndarray::NDArray;
 use ndarray::ops::*;
 use regression::logistic::Logistic;
 use preprocessing::standard_scalar::*;
-
+use metrics::activations::*;
 
 #[derive(Debug, serde::Deserialize, Serialize)]
 pub struct Record {
@@ -59,6 +59,7 @@ impl DiabetesModel {
             model: Logistic::new(
                 NDArray::new(vec![1, 1]).unwrap(),
                 NDArray::new(vec![1, 1]).unwrap(),
+                sigmoid_vec,
                 learning_rate
             ).unwrap()
         }
@@ -195,6 +196,7 @@ impl DiabetesModel {
         self.model = Logistic::new(
             x_train_processed, 
             y_train, 
+            sigmoid_vec,
             self.learning_rate
         ).unwrap();
 
@@ -254,6 +256,7 @@ impl DiabetesModel {
             filepath,
             x_train_processed, 
             y_train,
+            sigmoid_vec,
             self.learning_rate
         ).unwrap();
     }

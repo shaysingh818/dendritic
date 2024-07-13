@@ -4,7 +4,7 @@ mod elastic {
 
     use ndarray::ndarray::NDArray;
     use ndarray::ops::*;
-    use metrics::mse::*;
+    use metrics::loss::*;
     use regression::elastic_net::*;
 
     #[test]

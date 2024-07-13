@@ -3,7 +3,7 @@ mod elastic {
 
     use ndarray::ndarray::NDArray;
     use ndarray::ops::*;
-    use metrics::mse::*;
+    use metrics::loss::*;
 
     #[test]
     fn test_binary_cross_entropy() {

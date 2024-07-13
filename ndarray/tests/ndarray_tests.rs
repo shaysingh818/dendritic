@@ -403,6 +403,15 @@ mod ops {
                 assert_eq!(err, "Dot: Rows must equal columns"); 
             }
         }
+
+        let a_path = "data/investigation/X_T";
+        let b_path = "data/investigation/Y_P";
+
+        let a = NDArray::load(a_path).unwrap();
+        let b = NDArray::load(b_path).unwrap();
+
+        let dot_result = a.dot(b).unwrap();
+        println!("{:?}", dot_result.values()); 
         
     }
 

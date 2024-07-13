@@ -5,7 +5,7 @@ mod ridge_test {
     use ndarray::ndarray::NDArray;
     use ndarray::ops::*;
     use autodiff::node::*; 
-    use metrics::mse::*;
+    use metrics::loss::*;
     use regression::ridge::*;
 
     #[test]
