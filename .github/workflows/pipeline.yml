@@ -1,4 +1,4 @@
-name: Steepgrad
+name: Dendrite
 
 on:
   push:
