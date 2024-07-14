@@ -2,9 +2,9 @@ use datasets::iris::*;
 use datasets::breast_cancer::*;
 use datasets::diabetes::*;
 use regression::logistic::*;
+use preprocessing::encoding::*;
 use metrics::loss::*;
 use metrics::activations::*;
-
 
 fn diabetes_model() {
 
@@ -61,28 +61,29 @@ fn breast_cancer_model() {
 
 
 fn main() {
-
-    //diabetes_model(); 
-    //breast_cancer_model(); 
-   
+ 
     // load data
     let (x_train, y_train) = load_iris().unwrap();
 
+    // encode the target variables
+    let mut encoder = OneHotEncoding::new(y_train.clone()).unwrap();
+    let y_train_encoded = encoder.transform();
+
     // create logistic regression model
-    let mut log_model = Logistic::new(
+    let mut log_model = MultiClassLogistic::new(
         x_train.clone(),
-        y_train.clone(),
+        y_train_encoded.clone(),
         softmax,
-        0.001
+        0.1
     ).unwrap();
 
-    log_model.sgd(1000, true, 3);
+    log_model.sgd(500, true, 5);
 
-
-    let sample_index = 100;
-    let x_test = x_train.batch(3).unwrap();
-    let y_test = y_train.batch(3).unwrap();
+    let sample_index = 50;
+    let x_test = x_train.batch(5).unwrap();
+    let y_test = y_train.batch(5).unwrap();
     let y_pred = log_model.predict(x_test[sample_index].clone());
+
     println!("Actual: {:?}", y_test[sample_index]);
     println!("Prediction: {:?}", y_pred.values());
 

@@ -10,6 +10,7 @@ description = "Machine Learning algorithms that are based on regression techniqu
 ndarray = { workspace = true }
 metrics = { workspace = true }
 autodiff = { workspace = true }
+preprocessing = { workspace = true }
 
 [dev-dependencies]
 rand = "0.8"

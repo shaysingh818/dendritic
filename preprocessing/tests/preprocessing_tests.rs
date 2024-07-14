@@ -7,7 +7,7 @@ mod preprocessing_tests {
     use preprocessing::standard_scalar::*;
 
     #[test]
-    fn test_standard_scalar() {
+    fn test_min_max_scalar() {
 
         let x = NDArray::array(vec![4, 3], vec![
             1.0,2.0,31.0,
@@ -16,13 +16,35 @@ mod preprocessing_tests {
             4.0,5.0,61.0
         ]).unwrap();
 
-        let std_scalar = standard_scalar(x.clone()).unwrap();
-        println!("{:?}", std_scalar.values()); 
 
-        let min_max = min_max_scalar(x).unwrap();
-        println!("{:?}", min_max.values()); 
-        
-        
+        let min_max = min_max_scalar(x.clone()).unwrap();
+
+        let min = min_max.values().iter().min_by(
+            |a, b| a.total_cmp(b)
+        ).unwrap();
+
+        let max = min_max.values().iter().max_by(
+            |a, b| a.total_cmp(b)
+        ).unwrap();
+
+        assert_eq!(*min, 0.0); 
+        assert_eq!(*max, 1.0);
+        assert_eq!(min_max.shape().values(), x.shape().values());
+
+        let rounded: Vec<f64> = min_max.values().iter().map(
+            |x| (x * 1000.0).round() / 1000.0
+        ).collect();
+
+
+        let expected_vals = vec![
+            0.0,0.0,0.0,
+            0.333,0.333,0.333,
+            0.667,0.667,0.667,
+            1.0,1.0,1.0
+        ];
+
+        assert_eq!(expected_vals, rounded); 
+ 
     }
 
 

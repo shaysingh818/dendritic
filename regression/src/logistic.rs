@@ -328,7 +328,6 @@ impl MultiClassLogistic {
 
     pub fn train(&mut self, epochs: usize, log_output: bool) {
 
-
         /* create node graph */     
         let mut logistic = ScaleAdd::new(
             Dot::new(self.features.clone(), self.weights.clone()),
@@ -376,5 +375,68 @@ impl MultiClassLogistic {
         }
 
     }
+
+
+    pub fn sgd(&mut self, epochs: usize, log_output: bool, batch_size: usize) {
+
+        let mut loss: f64 = 0.0;
+        let x_train_binding = self.features.val();
+        let y_train_binding = self.outputs.val();
+        let x_train = x_train_binding.batch(batch_size).unwrap();
+        let y_train = y_train_binding.batch(batch_size).unwrap();
+
+        let mut logistic = ScaleAdd::new(
+            Dot::new(self.features.clone(), self.weights.clone()),
+            self.bias.clone()
+        ); 
+
+        for epoch in 0..epochs {
+
+            let mut batch_index = 0;
+            for batch in &x_train {
+
+                self.features.set_val(&batch);
+                self.outputs.set_val(&y_train[batch_index]);
+
+                logistic.forward();
+
+                let y_pred = apply(
+                    logistic.value(), 0, 
+                    self.activation_function
+                );
+                loss = (self.loss_function)(&y_pred, &self.outputs.val()).unwrap();
+                let error = y_pred.subtract(self.outputs.val()).unwrap();
+
+                logistic.backward(error);
+
+                /* update weights */
+                let learning_rate_factor = self.learning_rate/y_pred.size() as f64;
+
+                let w_grad = self.features
+                    .grad()
+                    .scalar_mult(learning_rate_factor)
+                    .unwrap();
+
+                let dw = self.weights.val().subtract(w_grad).unwrap();
+                self.weights.set_val(&dw); 
+
+                let b_collapse = self.bias
+                    .grad()
+                    .sum_axis(1)
+                    .unwrap();
+
+                let db = b_collapse.scalar_mult(learning_rate_factor).unwrap();
+                self.bias.set_val(&db); 
+                batch_index += 1; 
+            }
+
+            if log_output {
+                println!("Epoch [{:?}/{:?}]: {:?}", epoch, epochs, loss);
+            }
+            
+        }
+
+    }
+
 
 }

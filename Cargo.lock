@@ -1466,6 +1466,7 @@ dependencies = [
  "autodiff",
  "metrics",
  "ndarray",
+ "preprocessing",
  "rand",
  "serde",
  "serde_json",
