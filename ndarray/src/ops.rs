@@ -23,6 +23,7 @@ pub trait Ops {
     fn scale_add(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
     fn mean(&self, axis: usize) -> Result<Vec<f64>, String>;
     fn stdev(&self, axis: usize) -> Result<Vec<f64>, String>;
+    fn argmax(&self, axis: usize) -> NDArray<f64>;
 
     fn scale_mult(&self, other: NDArray<f64>) -> Result<NDArray<f64>, String>;
     fn transpose(self) -> Result<NDArray<f64>, String>;
@@ -105,8 +106,7 @@ impl Ops for NDArray<f64> {
             let flat_index = self.index(full_index).unwrap();
             values.push(self.values()[flat_index]);
         }
-
-        
+ 
         Ok(NDArray::array(new_shape.values(),values).unwrap()) 
     }
 
@@ -201,6 +201,38 @@ impl Ops for NDArray<f64> {
         }
 
         Ok(results)
+    }
+
+
+    fn argmax(&self, axis: usize) -> NDArray<f64> {
+
+
+        // this only works for a row (for now)
+        let mut results = Vec::new();
+        let shape = self.shape().dim(axis);
+        for idx in 0..shape {
+            let axis_value = self.axis(axis, idx).unwrap();
+
+            let mut curr_max = 0.0; 
+            let mut index = 0; 
+            let mut final_index = 0;
+            for item in axis_value.values() {
+                if item > &curr_max {
+                    curr_max = *item;
+                    final_index = index; 
+                }
+                index += 1;
+            }
+
+            results.push(final_index as f64);
+        }
+
+        let result = NDArray::array(
+            vec![shape, 1],
+            results
+        ).unwrap();
+        result
+
     }
 
 
@@ -354,17 +386,17 @@ impl Ops for NDArray<f64> {
             }
 
             let col_dim = value.shape().dim(value.rank()-1);
-            if col_counter >= col_dim-1 {
+            if col_counter == col_dim {
                 col_counter = 0; 
             }
 
-            let curr = self.rows(row_counter).unwrap();
-            let val = value.cols(col_counter).unwrap();
+            let curr = self.axis(0, row_counter).unwrap();
+            let val = value.axis(1, col_counter).unwrap();
 
             /* multiply */ 
             let mut value = 0.0; 
-            for item in 0..curr.len() {
-                value += curr[item] * val[item];
+            for item in 0..curr.size() {
+                value += curr.idx(item) * val.idx(item);
             }
             result.set_idx(counter, value).unwrap(); 
 

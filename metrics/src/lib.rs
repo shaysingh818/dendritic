@@ -1,4 +1,3 @@
-pub mod mae;
-pub mod mse;
-pub mod rss;
-pub mod sigmoid;
+pub mod loss;
+pub mod activations;
+pub mod utils;

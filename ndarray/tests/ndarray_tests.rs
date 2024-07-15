@@ -403,6 +403,18 @@ mod ops {
                 assert_eq!(err, "Dot: Rows must equal columns"); 
             }
         }
+
+        let a_path = "data/ndarray/X_T";
+        let b_path = "data/ndarray/Y_P";
+
+        let a = NDArray::load(a_path).unwrap();
+        let b = NDArray::load(b_path).unwrap();
+
+        let dot_result = a.dot(b).unwrap();
+        let expected = vec![55.0, 110.0, 165.0, 55.0, 110.0, 165.0, 55.0, 110.0, 165.0];
+
+        assert_eq!(dot_result.shape().values(), vec![3,3]);
+        assert_eq!(dot_result.values(), &expected);
         
     }
 

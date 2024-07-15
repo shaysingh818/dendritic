@@ -1,4 +1,4 @@
-name: Steepgrad
+name: Dendrite
 
 on:
   push:
@@ -63,9 +63,23 @@ jobs:
       working-directory: "./preprocessing"
       run: cargo test --color always
 
+  datasets:
+    runs-on: ubuntu-20.04
+    needs: [ndarray]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      working-directory: "./datasets"
+      run: cargo build --color always
+
+    - name: Test
+      working-directory: "./datasets"
+      run: cargo test --color always
+
   regression:
     runs-on: ubuntu-20.04
-    needs: [ndarray, metrics, autodiff, preprocessing]
+    needs: [ndarray, metrics, autodiff, preprocessing, datasets]
     steps:
     - uses: actions/checkout@v2
 

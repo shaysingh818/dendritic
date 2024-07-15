@@ -2,10 +2,12 @@
 #[cfg(test)]
 mod logistic_tests {
 
-    use regression::logistic::Logistic;
+    use preprocessing::encoding::{OneHotEncoding};
+    use regression::logistic::{Logistic, MultiClassLogistic};
     use ndarray::ndarray::NDArray;
     use ndarray::ops::*;
-    use metrics::mse::*;
+    use metrics::loss::*;
+    use metrics::activations::*;
 
     #[test]
     fn test_logistic_model() {
@@ -17,8 +19,11 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let model = Logistic::new(
-            x.clone(), y.clone(), 0.01)
-        .unwrap();
+            x.clone(), 
+            y.clone(), 
+            sigmoid_vec,
+            0.01
+        ).unwrap();
 
         assert_eq!(model.features.val().shape().values(), x.shape().values()); 
         assert_eq!(model.features.val().rank(), 2); 
@@ -62,7 +67,10 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let mut model = Logistic::new(
-            x.clone(), y.clone(), 0.01
+            x.clone(), 
+            y.clone(), 
+            sigmoid_vec,
+            0.01
         ).unwrap();
 
         let weights_binding = model.weights.val(); 
@@ -98,7 +106,10 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let mut model = Logistic::new(
-            x.clone(), y.clone(), 0.001
+            x.clone(), 
+            y.clone(), 
+            sigmoid_vec,
+            0.001
         ).unwrap();
 
         let weights_binding = model.weights.val(); 
@@ -138,7 +149,10 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let mut model = Logistic::new(
-            x.clone(), y.clone(), 0.001
+            x.clone(),
+            y.clone(), 
+            sigmoid_vec,
+            0.001
         ).unwrap();
 
         model.sgd(1000, false, 2);
@@ -148,7 +162,11 @@ mod logistic_tests {
         let y_train = y.batch(batch_size).unwrap();
 
         let mut loaded_model = Logistic::load(
-            model_path, x.clone(), y.clone(), 0.01
+            model_path, 
+            x.clone(), 
+            y.clone(), 
+            sigmoid_vec,
+            0.01
         ).unwrap();
 
         let results = loaded_model.predict(x_train[1].clone());
@@ -158,6 +176,78 @@ mod logistic_tests {
 
         Ok(())
 
+    }
+
+    #[test]
+    fn test_multi_class_logistic() {
+
+        // multi class data
+        let x_path = "data/logistic_modeling_data/multi_class_input";
+        let y_path = "data/logistic_modeling_data/multi_class_output_2";
+
+        let x_train = NDArray::load(x_path).unwrap();
+        let y_train = NDArray::load(y_path).unwrap();
+
+        let mut encoder = OneHotEncoding::new(y_train.clone()).unwrap();
+        let y_train_encoded = encoder.transform();
+
+        assert_eq!(x_train.clone().shape().values(), vec![10, 3]);
+        assert_eq!(y_train.clone().shape().values(), vec![10, 1]);
+        assert_eq!(y_train_encoded.shape().values(), vec![10, 3]);
+
+        let mut model = MultiClassLogistic::new(
+            x_train.clone(),
+            y_train_encoded.clone(),
+            softmax,
+            0.1
+        ).unwrap();
+
+        model.train(1000, false);
+        let results = model.predict(x_train);
+        let expected_predictions = vec![
+            0.0, 1.0, 2.0, 0.0, 1.0, 
+            2.0, 0.0, 1.0, 2.0, 0.0
+        ];
+
+        assert_eq!(results.values(), &expected_predictions); 
+    }
+
+
+    #[test]
+    fn test_multi_class_logistic_sgd() {
+
+        // multi class data
+        let batch_size = 5; 
+        let x_path = "data/logistic_modeling_data/multi_class_input";
+        let y_path = "data/logistic_modeling_data/multi_class_output_2";
+
+        let x_train = NDArray::load(x_path).unwrap();
+        let y_train = NDArray::load(y_path).unwrap();
+
+        let mut encoder = OneHotEncoding::new(y_train.clone()).unwrap();
+        let y_train_encoded = encoder.transform();
+
+        assert_eq!(x_train.clone().shape().values(), vec![10, 3]);
+        assert_eq!(y_train.clone().shape().values(), vec![10, 1]);
+        assert_eq!(y_train_encoded.shape().values(), vec![10, 3]);
+
+        let mut model = MultiClassLogistic::new(
+            x_train.clone(),
+            y_train_encoded.clone(),
+            softmax,
+            0.1
+        ).unwrap();
+
+        model.sgd(1000, false, batch_size);
+
+        let x_train_batch = x_train.batch(batch_size).unwrap();
+        let y_train_batch = y_train.batch(batch_size).unwrap();
+        let results = model.predict(x_train_batch[0].clone());
+
+        let expected_predictions = vec![
+            0.0, 1.0, 2.0, 0.0, 1.0 
+        ];
+        assert_eq!(results.values(), &expected_predictions); 
     }
 
 }

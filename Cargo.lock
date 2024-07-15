@@ -478,13 +478,34 @@ dependencies = [
 
 [[package]]
 name = "brotli"
+version = "3.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d640d25bc63c50fb1f0b545ffd80207d2e10a4c965530809b40ba3386825c391"
+dependencies = [
+ "alloc-no-stdlib",
+ "alloc-stdlib",
+ "brotli-decompressor 2.5.1",
+]
+
+[[package]]
+name = "brotli"
 version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "74f7971dbd9326d58187408ab83117d8ac1bb9c17b085fdacd1cf2f598719b6b"
 dependencies = [
  "alloc-no-stdlib",
  "alloc-stdlib",
- "brotli-decompressor",
+ "brotli-decompressor 4.0.1",
+]
+
+[[package]]
+name = "brotli-decompressor"
+version = "2.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4e2e4afe60d7dd600fdd3de8d0f08c2b7ec039712e3b6137ff98b7004e82de4f"
+dependencies = [
+ "alloc-no-stdlib",
+ "alloc-stdlib",
 ]
 
 [[package]]
@@ -623,6 +644,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5efa2b3d7902f4b634a20cae3c9c4e6209dc4779feb6863329607560143efa70"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "datasets"
+version = "0.3.0"
+dependencies = [
+ "arrow",
+ "arrow-array 51.0.0",
+ "arrow-csv",
+ "arrow-schema 51.0.0",
+ "csv",
+ "ndarray",
+ "parquet 51.0.0",
+ "preprocessing",
+ "rand",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -1012,9 +1050,10 @@ dependencies = [
  "autodiff",
  "bigdecimal",
  "csv",
+ "datasets",
  "metrics",
  "ndarray",
- "parquet",
+ "parquet 52.1.0",
  "postgres",
  "preprocessing",
  "rand",
@@ -1155,6 +1194,38 @@ dependencies = [
 
 [[package]]
 name = "parquet"
+version = "51.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "096795d4f47f65fd3ee1ec5a98b77ab26d602f2cc785b0e4be5443add17ecc32"
+dependencies = [
+ "ahash",
+ "arrow-array 51.0.0",
+ "arrow-buffer 51.0.0",
+ "arrow-cast 51.0.0",
+ "arrow-data 51.0.0",
+ "arrow-ipc 51.0.0",
+ "arrow-schema 51.0.0",
+ "arrow-select 51.0.0",
+ "base64 0.22.1",
+ "brotli 3.5.0",
+ "bytes",
+ "chrono",
+ "flate2",
+ "half",
+ "hashbrown",
+ "lz4_flex",
+ "num",
+ "num-bigint",
+ "paste",
+ "seq-macro",
+ "snap",
+ "thrift",
+ "twox-hash",
+ "zstd",
+]
+
+[[package]]
+name = "parquet"
 version = "52.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0f22ba0d95db56dde8685e3fadcb915cdaadda31ab8abbe3ff7f0ad1ef333267"
@@ -1168,7 +1239,7 @@ dependencies = [
  "arrow-schema 52.1.0",
  "arrow-select 52.1.0",
  "base64 0.22.1",
- "brotli",
+ "brotli 6.0.0",
  "bytes",
  "chrono",
  "flate2",
@@ -1395,6 +1466,7 @@ dependencies = [
  "autodiff",
  "metrics",
  "ndarray",
+ "preprocessing",
  "rand",
  "serde",
  "serde_json",

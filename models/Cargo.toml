@@ -12,6 +12,7 @@ regression = { workspace = true }
 preprocessing = { workspace = true }
 metrics = { workspace = true }
 autodiff = { workspace = true }
+datasets = { workspace = true }
 rand = "0.8"
 serde = { version = "1.0.126", features = ["derive"] }
 serde_json = "1.0.64"

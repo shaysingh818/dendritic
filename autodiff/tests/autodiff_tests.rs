@@ -4,7 +4,7 @@ mod autodiff_test {
 
     use ndarray::ndarray::NDArray;
     use ndarray::ops::*;
-    use metrics::mse::*;
+    use metrics::loss::*;
 
     use autodiff::node::*; 
     use autodiff::ops::*;

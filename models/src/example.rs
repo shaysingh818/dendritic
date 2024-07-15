@@ -10,7 +10,7 @@ use ndarray::ndarray::NDArray;
 use ndarray::ops::*;
 use regression::logistic::Logistic;
 use preprocessing::standard_scalar::*;
-
+use metrics::activations::*;
 
 #[derive(Debug, serde::Deserialize, Serialize)]
 pub struct Record {
@@ -55,6 +55,7 @@ impl ExampleModel {
             model: Logistic::new(
                 NDArray::new(vec![1, 1]).unwrap(),
                 NDArray::new(vec![1, 1]).unwrap(),
+                sigmoid_vec,
                 learning_rate
             ).unwrap()
         }
@@ -188,6 +189,7 @@ impl ExampleModel {
         self.model = Logistic::new(
             x_train_processed, 
             y_train, 
+            sigmoid_vec,
             self.learning_rate
         ).unwrap();
 
@@ -209,7 +211,8 @@ impl ExampleModel {
         self.model = Logistic::load(
             filepath,
             x_train, 
-            y_train ,
+            y_train,
+            sigmoid_vec,
             self.learning_rate
         ).unwrap();
     }
