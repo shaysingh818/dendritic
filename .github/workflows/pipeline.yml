@@ -79,7 +79,7 @@ jobs:
 
   regression:
     runs-on: ubuntu-20.04
-    needs: [ndarray, metrics, autodiff, preprocessing]
+    needs: [ndarray, metrics, autodiff, preprocessing, datasets]
     steps:
     - uses: actions/checkout@v2
 
