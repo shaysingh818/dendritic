@@ -1,21 +1,10 @@
-use std::path::Path;
 use std::fs::File; 
-use std::sync::Arc;
 use preprocessing::standard_scalar::*;
 use ndarray::ndarray::NDArray;
 use arrow_schema::{DataType, Field, Schema};
 use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 use parquet::errors::Result; 
 use crate::utils::*;
-
-use parquet::{
-    basic::Compression,
-    arrow::ArrowWriter,
-    file::{
-        properties::WriterProperties,
-        writer::SerializedFileWriter
-    }
-};
 
 
 /// loading the schema for the diabetes data
@@ -49,7 +38,7 @@ pub fn convert_diabetes_csv_to_parquet() {
 /// Load x_train and y_train dataset for diabetes
 pub fn load_diabetes() -> Result<(NDArray<f64>, NDArray<f64>)> {
 
-    let path = "../../datasets/data/diabetes.parquet";
+    let path = "data/diabetes.parquet";
     let file = File::open(path).unwrap();
     let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
         .build()?;

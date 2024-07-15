@@ -3,7 +3,6 @@
 mod activation_tests {
 
     use ndarray::ndarray::NDArray;
-    use ndarray::ops::*;
     use metrics::activations::*;
 
     #[test]

@@ -1,21 +1,10 @@
-use std::path::Path;
 use std::fs::File; 
-use std::sync::Arc;
-use preprocessing::standard_scalar::*;
 use ndarray::ndarray::NDArray;
 use arrow_schema::{DataType, Field, Schema};
 use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 use parquet::errors::Result; 
 use crate::utils::*;
 
-use parquet::{
-    basic::Compression,
-    arrow::ArrowWriter,
-    file::{
-        properties::WriterProperties,
-        writer::SerializedFileWriter
-    }
-};
 
 pub fn load_iris_schema() -> Schema {
     Schema::new(vec![
@@ -47,7 +36,7 @@ pub fn load_iris() -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     /* switch to datasets/data directory */
 
-    let path = "../../datasets/data/iris.parquet";
+    let path = "data/iris.parquet";
     let file = File::open(path).unwrap();
     let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
         .build()?;

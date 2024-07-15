@@ -4,8 +4,7 @@ use std::sync::Arc;
 use arrow_csv::ReaderBuilder; 
 use arrow_array::RecordBatch;
 use arrow_array::array::{Float64Array};
-use arrow_schema::{DataType, Field, Schema}; 
-use preprocessing::standard_scalar::*;
+use arrow_schema::{Schema}; 
 use ndarray::ndarray::NDArray;
 use ndarray::ops::*;
 
@@ -14,7 +13,6 @@ use parquet::{
     arrow::ArrowWriter,
     file::{
         properties::WriterProperties,
-        writer::SerializedFileWriter
     }
 };
 

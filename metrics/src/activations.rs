@@ -46,8 +46,6 @@ pub fn softmax(x: NDArray<f64>) -> NDArray<f64> {
     ).collect();
 
     let sum_exp_vals: f64 = exp_values.iter().sum();
-
-    let x_size = x.size() as  f64;
     let mut results: Vec<f64> = Vec::new();
 
     for val in x.values() {
@@ -69,14 +67,12 @@ pub fn softmax_prime(x: NDArray<f64>) -> NDArray<f64>  {
 
     let softmax_x = softmax(x.clone());
 
+    let mut index = 0; 
     let mut jacobian: NDArray<f64> = NDArray::new(
         vec![x.shape().dim(0), x.shape().dim(0)]
     ).unwrap();
 
-    let mut results: Vec<f64> = Vec::new();
-    let mut index = 0; 
-
-    for item in 0..jacobian.size() {
+    for _item in 0..jacobian.size() {
 
         let val = jacobian.indices(index).unwrap();
 
@@ -84,12 +80,12 @@ pub fn softmax_prime(x: NDArray<f64>) -> NDArray<f64>  {
             let i = val[0]; 
             let softmax_val = softmax_x.values()[i]; 
             let result = softmax_val * (1.0 - softmax_val);
-            jacobian.set(val, result);
+            let _ = jacobian.set(val, result);
         } else {
             let softmax_i = softmax_x.values()[val[0]];
             let softmax_j = softmax_x.values()[val[1]];
             let result = -softmax_i * softmax_j;
-            jacobian.set(val, result);
+            let _ =  jacobian.set(val, result);
         } 
 
         index += 1; 

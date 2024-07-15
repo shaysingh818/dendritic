@@ -3,7 +3,6 @@
 mod utils_tests {
 
     use ndarray::ndarray::NDArray;
-    use ndarray::ops::*;
     use metrics::utils::*; 
     use metrics::activations::*;
 

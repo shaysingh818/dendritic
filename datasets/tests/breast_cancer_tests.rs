@@ -3,10 +3,7 @@
 mod breast_cancer_tests {
 
     use datasets::breast_cancer::*;
-    use std::{fs::File, path::Path};
     use arrow_schema::{DataType};
-    use parquet::errors::Result; 
-    use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 
     #[test]
     fn test_load_breast_cancer_schema() {

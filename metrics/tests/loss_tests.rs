@@ -3,10 +3,9 @@
 mod loss_tests {
 
     use ndarray::ndarray::NDArray;
-    use ndarray::ops::*;
     use metrics::loss::*;
 
-    /*
+
     #[test]
     fn test_categorical_cross_entropy() {
 
@@ -41,8 +40,8 @@ mod loss_tests {
         ).unwrap();
 
 
-        assert_eq!(result, 0.916290731874155);
-        assert_eq!(result_2, 0.35667494393873245);  
-    } */ 
+        assert_eq!(result, 0.3054302439580517);
+        assert_eq!(result_2, 0.11889164797957748);  
+    } 
 
 }

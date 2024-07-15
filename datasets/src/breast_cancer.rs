@@ -1,21 +1,10 @@
-use std::path::Path;
 use std::fs::File; 
-use std::sync::Arc;
 use preprocessing::standard_scalar::*;
 use ndarray::ndarray::NDArray;
 use arrow_schema::{DataType, Field, Schema};
 use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 use parquet::errors::Result; 
 use crate::utils::*;
-
-use parquet::{
-    basic::Compression,
-    arrow::ArrowWriter,
-    file::{
-        properties::WriterProperties,
-        writer::SerializedFileWriter
-    }
-};
 
 
 /// loading the schema for the breast cancer data

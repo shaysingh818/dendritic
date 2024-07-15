@@ -2,7 +2,6 @@
 mod elastic {
 
     use ndarray::ndarray::NDArray;
-    use ndarray::ops::*;
     use metrics::loss::*;
 
     #[test]
@@ -25,6 +24,7 @@ mod elastic {
         ).unwrap();
 
         let result = binary_cross_entropy(&y_true, &y_pred).unwrap();
+        println!("{:?}", result); // do something with this later 
         
 
 

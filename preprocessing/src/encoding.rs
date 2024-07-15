@@ -1,5 +1,4 @@
 use ndarray::ndarray::NDArray;
-use ndarray::ops::*;
 
 
 pub struct OneHotEncoding {
@@ -52,7 +51,7 @@ impl OneHotEncoding {
         let col_stride = self.encoded_values.shape().dim(1);
         for idx in self.input_column.values() {
             let index = (idx + row as f64) as usize; 
-            self.encoded_values.set_idx(index, 1.0);
+            let _ = self.encoded_values.set_idx(index, 1.0);
             row += col_stride;
         }
 
