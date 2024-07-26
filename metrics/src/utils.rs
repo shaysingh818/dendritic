@@ -23,4 +23,33 @@ pub fn apply(
     result
 }
 
+pub fn gini_impurity(y: NDArray<f64>) -> f64 {
+    let unique_samples = y.unique();
+    let n = unique_samples.len();
+    let mut gini = 0.0; 
+    for idx in 0..n {
+        let pi = unique_samples[idx];
+        let pi_count = y.values().iter().filter(|&n| *n == pi).count();
+        let val = pi_count as f64 / y.size() as f64;
+        gini += val.powf(2.0);
+    }
+    1.0 - gini
+}
+
+
+pub fn entropy(y: NDArray<f64>) -> f64 { 
+    let mut ent = 0.0;
+    let class_labels = y.unique();
+    for class in &class_labels {
+
+        let cls_count = y.values()
+            .iter()
+            .filter(|&x| x == class)
+            .count();
+
+        let p_cls = cls_count as f64 / y.size() as f64;
+        ent += -p_cls * p_cls.log2();
+    }
+    ent
+}
 

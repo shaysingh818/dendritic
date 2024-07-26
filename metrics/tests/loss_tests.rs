@@ -4,6 +4,7 @@ mod loss_tests {
 
     use ndarray::ndarray::NDArray;
     use metrics::loss::*;
+    use metrics::utils::*; 
 
 
     #[test]
@@ -43,5 +44,21 @@ mod loss_tests {
         assert_eq!(result, 0.3054302439580517);
         assert_eq!(result_2, 0.11889164797957748);  
     } 
+
+    #[test]
+    fn test_gini_impurity_index() {
+
+        let feature: NDArray<f64> = NDArray::array(
+            vec![14, 1],
+            vec![
+                0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 1.0,
+                0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
+            ]
+        ).unwrap();
+
+        let gini = gini_impurity(feature);
+        assert_eq!(gini, 0.4591836734693877);
+
+    }
 
 }

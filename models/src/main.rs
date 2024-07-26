@@ -2,6 +2,7 @@ use datasets::iris::*;
 use datasets::breast_cancer::*;
 use datasets::diabetes::*;
 use regression::logistic::*;
+use trees::decision_tree::*;
 use preprocessing::encoding::*;
 use metrics::loss::*;
 use metrics::activations::*;
@@ -60,8 +61,8 @@ fn breast_cancer_model() {
 }
 
 
-fn main() {
- 
+fn iris_model() {
+
     // load data
     let (x_train, y_train) = load_iris().unwrap();
 
@@ -79,7 +80,7 @@ fn main() {
 
     log_model.sgd(500, true, 5);
 
-    let sample_index = 50;
+    let sample_index = 100;
     let x_test = x_train.batch(5).unwrap();
     let y_test = y_train.batch(5).unwrap();
     let y_pred = log_model.predict(x_test[sample_index].clone());
@@ -89,5 +90,17 @@ fn main() {
 
     let loss = mse(&y_test[sample_index], &y_pred).unwrap(); 
     println!("LOSS: {:?}", loss);  
+}
+
+
+fn main() {
+ 
+    // load data
+    //let (x_train, y_train) = load_all_iris().unwrap();
+    //let mut model = DecisionTreeClassifier::new(3, 3);
+    //model.fit(x_train, y_train);
+    
+    iris_model();
+
 
 }
