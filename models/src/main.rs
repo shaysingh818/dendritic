@@ -96,11 +96,21 @@ fn iris_model() {
 fn main() {
  
     // load data
-    //let (x_train, y_train) = load_all_iris().unwrap();
-    //let mut model = DecisionTreeClassifier::new(3, 3);
-    //model.fit(x_train, y_train);
+
+    let sample_index = 98;
+    let (x_train_test, y_train_test) = load_iris().unwrap();
+    let (x_train, y_train) = load_all_iris().unwrap();
+    let mut model = DecisionTreeClassifier::new(3, 3);
+    model.fit(x_train.clone(), y_train);
+
+    let x_batch = x_train.batch(5).unwrap();
+    let y_actual = y_train_test.batch(5).unwrap();
+
+    let predictions = model.predict(x_batch[sample_index].clone());
+    println!("{:?}", y_actual[sample_index]);
+    println!("Predict: {:?}", predictions); 
+
     
-    iris_model();
 
 
 }

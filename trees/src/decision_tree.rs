@@ -35,10 +35,7 @@ impl DecisionTreeClassifier {
         let num_features = features.shape().dim(1);
         let num_samples = features.shape().dim(0);
         let depth_condition = curr_depth <= self.max_depth;
-        let sample_condition = num_samples > self.samples_split;
-
-
-        println!("{:?}", features.axis(1, num_features-1).unwrap()); 
+        let sample_condition = num_samples >= self.samples_split;
 
         if sample_condition && depth_condition {
 
@@ -48,15 +45,12 @@ impl DecisionTreeClassifier {
                 threshold
             ) = self.best_split(features.clone());
 
-            //println!("{:?} {:?}", feature_idx, threshold); 
 
             let (left, right) = self.split(
                 features.clone(),
                 threshold, 
                 feature_idx
             );
-
-
 
             if info_gain > 0.0 {
 
@@ -100,17 +94,19 @@ impl DecisionTreeClassifier {
                     feat_idx
                 );
 
+                if left.size() > 0 && right.size() > 0 {
 
-                let info_gain = self.information_gain(
-                    features.axis(1, num_features).unwrap(), 
-                    left.axis(1, num_features).unwrap(), 
-                    right.axis(1, num_features).unwrap()
-                );
+                    let info_gain = self.information_gain(
+                        features.axis(1, num_features).unwrap(), 
+                        left.axis(1, num_features).unwrap(), 
+                        right.axis(1, num_features).unwrap()
+                    );
 
-                if info_gain > max_info_gain {
-                    max_info_gain = info_gain;
-                    feature_index = feat_idx;
-                    selected_threshold = threshold;
+                    if info_gain > max_info_gain {
+                        max_info_gain = info_gain;
+                        feature_index = feat_idx;
+                        selected_threshold = threshold;
+                    }
                 }
 
             }
@@ -151,11 +147,11 @@ impl DecisionTreeClassifier {
 
         for feat in feature.values() {
 
-            if *feat >= threshold {
-right_indices.push(idx_counter);
+            if *feat > threshold {
+                right_indices.push(idx_counter);
             }
 
-            if *feat < threshold {
+            if *feat <= threshold {
                 left_indices.push(idx_counter);
             }
 
@@ -176,34 +172,71 @@ right_indices.push(idx_counter);
     }
 
     pub fn fit(&mut self, features: NDArray<f64>, target: NDArray<f64>) {
-       self.root = self.build_tree(features, self.max_depth);
-       self.print_tree(self.root.clone()); 
+       self.root = self.build_tree(features, 0);
+       self.print_tree(self.root.clone(), 2); 
     }
 
-    pub fn print_tree(&self, node: Node) {
+    pub fn prediction(&self, inputs: NDArray<f64>, node: Node) -> f64 {
+
+        let right = node.right();
+        let left = node.left();
+
+        if node.value().is_some() {
+            return node.value().unwrap();
+        }
+
+        let feature_val = inputs.idx(node.feature_idx()); 
+        if *feature_val <= node.threshold() {
+
+            match left {
+                Some(left) => self.prediction(inputs, left),
+                None => -1.0
+            }
+
+        } else {
+
+            match right {
+                Some(right) => self.prediction(inputs, right),
+                None => -1.0
+            }
+        }
+
+    }
+
+    pub fn predict(&self, input: NDArray<f64>) -> NDArray<f64> {
+        let rows = input.shape().dim(0);
+        let mut results = Vec::new();
+        for item in 0..rows {
+            let row = input.axis(0, item).unwrap();
+            let val = self.prediction(row, self.root.clone());
+            results.push(val);
+        }
+
+        NDArray::array(vec![rows, 1], results).unwrap()
+    }
+
+    pub fn print_tree(&self, node: Node, level: usize) {
     
         let right = node.right();
         let left = node.left();
 
-        println!(
-            "{:?} <= {:?}",
-            node.feature_idx(), node.threshold()
-        );
+        if node.value().is_some() {
+            println!("{:?}", node.value().unwrap());
+        } else {
+            println!("{:?} <= {:?}", node.feature_idx(), node.threshold());
 
+            print!("{:ident$}left: ", "", ident=level); 
+            match left {
+                Some(left) => self.print_tree(left, level+2),
+                None => println!("")
+            }
 
-        /*
-
-        println!("  left:");
-        match left {
-            Some(left) => self.print_tree(left),
-            None => println!("")
+            print!("{:ident$}right: ", "", ident=level); 
+            match right {
+                Some(right) => self.print_tree(right, level+2),
+                None => println!("")
+            }   
         }
-
-        println!("  right:");
-        match right {
-            Some(right) => self.print_tree(right),
-            None => println!("")
-        } */
 
     }
 
