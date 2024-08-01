@@ -214,6 +214,57 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
         Ok(result)
     }
 
+    /// Get values from a specific axis/slice
+    pub fn axis(&self, axis: usize, index: usize) -> Result<NDArray<T>, String> {
+
+        if axis > self.rank() - 1 { 
+            return Err("Axis: Selected axis larger than rank".to_string());
+        }
+
+        if index > self.shape().dim(axis)-1 {
+            return Err("Axis: Index for value is too large".to_string()); 
+        }
+
+        let mut values: Vec<T> = Vec::new();
+        let mut new_shape = self.shape().clone();
+        new_shape.remove(axis);
+        let outer_size = new_shape.values().iter().product::<usize>();
+
+        for item in 0..outer_size {
+            let multi_index = new_shape.multi_index(item);
+            let mut full_index = multi_index.clone();
+            full_index.insert(axis, index); 
+            let flat_index = self.index(full_index).unwrap();
+            let val = &self.values()[flat_index];
+            values.push(val.clone());
+        }
+ 
+        Ok(NDArray::array(new_shape.values(),values).unwrap()) 
+    }
+
+    /// Get mutiple axis values with provided indices
+    pub fn axis_indices(&self, axis: usize, indices: Vec<usize>) -> Result<NDArray<T>, String> {
+ 
+        if axis > self.rank() - 1 { 
+            return Err("Axis Indices: Selected axis larger than rank".to_string());
+        }
+
+        let mut feature_vec: Vec<T> = Vec::new();
+
+        for idx in &indices {
+            let axis_call = self.axis(axis, *idx).unwrap();
+            let mut axis_values = axis_call.values().clone();
+            feature_vec.append(&mut axis_values);
+        }
+
+        let mut shape = self.shape().values().clone();
+        shape[axis] = indices.len();
+
+        Ok(NDArray::array(shape, feature_vec).unwrap()) 
+
+    }
+
+
     pub fn batch(&self, batch_size: usize) -> Result<Vec<NDArray<T>>, String> {
        
         if batch_size == 0 || batch_size >= self.size() {

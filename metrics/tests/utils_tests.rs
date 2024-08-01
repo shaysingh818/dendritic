@@ -3,6 +3,7 @@
 mod utils_tests {
 
     use ndarray::ndarray::NDArray;
+    use ndarray::ops::UtfOps;  
     use metrics::utils::*; 
     use metrics::activations::*;
 
@@ -43,9 +44,29 @@ mod utils_tests {
         ).unwrap();
 
         let test_rows = apply(test, 0, softmax);
-        println!("{:?}", test_rows.values()); 
+        //println!("{:?}", test_rows.values()); 
+    }
 
 
+    #[test]
+    fn test_entropy() {
+        
+        let a: NDArray<f64> = NDArray::array(
+            vec![9, 1],
+            vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0]
+        ).unwrap();
+
+        let a_entropy = entropy(a);
+        assert_eq!(a_entropy, 1.584962500721156);
+
+        let b: NDArray<f64> = NDArray::array(
+            vec![10, 1],
+            vec![1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+        ).unwrap();
+
+        let b_entropy = entropy(b);
+        assert_eq!(b_entropy, 1.0);
+    
     }
 
 

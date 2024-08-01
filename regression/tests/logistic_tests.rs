@@ -89,6 +89,7 @@ mod logistic_tests {
         assert_ne!(bias_prior, bias_after);
 
         let results = model.predict(x);
+        println!("{:?}", results.values()); 
         let loss = mse(&results, &y).unwrap();
         let loss_condition = loss < 0.1; 
         assert_eq!(loss_condition, true); 

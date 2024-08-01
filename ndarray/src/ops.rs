@@ -1,6 +1,10 @@
 use crate::ndarray::NDArray;
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{BufWriter, Read, Write};
+use std::collections::btree_map::BTreeMap;
+use itertools::Itertools;
+
 
 /// Generic operations performed for NDArray with f64 type
 pub trait Ops {
@@ -11,10 +15,10 @@ pub trait Ops {
     fn abs(&self) -> Result<NDArray<f64>, String>;
     fn signum(&self) -> Result<NDArray<f64>, String>;
 
+    fn unique(&self) -> Vec<f64>;
     fn save(&self, filepath: &str) -> std::io::Result<()>; 
     fn load(filepath: &str) -> std::io::Result<NDArray<f64>>;
     fn apply(&self, loss_func: fn(value: f64) -> f64) -> Result<NDArray<f64>, String>; 
-    fn axis(&self, axis: usize, index: usize) -> Result<NDArray<f64>, String>;  
     fn mult(&self, other: NDArray<f64>) -> Result <NDArray<f64 >, String>; 
     fn add(&self, other: NDArray<f64>) -> Result <NDArray<f64 >, String>;
     fn sum_axis(&self, axis: usize) -> Result<NDArray<f64>, String>; 
@@ -39,6 +43,14 @@ pub trait Ops {
 }
 
 impl Ops for NDArray<f64> {
+
+    /// Get unique values in ndarray
+    fn unique(&self) -> Vec<f64> {
+        let mut values = self.values().clone();
+        values.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        values.dedup();
+        values.to_vec()
+    }
 
     /// Save instance of NDArray to json file with serialized values
     fn save(&self, filepath: &str) -> std::io::Result<()> {
@@ -81,33 +93,6 @@ impl Ops for NDArray<f64> {
             index += 1;  
         }
         Ok(result)
-    }
-
-
-    fn axis(&self, axis: usize, index: usize) -> Result<NDArray<f64>, String> {
-
-        if axis > self.rank() - 1 { 
-            return Err("Axis: Selected axis larger than rank".to_string());
-        }
-
-        if index > self.shape().dim(axis)-1 {
-            return Err("Axis: Index for value is too large".to_string()); 
-        }
-
-        let mut values = Vec::new();
-        let mut new_shape = self.shape().clone();
-        new_shape.remove(axis);
-        let outer_size = new_shape.values().iter().product::<usize>();
-
-        for item in 0..outer_size {
-            let multi_index = new_shape.multi_index(item);
-            let mut full_index = multi_index.clone();
-            full_index.insert(axis, index); 
-            let flat_index = self.index(full_index).unwrap();
-            values.push(self.values()[flat_index]);
-        }
- 
-        Ok(NDArray::array(new_shape.values(),values).unwrap()) 
     }
 
 
@@ -355,10 +340,10 @@ impl Ops for NDArray<f64> {
 
 
     /// Perform dot product of current NDArray on another NDArray instance
-    fn dot(&self, value: NDArray<f64>) -> Result<NDArray<f64>, String> {
+    fn dot(&self, input: NDArray<f64>) -> Result<NDArray<f64>, String> {
 
         /* rank mismatch */
-        if self.rank() != value.rank() {
+        if self.rank() != input.rank() {
             return Err("Dot: Rank Mismatch".to_string());
         }
 
@@ -366,11 +351,11 @@ impl Ops for NDArray<f64> {
             return Err("Dot: Requires rank 2 values".to_string());
         }
 
-        if self.shape().dim(self.rank()-1) != value.shape().dim(0) {
+        if self.shape().dim(self.rank()-1) != input.shape().dim(0) {
             return Err("Dot: Rows must equal columns".to_string());
         }
 
-        let new_shape: Vec<usize> = vec![self.shape().dim(0), value.shape().dim(self.rank()-1)];
+        let new_shape: Vec<usize> = vec![self.shape().dim(0), input.shape().dim(self.rank()-1)];
         let mut result = NDArray::new(new_shape).unwrap();
 
         /* stride values to stay in constant time */ 
@@ -380,18 +365,18 @@ impl Ops for NDArray<f64> {
         let mut stride = 0;  
         for counter in 0..result.size() {
 
-            if stride == value.shape().dim(self.rank()-1)  {
+            if stride == input.shape().dim(self.rank()-1)  {
                 row_counter += 1;
                 stride = 0; 
             }
 
-            let col_dim = value.shape().dim(value.rank()-1);
+            let col_dim = input.shape().dim(input.rank()-1);
             if col_counter == col_dim {
                 col_counter = 0; 
             }
 
-            let curr = self.axis(0, row_counter).unwrap();
-            let val = value.axis(1, col_counter).unwrap();
+            let curr: NDArray<f64> = self.axis(0, row_counter).unwrap();
+            let val: NDArray<f64> = input.axis(1, col_counter).unwrap();
 
             /* multiply */ 
             let mut value = 0.0; 
@@ -571,6 +556,40 @@ impl Ops for NDArray<f64> {
             let _ = result.set_idx(index, value);
         }
         Ok(result)
+    }
+
+}
+
+
+pub trait UtfOps {
+    fn unique(&self) -> Vec<&str>;
+    fn counts(&self) -> Vec<usize>;
+}
+
+
+impl UtfOps for NDArray<&str> {
+
+    /// Get unique values in ndarray
+    fn unique(&self) -> Vec<&str> {
+        let values = self.values().clone();
+        let unique_vals = values.into_iter().unique().collect();
+        unique_vals
+    }
+
+    /// Get counts of occurrence for word in string vector
+    fn counts(&self) -> Vec<usize> {
+
+        let mut counts: Vec<usize> = Vec::new();
+        let mut count = BTreeMap::new();
+        for item in self.values() {
+            *count.entry(item).or_insert(0) += 1;
+        }
+
+        for (word, count) in & count {
+            counts.push(*count);
+        }
+
+        counts
     }
 
 }

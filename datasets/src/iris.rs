@@ -59,3 +59,31 @@ pub fn load_iris() -> Result<(NDArray<f64>, NDArray<f64>)> {
 }
 
 
+pub fn load_all_iris() -> Result<(NDArray<f64>, NDArray<f64>)> {
+    
+    /* switch to datasets/data directory */
+
+    let path = "data/iris.parquet";
+    let file = File::open(path).unwrap();
+    let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
+        .build()?;
+
+    let batch = reader.next().unwrap().unwrap();
+    let (input, y_train) = select_features(
+        batch.clone(),
+        vec![
+            "sepal_length_cm",
+            "sepal_width_cm",
+            "petal_length_cm",
+            "petal_width_cm",
+            "species_code"
+        ],
+        "species_code"
+    );
+
+    //let x_train = min_max_scalar(input).unwrap();
+    Ok((input, y_train))
+
+}
+
+
