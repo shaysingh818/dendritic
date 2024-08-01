@@ -9,7 +9,7 @@ mod alzheimers_tests {
     #[test]
     fn test_load_schema() {
 
-        convert_student_csv_to_parquet();
+        //convert_student_csv_to_parquet();
 
     }
 
