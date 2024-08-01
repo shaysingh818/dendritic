@@ -19,7 +19,6 @@ pub trait Ops {
     fn save(&self, filepath: &str) -> std::io::Result<()>; 
     fn load(filepath: &str) -> std::io::Result<NDArray<f64>>;
     fn apply(&self, loss_func: fn(value: f64) -> f64) -> Result<NDArray<f64>, String>; 
-    //fn axis(&self, axis: usize, index: usize) -> Result<NDArray<f64>, String>;  
     fn mult(&self, other: NDArray<f64>) -> Result <NDArray<f64 >, String>; 
     fn add(&self, other: NDArray<f64>) -> Result <NDArray<f64 >, String>;
     fn sum_axis(&self, axis: usize) -> Result<NDArray<f64>, String>; 

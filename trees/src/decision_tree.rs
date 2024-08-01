@@ -1,13 +1,19 @@
+use std::rc::Rc;
+use std::fs; 
+use std::fs::{File}; 
+use std::io::{BufWriter, Read, Write};
+use std::cell::{RefCell, RefMut, Ref};
+
 use ndarray::ndarray::NDArray;
 use ndarray::ops::*;
 use metrics::utils::*;
 use crate::node::*;
-use std::rc::Rc;
 
 
 pub struct DecisionTreeClassifier {
     max_depth: usize, 
     samples_split: usize,
+    metric_function: fn(x: NDArray<f64>) -> f64,
     root: Node
 }
 
@@ -16,11 +22,14 @@ impl DecisionTreeClassifier {
 
     pub fn new(
         max_depth: usize,
-        samples_split: usize) -> DecisionTreeClassifier {
+        samples_split: usize,
+        metric_function: fn(x: NDArray<f64>) -> f64
+    ) -> DecisionTreeClassifier {
 
         DecisionTreeClassifier {
             max_depth,
             samples_split,
+            metric_function: metric_function,
             root: Node::leaf(0.0)
         }
 
@@ -61,6 +70,7 @@ impl DecisionTreeClassifier {
                    features.clone(),
                    threshold,
                    feature_idx,
+                   info_gain,
                    left_subtree,
                    right_subtree
                 );
@@ -122,9 +132,9 @@ impl DecisionTreeClassifier {
         left: NDArray<f64>, 
         right: NDArray<f64>) -> f64 {
 
-        let feature_entropy = entropy(feature.clone());
-        let left_e = entropy(left.clone());
-        let right_e = entropy(right.clone());
+        let feature_entropy = (self.metric_function)(feature.clone());
+        let left_e = (self.metric_function)(left.clone());
+        let right_e = (self.metric_function)(right.clone());
 
         let left_l = left.size() as f64 / feature.size() as f64;
         let right_l = right.size() as f64 / feature.size() as f64;
@@ -239,5 +249,127 @@ impl DecisionTreeClassifier {
         }
 
     }
+
+    pub fn save(&self, filepath: &str) -> std::io::Result<()> {
+
+        let mut node_save = self.root.save("test");
+        let node  = self.save_tree(self.root.clone(), &mut node_save);
+
+        let tree_path = format!("{}/tree.json", filepath);
+        fs::create_dir_all(filepath)?;
+ 
+        let file = match File::create(tree_path) {
+            Ok(file) => file,
+            Err(err) => {
+                return Err(err);
+            }
+        };
+        let mut writer = BufWriter::new(file);
+        let json_string = serde_json::to_string_pretty(&node_save)?;
+        writer.write_all(json_string.as_bytes())?;  
+        Ok(())
+    }
+
+
+    pub fn save_tree(&self, node: Node, node_save: &mut NodeSerialized) {
+
+        let right = node.right();
+        let left = node.left();
+ 
+        match left {
+            Some(left) => {
+                let mut left_save = left.save("test");
+                self.save_tree(left, &mut left_save);
+                node_save.left = Some(Box::new(left_save)); 
+
+            },
+            None => {
+                return;
+            }
+        }
+
+        match right {
+            Some(right) => {
+                let mut right_save = right.save("test");
+                self.save_tree(right, &mut right_save);
+                node_save.right = Some(Box::new(right_save));
+
+            },
+            None => {
+                return;
+            }
+        }
+
+
+    }
+
+    pub fn load(
+        filepath: &str, 
+        max_depth: usize,
+        samples_split: usize,
+        metric_function: fn(x: NDArray<f64>) -> f64) -> DecisionTreeClassifier {
+
+        let mut root = DecisionTreeClassifier::load_root(filepath).unwrap();
+        let root_node = Node::load(root.clone());
+        DecisionTreeClassifier::load_tree(&mut root_node.clone(), root);  
+
+        DecisionTreeClassifier {
+            max_depth,
+            samples_split,
+            metric_function: metric_function,
+            root: root_node
+        }
+
+    
+    }
+
+    pub fn load_tree(node: &mut Node, node_save: NodeSerialized) {
+
+        let left = node_save.left; 
+        let right = node_save.right;
+
+        match left {
+            Some(left) => {
+                let mut left_ptr = Node::load(*left.clone()); 
+                DecisionTreeClassifier::load_tree(&mut left_ptr, *left);
+                node.left = Some(Rc::new(RefCell::new(left_ptr))); 
+
+            },
+            None => {
+                return;
+            }
+        }
+
+        match right {
+            Some(right) => {
+                let mut right_ptr = Node::load(*right.clone()); 
+                DecisionTreeClassifier::load_tree(&mut right_ptr, *right);
+                node.right = Some(Rc::new(RefCell::new(right_ptr))); 
+            },
+            None => {
+                return;
+            }
+        }
+
+    }
+
+
+    /// Load Instance of saved NodeSerialized structure
+    pub fn load_root(filepath: &str) -> std::io::Result<NodeSerialized> {
+        let filename_format = format!("{}/tree.json", filepath);
+        let mut file = match File::open(filename_format) {
+            Ok(file) => file,
+            Err(err) => {
+                return Err(err);
+            }
+        };
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+        let instance: NodeSerialized = serde_json::from_str(&contents)?;
+        Ok(instance)
+    }
+
+
+
 
 }

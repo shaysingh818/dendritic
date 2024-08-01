@@ -6,6 +6,7 @@ mod decision_tree_tests {
     use ndarray::ndarray::NDArray;
     use ndarray::ops::*;
     use trees::decision_tree::*; 
+    use metrics::utils::*; 
 
     #[test]
     fn test_split() {
@@ -29,7 +30,7 @@ mod decision_tree_tests {
             vec![0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0]
         ).unwrap();
 
-        let model = DecisionTreeClassifier::new(2, 3);
+        let model = DecisionTreeClassifier::new(2, 3, entropy);
 
         let (left, right) = model.split(features.clone(), 69.0, 0);
         let (left_2, right_2) = model.split(features, 5.56, 1);
@@ -90,7 +91,7 @@ mod decision_tree_tests {
             vec![0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0]
         ).unwrap();
  
-        let model = DecisionTreeClassifier::new(2, 3);
+        let model = DecisionTreeClassifier::new(2, 3, entropy);
 
         let (left, right) = model.split(dataset.clone(), 69.0, 0);
         let (left_2, right_2) = model.split(dataset.clone(), 72.0, 0);
@@ -154,7 +155,7 @@ mod decision_tree_tests {
             vec![0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0]
         ).unwrap();
 
-        let model = DecisionTreeClassifier::new(3, 3);
+        let model = DecisionTreeClassifier::new(3, 3, entropy);
 
         let (info_gain, feature, threshold) =  model.best_split(dataset);
 
@@ -191,7 +192,7 @@ mod decision_tree_tests {
             vec![0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0,2.0,2.0,2.0,2.0]
         ).unwrap();
 
-        let mut model = DecisionTreeClassifier::new(3, 3);
+        let mut model = DecisionTreeClassifier::new(3, 3, entropy);
         model.fit(dataset.clone(), target);
         let predictions = model.predict(dataset);
         let expected = vec![
@@ -200,6 +201,88 @@ mod decision_tree_tests {
 
         assert_eq!(predictions.shape().values(), vec![12, 1]);
         assert_eq!(predictions.values(), &expected);
+
+    }
+
+    #[test]
+    fn test_save_tree() -> std::io::Result<()> {
+
+        let dataset: NDArray<f64> = NDArray::array(
+            vec![12, 3],
+            vec![
+                69.0, 4.39, 0.0,
+                69.0, 4.21, 0.0,
+                65.0, 4.09, 0.0,
+                72.0, 5.85, 1.0,
+                73.0, 5.68, 1.0,
+                70.0, 5.56, 1.0,
+                73.0, 5.79, 1.0,
+                65.0, 4.27, 0.0,
+                72.0, 6.60, 2.0,
+                74.0, 6.75, 2.0,
+                71.0, 6.69, 2.0,
+                73.0, 6.71, 2.0
+            ]
+        ).unwrap();
+
+
+        let target: NDArray<f64> = NDArray::array(
+            vec![12, 1],
+            vec![0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0,2.0,2.0,2.0,2.0]
+        ).unwrap();
+
+        let mut model = DecisionTreeClassifier::new(3, 3, entropy);
+        model.fit(dataset, target);
+        model.save("data/test").unwrap();
+        Ok(())
+
+    }
+
+
+    #[test]
+    fn test_load_tree() -> std::io::Result<()> {
+
+        let dataset: NDArray<f64> = NDArray::array(
+            vec![12, 3],
+            vec![
+                69.0, 4.39, 0.0,
+                69.0, 4.21, 0.0,
+                65.0, 4.09, 0.0,
+                72.0, 5.85, 1.0,
+                73.0, 5.68, 1.0,
+                70.0, 5.56, 1.0,
+                73.0, 5.79, 1.0,
+                65.0, 4.27, 0.0,
+                72.0, 6.60, 2.0,
+                74.0, 6.75, 2.0,
+                71.0, 6.69, 2.0,
+                73.0, 6.71, 2.0
+            ]
+        ).unwrap();
+
+
+        let target: NDArray<f64> = NDArray::array(
+            vec![12, 1],
+            vec![0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0,2.0,2.0,2.0,2.0]
+        ).unwrap();
+
+
+        let mut model = DecisionTreeClassifier::load(
+            "data/test", 
+            3, 3, 
+            entropy
+        );
+
+        model.fit(dataset.clone(), target);
+        let predictions = model.predict(dataset);
+        let expected = vec![
+            0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0,2.0,2.0,2.0,2.0
+        ];
+
+        assert_eq!(predictions.shape().values(), vec![12, 1]);
+        assert_eq!(predictions.values(), &expected);
+
+        Ok(())
 
     }
 

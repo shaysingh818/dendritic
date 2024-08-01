@@ -61,8 +61,7 @@ pub fn convert_breast_cancer_csv_to_parquet() {
 pub fn load_breast_cancer() -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     /* switch to datasets/data directory */
-
-    let path = "../../datasets/data/breast_cancer.parquet";
+    let path = "data/breast_cancer.parquet";
     let file = File::open(path).unwrap();
     let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
         .build()?;
