@@ -1,5 +1,4 @@
 use crate::ndarray::NDArray;
-use std::collections::HashSet;
 use std::fs::File;
 use std::io::{BufWriter, Read, Write};
 use std::collections::btree_map::BTreeMap;
@@ -15,6 +14,7 @@ pub trait Ops {
     fn abs(&self) -> Result<NDArray<f64>, String>;
     fn signum(&self) -> Result<NDArray<f64>, String>;
 
+    fn sort(&self) -> Vec<f64>;
     fn unique(&self) -> Vec<f64>;
     fn save(&self, filepath: &str) -> std::io::Result<()>; 
     fn load(filepath: &str) -> std::io::Result<NDArray<f64>>;
@@ -35,6 +35,7 @@ pub trait Ops {
     fn norm(&self, p: usize) -> Result<NDArray<f64>, String>;
     
     // scalar ops
+    fn avg(&self) -> f64; 
     fn scalar_subtract(&self, scalar: f64) -> Result<NDArray<f64>, String>;
     fn scalar_mult(&self, scalar: f64) -> Result<NDArray<f64>, String>;
     fn scalar_add(&self, scalar: f64) -> Result<NDArray<f64>, String>;
@@ -49,6 +50,14 @@ impl Ops for NDArray<f64> {
         let mut values = self.values().clone();
         values.sort_by(|a, b| a.partial_cmp(b).unwrap());
         values.dedup();
+        values.to_vec()
+    }
+
+
+    /// Sort values in ndarray on specific axis
+    fn sort(&self) -> Vec<f64> {
+        let mut values = self.values().clone();
+        values.sort_by(|a, b| a.partial_cmp(b).unwrap());
         values.to_vec()
     }
 
@@ -519,6 +528,12 @@ impl Ops for NDArray<f64> {
         Ok(result)
     }
 
+
+    fn avg(&self) -> f64 {
+        let sum: f64 = self.values().iter().sum();
+        sum / self.size() as f64
+    }
+
     fn scalar_subtract(&self, scalar: f64) -> Result<NDArray<f64>, String> {
         let mut result = NDArray::new(self.shape().values()).unwrap();
         for index in 0..self.size() {
@@ -585,7 +600,7 @@ impl UtfOps for NDArray<&str> {
             *count.entry(item).or_insert(0) += 1;
         }
 
-        for (word, count) in & count {
+        for (_word, count) in & count {
             counts.push(*count);
         }
 

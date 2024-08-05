@@ -101,5 +101,30 @@ mod ndarray_ops {
     }
 
 
+    #[test]
+    fn test_sort() {
+
+        let x: NDArray<f64> = NDArray::array(
+            vec![10, 1],
+            vec![
+                10.0, 9.0, 8.0, 11.0, 12.0, 
+                1.0, 2.0, 3.0, 4.0, 5.0
+            ]
+        ).unwrap();
+
+
+        let sorted_vals = x.sort();
+        let expected = vec![
+            1.0, 2.0, 3.0, 4.0, 5.0,
+            8.0, 9.0, 10.0, 11.0, 12.0
+        ];
+
+        assert_eq!(sorted_vals.len(), 10);
+        assert_eq!(sorted_vals, expected);
+    }
+
+
+
+
 
 }

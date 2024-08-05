@@ -53,7 +53,7 @@ pub fn load_diabetes() -> Result<(NDArray<f64>, NDArray<f64>)> {
             "skin_thickness",
             "insulin",
             "bmi",
-            //"pedigree_function",
+            "pedigree_function",
             //"age",
         ],
         "outcome"

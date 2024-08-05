@@ -81,6 +81,28 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
         })
     }
 
+    /// Fill ndarray with values
+    pub fn fill(shape: Vec<usize>, value: T) -> Result<NDArray<T>, String> {
+        let calculated_rank = shape.len(); 
+        let mut calculated_size = 1; 
+        for item in &shape {
+            calculated_size *= item; 
+        }
+
+        let mut values = Vec::new(); 
+        for _item in 0..calculated_size {
+            values.push(value.clone());
+        }
+
+
+        Ok(Self {
+            shape: Shape::new(shape),
+            size: calculated_size,
+            rank: calculated_rank,
+            values: values,
+        })
+    }
+
     /// Reshape dimensions of array to new shape. Shape must match current size
     pub fn reshape(&mut self, shape_vals: Vec<usize>) -> Result<(), String> {
 
@@ -170,11 +192,12 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
         Ok(())
     }
 
+    /*
     pub fn fill(&mut self, value: T) {
         for index in 0..self.size() {
             self.values[index] = value.clone(); 
         }
-    }
+    }*/
 
     /// Get rows dimension associated with multi dimensional array
     pub fn rows(&self, index: usize) -> Result<Vec<T>, String> {

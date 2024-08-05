@@ -66,7 +66,7 @@ pub fn load_alzhiemers() -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     /* switch to datasets/data directory */
 
-    let path = "../../datasets/data/alzheimers.parquet";
+    let path = "data/alzheimers.parquet";
     let file = File::open(path).unwrap();
     let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
         .build()?;

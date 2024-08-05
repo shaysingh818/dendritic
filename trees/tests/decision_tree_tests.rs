@@ -4,8 +4,8 @@
 mod decision_tree_tests {
 
     use ndarray::ndarray::NDArray;
-    use ndarray::ops::*;
-    use trees::decision_tree::*; 
+    use trees::decision_tree::*;
+    use trees::utils::*; 
     use metrics::utils::*; 
 
     #[test]
@@ -25,15 +25,9 @@ mod decision_tree_tests {
             ]
         ).unwrap();
  
-        let target: NDArray<f64> = NDArray::array(
-       vec![8, 1],
-            vec![0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0]
-        ).unwrap();
 
-        let model = DecisionTreeClassifier::new(2, 3, entropy);
-
-        let (left, right) = model.split(features.clone(), 69.0, 0);
-        let (left_2, right_2) = model.split(features, 5.56, 1);
+        let (left, right) = split(features.clone(), 69.0, 0);
+        let (left_2, right_2) = split(features, 5.56, 1);
 
         assert_eq!(left.shape().values(), vec![4, 2]);
         assert_eq!(right.shape().values(), vec![4, 2]);
@@ -86,16 +80,12 @@ mod decision_tree_tests {
             ]
         ).unwrap();
 
-        let target: NDArray<f64> = NDArray::array(
-       vec![8, 1],
-            vec![0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0]
-        ).unwrap();
  
         let model = DecisionTreeClassifier::new(2, 3, entropy);
 
-        let (left, right) = model.split(dataset.clone(), 69.0, 0);
-        let (left_2, right_2) = model.split(dataset.clone(), 72.0, 0);
-        let (left_3, right_3) = model.split(dataset.clone(), 65.0, 0);
+        let (left, right) = split(dataset.clone(), 69.0, 0);
+        let (left_2, right_2) = split(dataset.clone(), 72.0, 0);
+        let (left_3, right_3) = split(dataset.clone(), 65.0, 0);
 
         assert_eq!(left.shape().values(), vec![4, 3]); 
         assert_eq!(right.shape().values(), vec![8, 3]); 
@@ -150,11 +140,6 @@ mod decision_tree_tests {
             ]
         ).unwrap();
 
-        let target: NDArray<f64> = NDArray::array(
-            vec![8, 1],
-            vec![0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0]
-        ).unwrap();
-
         let model = DecisionTreeClassifier::new(3, 3, entropy);
 
         let (info_gain, feature, threshold) =  model.best_split(dataset);
@@ -193,7 +178,7 @@ mod decision_tree_tests {
         ).unwrap();
 
         let mut model = DecisionTreeClassifier::new(3, 3, entropy);
-        model.fit(dataset.clone(), target);
+        model.fit(&dataset, &target);
         let predictions = model.predict(dataset);
         let expected = vec![
             0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0,2.0,2.0,2.0,2.0
@@ -232,7 +217,7 @@ mod decision_tree_tests {
         ).unwrap();
 
         let mut model = DecisionTreeClassifier::new(3, 3, entropy);
-        model.fit(dataset, target);
+        model.fit(&dataset, &target);
         model.save("data/test").unwrap();
         Ok(())
 
@@ -273,7 +258,7 @@ mod decision_tree_tests {
             entropy
         );
 
-        model.fit(dataset.clone(), target);
+        model.fit(&dataset, &target);
         let predictions = model.predict(dataset);
         let expected = vec![
             0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0,2.0,2.0,2.0,2.0

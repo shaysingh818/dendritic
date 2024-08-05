@@ -8,36 +8,39 @@ use crate::node::*;
 use crate::utils::*; 
 
 
-pub struct DecisionTreeClassifier {
+pub struct DecisionTreeRegressor {
     max_depth: usize, 
     samples_split: usize,
-    metric_function: fn(x: NDArray<f64>) -> f64,
-    root: Node
+    root: Node,
+    loss_function: fn(
+        y_true: &NDArray<f64>, 
+        y_pred: &NDArray<f64>) -> Result<f64, String>
 }
 
 
-impl DecisionTreeClassifier {
+impl DecisionTreeRegressor {
 
     pub fn new(
         max_depth: usize,
         samples_split: usize,
-        metric_function: fn(x: NDArray<f64>) -> f64
-    ) -> DecisionTreeClassifier {
+        loss_function: fn(
+            y_true: &NDArray<f64>, 
+            y_pred: &NDArray<f64>) -> Result<f64, String>
+    ) -> DecisionTreeRegressor {
 
-        DecisionTreeClassifier {
+        DecisionTreeRegressor {
             max_depth,
             samples_split,
-            metric_function: metric_function,
-            root: Node::leaf(0.0)
+            root: Node::leaf(0.0),
+            loss_function: loss_function,
         }
 
     }
 
     pub fn build_tree(
-        &self, 
-        features: &NDArray<f64>, 
+        &self,
+        features: &NDArray<f64>,
         curr_depth: usize) -> Node {
-
 
         let num_features = features.shape().dim(1);
         let num_samples = features.shape().dim(0);
@@ -47,7 +50,7 @@ impl DecisionTreeClassifier {
         if sample_condition && depth_condition {
 
             let (
-                info_gain, 
+                mse, 
                 feature_idx, 
                 threshold
             ) = self.best_split(features.clone());
@@ -59,100 +62,89 @@ impl DecisionTreeClassifier {
                 feature_idx
             );
 
-            if info_gain > 0.0 {
+            if mse > 0.0 {
 
                 let left_subtree = self.build_tree(&left, curr_depth+1); 
                 let right_subtree = self.build_tree(&right, curr_depth+1);
 
-                return Node::new(
+                return Node::regression(
                    features.clone(),
                    threshold,
                    feature_idx,
-                   info_gain,
+                   mse,
                    left_subtree,
                    right_subtree
                 );
             }
         }
 
-
-        let leaf_val = self.select_max_class(
-            features.axis(1, num_features-1
-        ).unwrap());
-
+        let y_vals = features.axis(1, num_features-1).unwrap();
+        let leaf_val = y_vals.avg();
         Node::leaf(leaf_val)
-    }   
+    }
 
 
     pub fn best_split(&self, features: NDArray<f64>) -> (f64, usize, f64) {
 
-        let mut max_info_gain = f64::NEG_INFINITY;
         let mut feature_index = 0;
-        let mut selected_threshold = f64::NEG_INFINITY;
+        let mut min_mse = f64::INFINITY;
+        let mut selected_threshold = 0.0;
 
         let num_features = features.shape().dim(1) - 1;
         for feat_idx in 0..num_features {
-            let feature = features.axis(1, feat_idx).unwrap();
-            let thresholds = feature.unique();
-            for threshold in thresholds {
 
+            let feature = features.axis(1, feat_idx).unwrap();
+            let sorted_features = feature.sort();
+            let end_idx = sorted_features.len() - 1; 
+
+            for idx in 0..end_idx {
+
+                let threshold = 
+                    (sorted_features[idx] + sorted_features[idx+1]) / 2.0;
+ 
                 let (left, right) = split(
                     features.clone(),
                     threshold, 
                     feat_idx
                 );
 
-                if left.size() > 0 && right.size() > 0 {
+                let curr_mse = self.gain(
+                    left.axis(1, num_features).unwrap(), 
+                    right.axis(1, num_features).unwrap()
+                ); 
 
-                    let info_gain = self.information_gain(
-                        features.axis(1, num_features).unwrap(), 
-                        left.axis(1, num_features).unwrap(), 
-                        right.axis(1, num_features).unwrap()
-                    );
-
-                    if info_gain > max_info_gain {
-                        max_info_gain = info_gain;
-                        feature_index = feat_idx;
-                        selected_threshold = threshold;
-                    }
+                if curr_mse < min_mse {
+                    min_mse = curr_mse; 
+                    feature_index = feat_idx; 
+                    selected_threshold = threshold; 
                 }
 
             }
+            
         }
 
-        (max_info_gain, feature_index, selected_threshold)
+        (min_mse, feature_index, selected_threshold)
+
     }
 
+    pub fn gain(&self, left: NDArray<f64>, right: NDArray<f64>) -> f64 {
 
-    pub fn information_gain(
-        &self,
-        feature: NDArray<f64>,
-        left: NDArray<f64>, 
-        right: NDArray<f64>) -> f64 {
-
-        let feature_entropy = (self.metric_function)(feature.clone());
-        let left_e = (self.metric_function)(left.clone());
-        let right_e = (self.metric_function)(right.clone());
-
-        let left_l = left.size() as f64 / feature.size() as f64;
-        let right_l = right.size() as f64 / feature.size() as f64;
-        let child_entropy = left_l * left_e + right_l * right_e;
-
-        feature_entropy - child_entropy
-    }
-
-
-    pub fn select_max_class(&self, target: NDArray<f64>) -> f64 {
-        let max = target.values().iter().max_by(
-            |a, b| a.total_cmp(b)
+        let left_avg = NDArray::fill(
+            left.shape().values(),
+            left.avg()
         ).unwrap();
-        *max
+
+        let right_avg = NDArray::fill(
+            right.shape().values(),
+            right.avg()
+        ).unwrap();
+
+        let left_mse = (self.loss_function)(&left, &left_avg).unwrap();
+        let right_mse = (self.loss_function)(&right, &right_avg).unwrap();
+        let mse_total = left_mse + right_mse;
+        mse_total
     }
 
-    pub fn fit(&mut self, features: &NDArray<f64>, _target: &NDArray<f64>) {
-       self.root = self.build_tree(features, 0);
-       print_tree(self.root.clone(), 2); 
-    }
 
     pub fn prediction(&self, inputs: NDArray<f64>, node: Node) -> f64 {
 
@@ -181,6 +173,7 @@ None => -1.0
 
     }
 
+
     pub fn predict(&self, input: NDArray<f64>) -> NDArray<f64> {
         let rows = input.shape().dim(0);
         let mut results = Vec::new();
@@ -191,6 +184,12 @@ None => -1.0
         }
 
         NDArray::array(vec![rows, 1], results).unwrap()
+    }
+
+
+    pub fn fit(&mut self, features: &NDArray<f64>, _target: &NDArray<f64>) {
+       self.root = self.build_tree(features, 0);
+       print_tree(self.root.clone(), 2); 
     }
 
 
@@ -219,24 +218,25 @@ None => -1.0
         filepath: &str, 
         max_depth: usize,
         samples_split: usize,
-        metric_function: fn(x: NDArray<f64>) -> f64) -> DecisionTreeClassifier {
+        loss_function: fn(
+            y_true: &NDArray<f64>, 
+            y_pred: &NDArray<f64>) -> Result<f64, String>
+        ) -> DecisionTreeRegressor {
 
         let root = load_root(filepath).unwrap();
         let root_node = Node::load(root.clone());
         load_tree(&mut root_node.clone(), root);  
 
-        DecisionTreeClassifier {
+        DecisionTreeRegressor {
             max_depth,
             samples_split,
-            metric_function: metric_function,
+            loss_function: loss_function,
             root: root_node
         }
  
     }
 
 
+
+
 }
-
-
-
-
