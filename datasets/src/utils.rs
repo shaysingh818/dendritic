@@ -41,23 +41,13 @@ pub fn csv_to_parquet(schema: Schema, filepath: &str, outpath: &str) {
         Some(props)
     ).unwrap();
 
-    match reader.next() {
-        Some(r) => match r {
-            Ok(r) => {
-                //let batch = r.unwrap();
-                writer.write(&r).expect("WRITING BATCH");
-            },
-            Err(r) => {
-                println!("{:?}", r); 
-            },
-        }
-        None => {
-            println!("csv emtpy");  
-            writer.close().unwrap();
-        },
+    while let Some(batch) = reader.next() {
+        let batch = batch.unwrap();
+        writer.write(&batch).expect("WRITING BATCH"); 
     }
 
-    //writer.write(&batch).expect("Writing batch");
+    writer.close().unwrap(); 
+
 }
 
 

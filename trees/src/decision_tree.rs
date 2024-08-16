@@ -33,6 +33,12 @@ impl DecisionTreeClassifier {
 
     }
 
+    
+    pub fn root(&self) -> &Node {
+        &self.root
+    }
+
+
     pub fn build_tree(
         &self, 
         features: &NDArray<f64>, 
@@ -149,9 +155,11 @@ impl DecisionTreeClassifier {
         *max
     }
 
-    pub fn fit(&mut self, features: &NDArray<f64>, _target: &NDArray<f64>) {
+    pub fn fit(
+        &mut self, 
+        features: &NDArray<f64>, 
+        _target: &NDArray<f64>) {
        self.root = self.build_tree(features, 0);
-       print_tree(self.root.clone(), 2); 
     }
 
     pub fn prediction(&self, inputs: NDArray<f64>, node: Node) -> f64 {

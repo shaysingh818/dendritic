@@ -66,7 +66,7 @@ pub fn load_alzhiemers() -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     /* switch to datasets/data directory */
 
-    let path = "data/alzheimers.parquet";
+    let path = "../../datasets/data/alzheimers.parquet";
     let file = File::open(path).unwrap();
     let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
         .build()?;
@@ -75,28 +75,28 @@ pub fn load_alzhiemers() -> Result<(NDArray<f64>, NDArray<f64>)> {
     let (input, y_train) = select_features(
         batch.clone(),
         vec![
-            //"age",
-            //"gender",
-            //"ethnicity",
-            //"education_level",
+            "age",
+            "gender",
+            "ethnicity",
+            "education_level",
             "alchohol_consumption",
-            //"bmi",
+            "bmi",
             "smoking",
             "physical_activity",
             "diet_quality",
             "sleep_quality",
             "family_history",
-            //"cardiovascular_disease",
-            //"diabetes",
+            "cardiovascular_disease",
+            "diabetes",
             "depression",
             "head_injury",
-            //"hyptertension",
-            //"systolic_bp", 
-            //"distolic_dp",
-            //"cholesterol_total",
-            //"cholesterol_ldl",
-            //"cholesterol_hdl", 
-            //"cholesterol_tryglicerides",
+            "hyptertension",
+            "systolic_bp", 
+            "distolic_dp",
+            "cholesterol_total",
+            "cholesterol_ldl",
+            "cholesterol_hdl", 
+            "cholesterol_tryglicerides",
             "confusion",
             "disorientation",
             "personality_changes",

@@ -8,6 +8,7 @@ mod regression_tree_tests {
     use trees::utils::*; 
     use trees::decision_tree_regressor::*; 
     use metrics::loss::*;
+    use datasets::airfoil_noise::*;
 
 
     #[test]
@@ -34,7 +35,7 @@ mod regression_tree_tests {
                 14.0, 13.0, 12.0, 11.0, 10.0,
                 9.0, 8.0, 7.0, 6.0
             ]
-        );
+        ); 
 
     }
 
@@ -48,7 +49,7 @@ mod regression_tree_tests {
         let (mse, feature_idx, threshold) = model.best_split(features);
 
         assert_eq!(feature_idx, 0);
-        assert_eq!(threshold, 5.5); 
+        assert_eq!(threshold, 5.0); 
         assert_eq!(mse, 2.1389432098765435); 
     }
 

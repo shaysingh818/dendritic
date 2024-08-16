@@ -37,6 +37,10 @@ impl DecisionTreeRegressor {
 
     }
 
+    pub fn root(&self) -> &Node {
+        &self.root
+    }
+
     pub fn build_tree(
         &self,
         features: &NDArray<f64>,
@@ -44,6 +48,8 @@ impl DecisionTreeRegressor {
 
         let num_features = features.shape().dim(1);
         let num_samples = features.shape().dim(0);
+
+
         let depth_condition = curr_depth <= self.max_depth;
         let sample_condition = num_samples >= self.samples_split;
 
@@ -54,7 +60,6 @@ impl DecisionTreeRegressor {
                 feature_idx, 
                 threshold
             ) = self.best_split(features.clone());
-
 
             let (left, right) = split(
                 features.clone(),
@@ -92,15 +97,9 @@ impl DecisionTreeRegressor {
 
         let num_features = features.shape().dim(1) - 1;
         for feat_idx in 0..num_features {
-
             let feature = features.axis(1, feat_idx).unwrap();
-            let sorted_features = feature.sort();
-            let end_idx = sorted_features.len() - 1; 
-
-            for idx in 0..end_idx {
-
-                let threshold = 
-                    (sorted_features[idx] + sorted_features[idx+1]) / 2.0;
+            let thresholds = feature.unique();
+            for threshold in thresholds {
  
                 let (left, right) = split(
                     features.clone(),
@@ -108,15 +107,18 @@ impl DecisionTreeRegressor {
                     feat_idx
                 );
 
-                let curr_mse = self.gain(
-                    left.axis(1, num_features).unwrap(), 
-                    right.axis(1, num_features).unwrap()
-                ); 
+                if left.size() > 0 && right.size() > 0 {
 
-                if curr_mse < min_mse {
-                    min_mse = curr_mse; 
-                    feature_index = feat_idx; 
-                    selected_threshold = threshold; 
+                    let curr_mse = self.gain(
+                        left.axis(1, num_features).unwrap(), 
+                        right.axis(1, num_features).unwrap()
+                    ); 
+
+                    if curr_mse < min_mse {
+                        min_mse = curr_mse; 
+                        feature_index = feat_idx; 
+                        selected_threshold = threshold; 
+                    }
                 }
 
             }
@@ -189,7 +191,6 @@ None => -1.0
 
     pub fn fit(&mut self, features: &NDArray<f64>, _target: &NDArray<f64>) {
        self.root = self.build_tree(features, 0);
-       print_tree(self.root.clone(), 2); 
     }
 
 

@@ -1,5 +1,5 @@
 use ndarray::ndarray::NDArray;
-use ndarray::ops::Ops;
+use ndarray::ops::*;
 use std::cell::{RefCell, RefMut}; 
 use crate::node::{Node, Value}; 
 

@@ -1,17 +1,17 @@
 {
-  "threshold": 5.5,
+  "threshold": 5.0,
   "feature_idx": 0,
   "value": null,
   "mse": 2.1389432098765435,
   "information_gain": null,
   "left": {
-    "threshold": 4.5,
+    "threshold": 4.0,
     "feature_idx": 0,
     "value": null,
     "mse": 0.021874999999999985,
     "information_gain": null,
     "left": {
-      "threshold": 1.5,
+      "threshold": 1.0,
       "feature_idx": 0,
       "value": null,
       "mse": 0.01555555555555554,
@@ -26,7 +26,7 @@
         "right": null
       },
       "right": {
-        "threshold": 3.5,
+        "threshold": 3.0,
         "feature_idx": 0,
         "value": null,
         "mse": 0.009999999999999995,
@@ -62,13 +62,13 @@
     }
   },
   "right": {
-    "threshold": 11.5,
+    "threshold": 11.0,
     "feature_idx": 0,
     "value": null,
     "mse": 0.1447222222222223,
     "information_gain": null,
     "left": {
-      "threshold": 6.5,
+      "threshold": 6.0,
       "feature_idx": 0,
       "value": null,
       "mse": 0.07440000000000008,
@@ -83,7 +83,7 @@
         "right": null
       },
       "right": {
-        "threshold": 9.5,
+        "threshold": 9.0,
         "feature_idx": 0,
         "value": null,
         "mse": 0.06000000000000011,
@@ -109,7 +109,7 @@
       }
     },
     "right": {
-      "threshold": 12.5,
+      "threshold": 12.0,
       "feature_idx": 0,
       "value": null,
       "mse": 0.0025000000000000044,

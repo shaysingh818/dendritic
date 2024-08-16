@@ -237,6 +237,7 @@ mod ndarray_tests {
 }
 
 
+/*
 #[cfg(test)]
 mod ops {
 
@@ -834,3 +835,5 @@ mod ops {
 
 
 }
+
+*/

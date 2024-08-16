@@ -1734,8 +1734,10 @@ dependencies = [
 name = "trees"
 version = "0.3.0"
 dependencies = [
+ "datasets",
  "metrics",
  "ndarray",
+ "rand",
  "serde",
  "serde_json",
 ]

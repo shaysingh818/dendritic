@@ -19,8 +19,8 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let model = Logistic::new(
-            x.clone(), 
-            y.clone(), 
+            &x, 
+            &y, 
             sigmoid_vec,
             0.01
         ).unwrap();
@@ -67,8 +67,8 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let mut model = Logistic::new(
-            x.clone(), 
-            y.clone(), 
+            &x, 
+            &y, 
             sigmoid_vec,
             0.01
         ).unwrap();
@@ -107,8 +107,8 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let mut model = Logistic::new(
-            x.clone(), 
-            y.clone(), 
+            &x, 
+            &y, 
             sigmoid_vec,
             0.001
         ).unwrap();
@@ -150,8 +150,8 @@ mod logistic_tests {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let mut model = Logistic::new(
-            x.clone(),
-            y.clone(), 
+            &x,
+            &y, 
             sigmoid_vec,
             0.001
         ).unwrap();
@@ -164,8 +164,8 @@ mod logistic_tests {
 
         let mut loaded_model = Logistic::load(
             model_path, 
-            x.clone(), 
-            y.clone(), 
+            &x, 
+            &y, 
             sigmoid_vec,
             0.01
         ).unwrap();
@@ -197,8 +197,8 @@ mod logistic_tests {
         assert_eq!(y_train_encoded.shape().values(), vec![10, 3]);
 
         let mut model = MultiClassLogistic::new(
-            x_train.clone(),
-            y_train_encoded.clone(),
+            &x_train,
+            &y_train_encoded,
             softmax,
             0.1
         ).unwrap();
@@ -233,8 +233,8 @@ mod logistic_tests {
         assert_eq!(y_train_encoded.shape().values(), vec![10, 3]);
 
         let mut model = MultiClassLogistic::new(
-            x_train.clone(),
-            y_train_encoded.clone(),
+            &x_train,
+            &y_train_encoded,
             softmax,
             0.1
         ).unwrap();
