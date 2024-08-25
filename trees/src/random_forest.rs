@@ -61,25 +61,29 @@ impl RandomForestClassifier {
     pub fn num_features(&self) -> usize {
         self.num_features
     }
-
     
     pub fn trees(&self) -> &Vec<DecisionTreeClassifier> {
         &self.trees
     }
 
 
-    pub fn fit(
-        &mut self, 
-        features: &NDArray<f64>, 
-        target: &NDArray<f64>) {
-        
+    pub fn bootstrap_trees(
+        &mut self,
+        features: &NDArray<f64>,
+        target: &NDArray<f64>) -> Result<(), String> {
+
+        if self.num_features > features.shape().dim(1) {
+            let msg = "Random Forest: Number of bootstrap features too large";
+            return Err(msg.to_string());
+        }
+
         let mut bs = Bootstrap::new(
             self.n_trees,
             self.num_features,
             features.shape().dim(0),
             features.clone()
         );
-        bs.generate(); 
+        bs.generate();
 
         let mut counter = 0; 
         for item in bs.datasets() {
@@ -94,6 +98,55 @@ impl RandomForestClassifier {
            counter += 1; 
         }
 
+        Ok(())
+    }
+
+
+    pub fn load_trees(
+        &mut self,
+        filepath: &str,
+        features: &NDArray<f64>,
+        target: &NDArray<f64>) {
+
+        let paths = fs::read_dir(filepath).unwrap();
+        let mut tree_count = 0;
+
+        for path in paths {
+            let path_str = path.unwrap().path().display().to_string();
+            let mut dt =  DecisionTreeClassifier::load(
+                &path_str,
+                self.max_depth, 
+                self.samples_split,
+                self.metric_function
+            ); 
+            dt.fit(features, target);
+            self.trees.push(dt);
+            tree_count += 1; 
+        }
+        self.n_trees = tree_count;
+    }
+
+
+    pub fn fit_loaded(
+        &mut self,
+        features: &NDArray<f64>,
+        target: &NDArray<f64>,
+        filepath: &str) {
+
+        self.load_trees(
+            filepath,
+            features,
+            target
+        );
+
+    }
+
+    pub fn fit(
+        &mut self, 
+        features: &NDArray<f64>, 
+        target: &NDArray<f64>) {
+
+        self.bootstrap_trees(features, target).unwrap();
     }
 
 
@@ -134,28 +187,32 @@ impl RandomForestClassifier {
 
         let mut counter = 0;
         for tree in &self.trees {
-
-            let mut node_save = tree.root().save();
-            save_tree(tree.root().clone(), &mut node_save);
-
-            let tree_path = format!("{}/tree_{}.json", filepath, counter);
-            fs::create_dir_all(filepath)?;
-
-            let file = match File::create(tree_path) {
-                Ok(file) => file,
-                Err(err) => {
-                    return Err(err);
-                }
-            };
-            let mut writer = BufWriter::new(file);
-            let json_string = serde_json::to_string_pretty(&node_save)?;
-            writer.write_all(json_string.as_bytes())?; 
+ 
+            let tree_path = format!(
+                "{}/tree_{}", 
+                filepath, counter
+            );
+            tree.save(&tree_path).unwrap();
             counter += 1; 
         }
         Ok(())
     }
 
 
+    pub fn load(
+        max_depth: usize,
+        samples_split: usize,
+        metric_function: fn(x: NDArray<f64>) -> f64) -> RandomForestClassifier {
+      
+        RandomForestClassifier {
+            max_depth: max_depth,
+            samples_split: samples_split,
+            n_trees: 0,
+            num_features: 0,
+            metric_function: metric_function,
+            trees: Vec::new()
+        }
+    }
 
 }
 
@@ -222,11 +279,31 @@ impl RandomForestRegressor {
     }
 
 
-    pub fn fit(
-        &mut self, 
-        features: &NDArray<f64>, 
-        target: &NDArray<f64>) {
-        
+    pub fn save(&self, filepath: &str) -> std::io::Result<()> {
+
+        let mut counter = 0;
+        for tree in &self.trees {
+ 
+            let tree_path = format!(
+                "{}/tree_{}", 
+                filepath, counter
+            );
+            tree.save(&tree_path).unwrap();
+            counter += 1; 
+        }
+        Ok(())
+    }
+
+    pub fn bootstrap_trees(
+        &mut self,
+        features: &NDArray<f64>,
+        target: &NDArray<f64>) -> Result<(), String> {
+
+        if self.num_features > features.shape().dim(1) {
+            let msg = "Random Forest: Number of bootstrap features too large";
+            return Err(msg.to_string());
+        }
+
         let mut bs = Bootstrap::new(
             self.n_trees,
             self.num_features,
@@ -248,6 +325,51 @@ impl RandomForestRegressor {
            counter += 1; 
         }
 
+        Ok(())
+    }
+
+
+    pub fn load_trees(
+        &mut self,
+        filepath: &str,
+        features: &NDArray<f64>,
+        target: &NDArray<f64>) {
+
+        let paths = fs::read_dir(filepath).unwrap();
+        let mut tree_count = 0;
+
+        for path in paths {
+            let path_str = path.unwrap().path().display().to_string();
+            let mut dt =  DecisionTreeRegressor::load(
+                &path_str,
+                self.max_depth, 
+                self.samples_split,
+                self.loss_function
+            ); 
+            dt.fit(features, target);
+            self.trees.push(dt);
+            tree_count += 1; 
+        }
+        self.n_trees = tree_count;
+    }
+
+
+    pub fn fit(&mut self, features: &NDArray<f64>, target: &NDArray<f64>) {
+        self.bootstrap_trees(features, target).unwrap();
+    }
+
+
+    pub fn fit_loaded(
+        &mut self,
+        features: &NDArray<f64>,
+        target: &NDArray<f64>,
+        filepath: &str) {
+
+        self.load_trees(
+            filepath,
+            features,
+            target
+        );
     }
 
 
@@ -275,6 +397,24 @@ impl RandomForestRegressor {
         NDArray::array(vec![rows, 1], y_predictions).unwrap() 
     }
 
+
+    pub fn load(
+        max_depth: usize,
+        samples_split: usize,
+        loss_function: fn(
+            y_true: &NDArray<f64>, 
+            y_pred: &NDArray<f64>) -> Result<f64, String>
+        ) -> RandomForestRegressor {
+          
+        RandomForestRegressor {
+            max_depth: max_depth,
+            samples_split: samples_split,
+            n_trees: 0,
+            num_features: 0,
+            loss_function: loss_function,
+            trees: Vec::new()
+        }
+    }
 
 }
 

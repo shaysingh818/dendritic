@@ -258,7 +258,10 @@ mod decision_tree_tests {
             entropy
         );
 
+
         model.fit(&dataset, &target);
+        print_tree(model.root().clone(), 0); 
+
         let predictions = model.predict(dataset);
         let expected = vec![
             0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0,2.0,2.0,2.0,2.0
