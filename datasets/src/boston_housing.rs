@@ -42,7 +42,7 @@ pub fn convert_housing_csv_to_parquet() {
 pub fn load_housing_data() -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     /* switch to datasets/data directory */
-    let path = "../../datasets/data/boston_housing.parquet";
+    let path = "data/boston_housing.parquet";
     let file = File::open(path).unwrap();
     let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
         .build()?;
