@@ -1,11 +1,6 @@
 use ndarray::ndarray::NDArray;
-use ndarray::ops::*;
-use metrics::utils::*;
-use std::fs;
-use std::fs::{File};
-use std::io::{BufWriter, Write};
 use std::rc::Rc;
-use std::cell::{RefCell, RefMut, Ref};
+use std::cell::{RefCell};
 use serde::{Serialize, Deserialize}; 
 
 
@@ -14,6 +9,7 @@ pub struct NodeSerialized {
     threshold: f64,
     feature_idx: usize,
     value: Option<f64>,
+    mse: Option<f64>,
     information_gain: Option<f64>,
     pub left: Option<Box<NodeSerialized>>,
     pub right: Option<Box<NodeSerialized>>,
@@ -26,6 +22,7 @@ pub struct Node {
     threshold: f64,
     feature_idx: usize,
     value: Option<f64>,
+    mse: Option<f64>,
     information_gain: Option<f64>,
     pub left: Option<NodeRef>,
     pub right: Option<NodeRef>
@@ -51,7 +48,31 @@ impl Node {
            threshold: threshold,
            feature_idx: feature_idx,
            value: None,
+           mse: None,
            information_gain: Some(information_gain),
+           left: Some(Rc::new(RefCell::new(left))),
+           right: Some(Rc::new(RefCell::new(right)))
+        }
+
+    }
+
+
+    pub fn regression(
+        data: NDArray<f64>,
+        threshold: f64,
+        feature_idx: usize,
+        mse: f64,
+        left: Node,
+        right: Node
+    ) -> Node {
+
+        Node {
+           data: data, 
+           threshold: threshold,
+           feature_idx: feature_idx,
+           value: None,
+           mse: Some(mse),
+           information_gain: None,
            left: Some(Rc::new(RefCell::new(left))),
            right: Some(Rc::new(RefCell::new(right)))
         }
@@ -65,6 +86,7 @@ impl Node {
            threshold: 0.0,
            feature_idx: 0,
            information_gain: None,
+           mse: None,
            value: Some(value),
            left: None,
            right: None,
@@ -91,6 +113,13 @@ impl Node {
         }
     }
 
+    pub fn mse(&self) -> Option<f64> {
+        match self.mse {
+            Some(value) => Some(value),
+            None => None
+        }
+    }
+
     pub fn value(&self) -> Option<f64> {
         match self.value {
             Some(value) => Some(value),
@@ -112,12 +141,13 @@ impl Node {
         }
     }
 
-    pub fn save(&self, filepath: &str) -> NodeSerialized {
+    pub fn save(&self) -> NodeSerialized {
         
-        let mut node = NodeSerialized {
+        let node = NodeSerialized {
             threshold: self.threshold(),
             value: self.value(),
             feature_idx: self.feature_idx(),
+            mse: self.mse(),
             information_gain: self.information_gain(),
             left: None,
             right: None
@@ -133,6 +163,7 @@ impl Node {
            threshold: node.threshold,
            feature_idx: node.feature_idx,
            value: node.value,
+           mse: node.mse,
            information_gain: node.information_gain,
            left: None,
            right: None

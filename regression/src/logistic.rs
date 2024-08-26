@@ -23,8 +23,8 @@ pub struct Logistic {
 impl Logistic {
 
     pub fn new(
-        features: NDArray<f64>, 
-        y: NDArray<f64>,
+        features: &NDArray<f64>, 
+        y: &NDArray<f64>,
         activation_function: fn(values: NDArray<f64>) -> NDArray<f64>,
         learning_rate: f64) -> Result<Logistic, String> {
 
@@ -36,12 +36,12 @@ impl Logistic {
         let weights_shape = vec![features.shape().dim(1), y.shape().dim(1)];
         let weights = NDArray::new(vec![features.shape().dim(1), 1]).unwrap();
         let bias = NDArray::new(vec![1, 1]).unwrap();
-        let inputs = Value::new(&features); 
-        let outputs = Value::new(&y);
+        let inputs = Value::new(features); 
+        let outputs = Value::new(y);
 
         Ok(Self {
-            features: inputs.clone(),
-            outputs: outputs.clone(),
+            features: inputs,
+            outputs: outputs,
             weights: Value::new(&weights),
             bias: Value::new(&bias),
             learning_rate: learning_rate,
@@ -79,22 +79,22 @@ impl Logistic {
 
     pub fn load(
         filepath: &str, 
-        features: NDArray<f64>, 
-        y: NDArray<f64>,
+        features: &NDArray<f64>, 
+        y: &NDArray<f64>,
         activation_function: fn(values: NDArray<f64>) -> NDArray<f64>,
         learning_rate: f64) -> std::io::Result<Logistic> {
 
         let weights_file = format!("{}/weights", filepath);
         let bias_path = format!("{}/bias", filepath); 
 
-        let inputs = Value::new(&features); 
-        let outputs = Value::new(&y);
+        let inputs = Value::new(features); 
+        let outputs = Value::new(y);
         let load_weights = NDArray::load(&weights_file).unwrap();
         let load_bias = NDArray::load(&bias_path).unwrap();
 
         Ok(Logistic {
-            features: inputs.clone(),
-            outputs: outputs.clone(),
+            features: inputs,
+            outputs: outputs,
             weights: Value::new(&load_weights),
             bias: Value::new(&load_bias),
             learning_rate: learning_rate,
@@ -229,8 +229,8 @@ pub struct MultiClassLogistic {
 impl MultiClassLogistic {
 
     pub fn new(
-        features: NDArray<f64>, 
-        y: NDArray<f64>,
+        features: &NDArray<f64>, 
+        y: &NDArray<f64>,
         activation_function: fn(values: NDArray<f64>) -> NDArray<f64>,
         learning_rate: f64) -> Result<MultiClassLogistic, String> {
 
@@ -250,12 +250,12 @@ impl MultiClassLogistic {
 
         let weights = NDArray::new(weights_shape).unwrap();
         let bias = NDArray::new(vec![1, 1]).unwrap();
-        let inputs = Value::new(&features); 
-        let outputs = Value::new(&y);
+        let inputs = Value::new(features); 
+        let outputs = Value::new(y);
 
         Ok(Self {
-            features: inputs.clone(),
-            outputs: outputs.clone(),
+            features: inputs,
+            outputs: outputs,
             weights: Value::new(&weights),
             bias: Value::new(&bias),
             learning_rate: learning_rate,

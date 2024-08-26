@@ -24,23 +24,30 @@ pub fn csv_to_parquet(schema: Schema, filepath: &str, outpath: &str) {
     let file = File::open(filepath).unwrap();
     let out_file = File::create(&path).unwrap();
 
-    let mut reader = ReaderBuilder::new(Arc::new(schema))
+    let mut reader = ReaderBuilder::new(Arc::new(schema.clone()))
         .with_header(true)
         .build(file)
         .unwrap();
 
-    let batch = reader.next().unwrap().unwrap();
     let props = WriterProperties::builder()
         .set_compression(Compression::SNAPPY)
         .build();
 
+
+    //let batch = reader.next().unwrap().unwrap();
     let mut writer = ArrowWriter::try_new(
         out_file,
-        batch.schema(),
+        schema.into(),
         Some(props)
     ).unwrap();
-    writer.write(&batch).expect("Writing batch");
-    writer.close().unwrap();
+
+    while let Some(batch) = reader.next() {
+        let batch = batch.unwrap();
+        writer.write(&batch).expect("WRITING BATCH"); 
+    }
+
+    writer.close().unwrap(); 
+
 }
 
 

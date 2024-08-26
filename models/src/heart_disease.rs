@@ -64,8 +64,8 @@ impl HeartModel {
             view_name: view_name,
             learning_rate: learning_rate.clone(),
             model: Logistic::new(
-                NDArray::new(vec![1, 1]).unwrap(),
-                NDArray::new(vec![1, 1]).unwrap(),
+                &NDArray::new(vec![1, 1]).unwrap(),
+                &NDArray::new(vec![1, 1]).unwrap(),
                 sigmoid_vec,
                 learning_rate
             ).unwrap()
@@ -218,8 +218,8 @@ impl HeartModel {
 
         let x_train_processed = min_max_scalar(x_train).unwrap(); 
         self.model = Logistic::new(
-            x_train_processed, 
-            y_train, 
+            &x_train_processed, 
+            &y_train, 
             sigmoid_vec,
             self.learning_rate
         ).unwrap();
@@ -289,8 +289,8 @@ impl HeartModel {
 
         self.model = Logistic::load(
             filepath,
-            x_train_processed, 
-            y_train,
+            &x_train_processed, 
+            &y_train,
             sigmoid_vec,
             self.learning_rate
         ).unwrap();

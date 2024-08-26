@@ -43,7 +43,7 @@ pub fn convert_student_csv_to_parquet() {
 pub fn load_student_data() -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     /* switch to datasets/data directory */
-    let path = "../../datasets/data/student_performance.parquet";
+    let path = "data/student_performance.parquet";
     let file = File::open(path).unwrap();
     let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
         .build()?;
