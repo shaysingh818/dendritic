@@ -10,7 +10,7 @@ pub struct NDArray<T> {
 }
 
 
-impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
+impl<T: Default + Clone + std::fmt::Debug + std::cmp::PartialEq> NDArray<T> {
 
     /// Gets the rank of the current array
     pub fn rank(&self) -> usize {
@@ -40,6 +40,11 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
     /// Get generic value from provided indices
     pub fn idx(&self, index: usize) -> &T {
         &self.values[index]
+    }
+
+    /// Lets you change the rank of the current ndarray
+    pub fn set_rank(&mut self, new_rank: usize) {
+        self.rank = new_rank;
     }
 
     /// Create instance of NDArray, provide shape dimensions as parameter
@@ -261,6 +266,10 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
             let val = &self.values()[flat_index];
             values.push(val.clone());
         }
+
+        if new_shape.values().len() == 1 {
+            new_shape.push(1);
+        }
  
         Ok(NDArray::array(new_shape.values(),values).unwrap()) 
     }
@@ -323,6 +332,14 @@ impl<T: Default + Clone + std::fmt::Debug> NDArray<T> {
         }
 
         Ok(batches) 
+    }
+
+
+    pub fn value_indices(&self, value: T) -> Vec<usize> {
+        self.values().iter()
+            .enumerate()
+            .filter_map(|(i, &ref x)| if *x == value { Some(i) } else { None })
+            .collect()
     }
 
 }

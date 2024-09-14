@@ -5,7 +5,8 @@ use std::collections::btree_map::BTreeMap;
 use itertools::Itertools;
 
 pub trait AggregateOps {
-    fn avg(&self) -> f64; 
+    fn avg(&self) -> f64;
+    fn length(&self) -> f64;
     fn square(&self) -> Result<NDArray<f64>, String>;
     fn sum(&self) -> Result<NDArray<f64>, String>; 
     fn abs(&self) -> Result<NDArray<f64>, String>;
@@ -22,6 +23,18 @@ impl AggregateOps for NDArray<f64> {
     fn avg(&self) -> f64 {
         let sum: f64 = self.values().iter().sum();
         sum / self.size() as f64
+    }
+
+    /// Computes the length or magnitude of vector
+    fn length(&self) -> f64 {
+        let mut sum: f64 = 0.0;
+        for index in 0..self.size() {
+            let value = self.values()[index]; 
+            let raised = value.powf(2.0);
+            sum += raised;
+        }
+
+        sum.sqrt()
     }
 
 

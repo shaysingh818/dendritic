@@ -443,6 +443,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
+name = "bayes"
+version = "0.3.0"
+dependencies = [
+ "metrics",
+ "ndarray",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "bigdecimal"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"

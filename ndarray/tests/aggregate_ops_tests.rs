@@ -226,5 +226,30 @@ mod aggregate_ops {
     }
 
 
+    #[test]
+    fn test_length_ndarray() {
+
+        let x = NDArray::array(vec![2, 2], vec![
+            2.0, 2.0, 2.0, 2.0
+        ]).unwrap();
+
+        let x_length = x.length();
+        assert_eq!(x_length, 4.0);
+
+        let x1 = NDArray::array(vec![1, 2], vec![
+            5.0, 0.0
+        ]).unwrap();
+        let x1_length = x1.length();
+        assert_eq!(x1_length, 5.0);
+
+        let x2 = NDArray::array(vec![1, 2], vec![
+            0.0, -3.0
+        ]).unwrap();
+        let x2_length = x2.length();
+        assert_eq!(x2_length, 3.0);
+
+    }
+
+
 
 } 
