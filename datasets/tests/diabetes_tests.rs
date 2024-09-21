@@ -34,7 +34,7 @@ mod diabetes_tests {
 
     #[test]
     fn test_load_data() {
-        let (x_train, y_train) = load_diabetes().unwrap();
+        let (x_train, y_train) = load_diabetes("data/diabetes.parquet").unwrap();
         assert_eq!(x_train.shape().values(), vec![532, 7]);
         assert_eq!(y_train.shape().values(), vec![532, 1]);
     }

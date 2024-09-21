@@ -1,3 +1,5 @@
+use std::env;
+use std::path::{Path, PathBuf};
 use std::fs::File; 
 use preprocessing::standard_scalar::*;
 use ndarray::ndarray::NDArray;
@@ -36,9 +38,8 @@ pub fn convert_diabetes_csv_to_parquet() {
 
 
 /// Load x_train and y_train dataset for diabetes
-pub fn load_diabetes() -> Result<(NDArray<f64>, NDArray<f64>)> {
+pub fn load_diabetes(path: &str) -> Result<(NDArray<f64>, NDArray<f64>)> {
 
-    let path = "data/diabetes.parquet";
     let file = File::open(path).unwrap();
     let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
         .build()?;

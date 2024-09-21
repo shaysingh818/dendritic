@@ -19,7 +19,8 @@ use metrics::utils::*;
 fn diabetes_model() {
 
     // load data
-    let (x_train, y_train) = load_diabetes().unwrap();
+    let data_path = "../../datasets/data/diabetes.parquet";
+    let (x_train, y_train) = load_diabetes(data_path).unwrap();
 
     // create logistic regression model
     let mut log_model = Logistic::new(
@@ -45,8 +46,9 @@ fn diabetes_model() {
 
 fn breast_cancer_model() {
 
-    // load data
-    let (x_train, y_train) = load_breast_cancer().unwrap();
+    // load data 
+    let data_path = "../../datasets/data/breast_cancer.parquet";
+    let (x_train, y_train) = load_breast_cancer(data_path).unwrap();
 
     // create logistic regression model
     let mut log_model = Logistic::load(
@@ -75,8 +77,9 @@ fn breast_cancer_model() {
 
 fn iris_model() {
 
-// load data
-    let (x_train, y_train) = load_iris().unwrap();
+    // load data
+    let data_path = "../../datasets/data/iris.parquet";
+    let (x_train, y_train) = load_iris(data_path).unwrap();
 
     // encode the target variables
     let mut encoder = OneHotEncoding::new(y_train.clone()).unwrap();
@@ -108,8 +111,9 @@ fn iris_model() {
 fn dt_iris_model() {
 
     // load data
-    let (x_train_test, y_train_test) = load_iris().unwrap();
-    let (x_train, y_train) = load_all_iris().unwrap();
+    let data_path = "../../datasets/data/iris.parquet";
+    let (x_train_test, y_train_test) = load_iris(data_path).unwrap();
+    let (x_train, y_train) = load_all_iris(data_path).unwrap();
     let mut model = DecisionTreeClassifier::load(
         "../data/iris_decision_tree",
         3, 3, 
@@ -129,7 +133,8 @@ fn dt_iris_model() {
 fn alzheimers_model() {
 
     // load data
-    let (x_train, y_train) = load_alzhiemers().unwrap();
+    let data_path = "../../datasets/data/alzheimers.parquet";
+    let (x_train, y_train) = load_alzhiemers(data_path).unwrap();
 
     // create logistic regression model
     let mut log_model = Logistic::new(
@@ -154,7 +159,8 @@ fn alzheimers_model() {
 
 fn airfoil_regression_tree() {
 
-    let (x_train, y_train) = load_airfoil_data().unwrap();
+    let data_path = "../../datasets/data/airfoil_noise_data.parquet";
+    let (x_train, y_train) = load_airfoil_data(data_path).unwrap();
     
     let mut model = DecisionTreeRegressor::new(30, 3, mse);
     model.fit(&x_train, &y_train);
@@ -173,8 +179,9 @@ fn airfoil_regression_tree() {
 fn iris_random_forest_classifier() {
 
     // load data
-    let (x_train_test, y_train_test) = load_iris().unwrap();
-    let (x_train, y_train) = load_all_iris().unwrap();
+    let data_path = "../../datasets/data/iris.parquet";
+    let (x_train_test, y_train_test) = load_iris(data_path).unwrap();
+    let (x_train, y_train) = load_all_iris(data_path).unwrap();
 
     let mut model = RandomForestClassifier::new(
         3, 3,
@@ -196,6 +203,8 @@ fn iris_random_forest_classifier() {
 
 fn main() -> std::io::Result<()> {
 
+    diabetes_model();
+    /*
     // load data
     let (x_train, y_train) = load_airfoil_data().unwrap();
     let mut model = RandomForestRegressor::new(
@@ -210,7 +219,7 @@ fn main() -> std::io::Result<()> {
     let y_test = y_train.batch(5).unwrap();
     let y_pred = model.predict(x_test[sample_index].clone());
     println!("Actual: {:?}", y_test[sample_index]);
-    println!("Prediction: {:?}", y_pred.values()); 
+    println!("Prediction: {:?}", y_pred.values()); */
 
     Ok(())
 

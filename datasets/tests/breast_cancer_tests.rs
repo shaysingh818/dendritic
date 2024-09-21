@@ -64,7 +64,7 @@ mod breast_cancer_tests {
 
     #[test]
     fn test_load_data() {
-        let (x_train, y_train) = load_breast_cancer().unwrap();
+        let (x_train, y_train) = load_breast_cancer("data/breast_cancer.parquet").unwrap();
         assert_eq!(x_train.shape().values(), vec![569, 12]);
         assert_eq!(y_train.shape().values(), vec![569, 1]);
     }

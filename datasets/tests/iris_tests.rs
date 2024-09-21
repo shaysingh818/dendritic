@@ -30,7 +30,7 @@ mod iris_tests {
 
     #[test]
     fn test_load_data() {
-        let (x_train, y_train) = load_iris().unwrap();
+        let (x_train, y_train) = load_iris("data/iris.parquet").unwrap();
         println!("{:?}", x_train.shape().values()); 
         println!("{:?}", y_train.shape().values()); 
         assert_eq!(x_train.shape().values(), vec![150, 4]);

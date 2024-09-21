@@ -8,7 +8,8 @@ members = [
     "preprocessing",
     "models",
     "datasets",
-    "trees"
+    "trees",
+    "bayes"
 ]
 
 
@@ -28,3 +29,4 @@ preprocessing = { version = "0.3.0", path= "./preprocessing" }
 models = { version = "0.3.0", path= "./models" }
 datasets = { version = "0.3.0", path= "./datasets" }
 trees = { version = "0.3.0", path= "./trees" }
+bayes = { version = "0.3.0", path= "./bayes" }

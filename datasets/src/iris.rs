@@ -32,11 +32,8 @@ pub fn convert_iris_csv_to_parquet() {
 }
 
 
-pub fn load_iris() -> Result<(NDArray<f64>, NDArray<f64>)> {
+pub fn load_iris(path: &str) -> Result<(NDArray<f64>, NDArray<f64>)> {
     
-    /* switch to datasets/data directory */
-
-    let path = "data/iris.parquet";
     let file = File::open(path).unwrap();
     let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
         .build()?;
@@ -59,11 +56,8 @@ pub fn load_iris() -> Result<(NDArray<f64>, NDArray<f64>)> {
 }
 
 
-pub fn load_all_iris() -> Result<(NDArray<f64>, NDArray<f64>)> {
+pub fn load_all_iris(path: &str) -> Result<(NDArray<f64>, NDArray<f64>)> {
     
-    /* switch to datasets/data directory */
-
-    let path = "../../datasets/data/iris.parquet";
     let file = File::open(path).unwrap();
     let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
         .build()?;

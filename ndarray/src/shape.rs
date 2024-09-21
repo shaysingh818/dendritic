@@ -34,6 +34,10 @@ impl Shape {
         self.values.remove(index);
     }
 
+    pub fn push(&mut self, value: usize) {
+        self.values.push(value);
+    }
+
     /// Permute indices in shape vector
     pub fn permute(&self, indice_order: Vec<usize>) -> Vec<usize> {
         let mut new_shape: Vec<usize> = Vec::new();

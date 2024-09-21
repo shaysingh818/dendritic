@@ -71,7 +71,34 @@ mod aggregate_ops {
             1.118033988749895
         ];
 
-        assert_eq!(x_stdev, expected); 
+        assert_eq!(x_stdev, expected);
+
+
+        let bad = x.stdev(10);
+        assert_eq!(
+            bad.unwrap_err(),
+            "stdev: Axis too large for current array"
+        );
+    }
+
+
+    #[test]
+    fn test_stdev_sample_ndarray() {
+
+        let x = NDArray::array(vec![7, 1], vec![
+            2.5, 2.0, 1.7, 1.4, 1.2, 0.9, 0.8
+        ]).unwrap();
+
+        let x_stdev = x.stdev_sample(1).unwrap();
+        assert_eq!(x_stdev[0], 0.6110100926607787); 
+
+        let bad = x.stdev_sample(10);
+        assert_eq!(
+            bad.unwrap_err(),
+            "stdev sample: Axis too large for current array"
+        );
+
+
     }
 
 
@@ -222,6 +249,31 @@ mod aggregate_ops {
         assert_eq!(x.avg(), 5.0); 
         assert_eq!(y.avg(), 5.0); 
         assert_eq!(z.avg(), 5.0); 
+
+    }
+
+
+    #[test]
+    fn test_length_ndarray() {
+
+        let x = NDArray::array(vec![2, 2], vec![
+            2.0, 2.0, 2.0, 2.0
+        ]).unwrap();
+
+        let x_length = x.length();
+        assert_eq!(x_length, 4.0);
+
+        let x1 = NDArray::array(vec![1, 2], vec![
+            5.0, 0.0
+        ]).unwrap();
+        let x1_length = x1.length();
+        assert_eq!(x1_length, 5.0);
+
+        let x2 = NDArray::array(vec![1, 2], vec![
+            0.0, -3.0
+        ]).unwrap();
+        let x2_length = x2.length();
+        assert_eq!(x2_length, 3.0);
 
     }
 
