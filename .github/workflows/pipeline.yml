@@ -106,4 +106,18 @@ jobs:
       working-directory: "./regression"
       run: cargo test --color always
 
+  bayes:
+    runs-on: ubuntu-20.04
+    needs: [ndarray, metrics, autodiff, preprocessing, datasets]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      working-directory: "./bayes"
+      run: cargo build --color always
+
+    - name: Test
+      working-directory: "./bayes"
+      run: cargo test --color always
+
 
