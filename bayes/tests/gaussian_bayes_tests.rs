@@ -258,5 +258,37 @@ mod gaussian_bayes_tests {
     }
 
 
+    #[test]
+    fn test_save_load() {
+
+        let x_path = "data/prostate_cancer/inputs";
+        let y_path = "data/prostate_cancer/outputs";
+
+        let features = NDArray::load(x_path).unwrap();
+        let target = NDArray::load(y_path).unwrap();
+
+        assert_eq!(features.shape().values(), vec![14, 2]);
+        assert_eq!(target.shape().values(), vec![14, 1]);
+
+        let mut clf = GaussianNB::new(
+            &features,
+            &target
+        ).unwrap();
+
+        clf.save("data/models/weather").unwrap(); 
+
+        let mut clf2 = GaussianNB::load(
+            "data/models/weather",
+            &features,
+            &target
+        ).unwrap();
+
+        let preds = clf2.fit(features).unwrap();
+        let error = mse(&target, &preds).unwrap();
+        assert_eq!(error, 0.21428571428571427);
+
+    }    
+
+
 }
 

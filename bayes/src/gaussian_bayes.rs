@@ -31,6 +31,22 @@ impl GaussianNB {
     }
 
 
+    pub fn load(
+        filepath: &str, 
+        features: &NDArray<f64>, 
+        outputs: &NDArray<f64>) -> std::io::Result<GaussianNB> {
+
+        let likelihoods_file = format!("{}/likelihoods", filepath);
+        let load_likelihoods = NDArray::load(&likelihoods_file).unwrap();
+
+        Ok(Self {
+            features: features.clone(),
+            outputs: outputs.clone(),
+            likelihoods: load_likelihoods
+        })
+    }
+
+
     pub fn new(
         features: &NDArray<f64>, 
         outputs: &NDArray<f64>) -> Result<GaussianNB, String> {
