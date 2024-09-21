@@ -4,12 +4,15 @@ use metrics::activations::*;
 use metrics::loss::*;
 use metrics::utils::*; 
 use std::fs;
-use std::collections::HashSet; 
+use std::collections::HashSet;
+use crate::shared::*;
 
 #[derive(Debug)]
 pub struct NaiveBayes {
     pub features: NDArray<f64>,
-    pub outputs: NDArray<f64>
+    pub outputs: NDArray<f64>,
+    pub frequencies: Vec<NDArray<f64>>,
+    pub likelihoods: Vec<NDArray<f64>>
 }
 
 impl NaiveBayes {
@@ -29,31 +32,11 @@ impl NaiveBayes {
         Ok(Self {
             features: features.clone(),
             outputs: outputs.clone(),
+            frequencies: Vec::new(), 
+            likelihoods: Vec::new()
         })
     }
 
-
-    pub fn class_idxs(&self) -> Vec<Vec<usize>> {
-
-        let mut class_indices: Vec<Vec<usize>> = Vec::new();
-        let y_target = self.outputs.unique();
-        for item in &y_target {
-            let indices = self.outputs.value_indices(*item);
-            class_indices.push(indices);
-        }
-
-        class_indices
-    }
-
-    pub fn class_probabilities(&self) -> Vec<f64> {
-        let mut probabilities: Vec<f64> = Vec::new();
-        let class_indices = self.class_idxs();
-        for item in &class_indices {
-            let val = item.len() as f64 /self.outputs.size() as f64;
-            probabilities.push(val as f64);
-        }
-        probabilities
-    }
 
     pub fn frequency_table(
         &self,
@@ -104,12 +87,17 @@ impl NaiveBayes {
         &self, 
         freq_table: NDArray<f64>) -> NDArray<f64> {
 
+        let mut class_idx = 0;
         let mut idx = 0;
         let mut table_vals: Vec<f64> = Vec::new(); 
         let cols = freq_table.shape().dim(1);
         let rows = freq_table.shape().dim(0); 
-        let class_counts = self.class_idxs();
-        let mut class_idx = 0;
+        let class_counts = class_idxs(&self.outputs);
+
+        for row in 0..freq_table.shape().dim(0) {
+            let item = freq_table.axis(0, row).unwrap();
+        }
+
 
         for col in 0..cols {
 
@@ -125,46 +113,15 @@ impl NaiveBayes {
                 class_idx += 1;
 
             } 
-        } 
+        }
 
         NDArray::array(
             vec![
-                freq_table.shape().dim(0),
-                freq_table.shape().dim(1)
+                freq_table.shape().dim(1),
+                freq_table.shape().dim(0)
             ],
             table_vals
-        ).unwrap().transpose().unwrap()
-    }
-
-
-    pub fn predict_feature(
-        &self, 
-        feature_col: usize,
-        value: f64, 
-        class: f64) -> f64 {
-
-        /* count number of features associated with class */
-        let class_indices = self.class_idxs();
-        let freq_table = self.frequency_table(
-            self.features.axis(1, feature_col).unwrap(),
-            class_indices.clone()
-        ).unwrap();
-        let lh_table = self.likelihood_table(freq_table);
-
-        /* search first col of lh table */
-        let mut row_idx = 0;
-        let feature = lh_table.axis(1, 0).unwrap();
-        for (idx, feat) in feature.values().iter().enumerate() {
-            if *feat == value {
-               row_idx = idx;  
-            }
-        }
-
-        /* calculate bayes theorem with likelihood and frequency table */
-        let target_class = class_indices[class as usize].len();
-        let row_select = lh_table.axis(0, row_idx).unwrap();
-        let feature_occurrence = row_select.values()[class as usize + 1];
-        feature_occurrence 
+        ).unwrap()
     }
 
 
@@ -185,9 +142,72 @@ impl NaiveBayes {
     }
 
 
+    pub fn predict_feature(
+        &mut self, 
+        feature_col: usize,
+        value: f64, 
+        class: f64) -> f64 {
+
+        /* count number of features associated with class */
+        let class_indices = class_idxs(&self.outputs);
+        let freq_table = self.frequency_table(
+            self.features.axis(1, feature_col).unwrap(),
+            class_indices.clone()
+        ).unwrap();
+        let lh_table = self.likelihood_table(freq_table.clone());
+
+        self.frequencies.push(freq_table);
+        self.likelihoods.push(lh_table.clone());
+
+        /* search first col of lh table */
+        let mut row_idx = 0;
+        let feature = lh_table.axis(0, 0).unwrap();
+        for (idx, feat) in feature.values().iter().enumerate() {
+            if *feat == value {
+               row_idx = idx;  
+            }
+        }
+
+        /* calculate bayes theorem with likelihood and frequency table */
+        let target_class = class_indices[class as usize].len();
+        let row_select = lh_table.axis(1, row_idx).unwrap();
+        let feature_occurrence = row_select.values()[class as usize + 1];
+        feature_occurrence 
+    }
 
 
+    pub fn fit(&mut self, data: NDArray<f64>) -> usize {
 
+        let mut largest_prob: f64 = 0.0;
+        let mut predict_class: usize = 0;
+        let class_count = class_idxs(&self.outputs);
+        for class in 0..class_count.len() {
+
+            let class_prob = class_probabilities(
+                &self.outputs,
+                class_idxs(&self.outputs)
+            )[class]; 
+
+            let mut sum = 1.0;
+            for (idx, item) in data.values().iter().enumerate() {
+
+                let predict = self.predict_feature(
+                    idx, 
+                    *item, 
+                    class as f64
+                );
+                sum *= predict;
+            }
+
+            if sum * class_prob > largest_prob {
+                largest_prob = sum * class_prob; 
+                predict_class = class;
+            }
+ 
+        }
+
+        predict_class
+    }
     
 
 }

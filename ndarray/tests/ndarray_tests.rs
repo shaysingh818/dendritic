@@ -348,6 +348,38 @@ mod ndarray_tests {
 
     }
 
+    #[test]
+    fn test_indice_query() {
+
+        let x: NDArray<f64> = NDArray::array(
+            vec![1, 6],
+            vec![1.0, 2.0, 3.0, 1.0, 2.0, 3.0]
+        ).unwrap();
+
+        let x_idxs = x.indice_query(vec![1,2,3]).unwrap();
+        assert_eq!(*x_idxs.values(), vec![2.0, 3.0, 1.0]);
+
+        let x_idxs_2 = x.indice_query(vec![0,1,2]).unwrap();
+        assert_eq!(*x_idxs_2.values(), vec![1.0, 2.0, 3.0]);
+
+        let x_idxs_3 = x.indice_query(vec![3,4,5]).unwrap();
+        assert_eq!(*x_idxs_3.values(), vec![1.0, 2.0, 3.0]);
+
+        let x_idxs_out_of_bounds = x.indice_query(vec![1,2,3,4,5,6,7,8,9]);
+        assert_eq!(
+            x_idxs_out_of_bounds.unwrap_err(),
+            "Indices length is greater than array size"
+        );
+
+        let x_indice_out_of_bounds = x.indice_query(vec![10, 11, 12]);
+        assert_eq!(
+            x_indice_out_of_bounds.unwrap_err(),
+            "Specified index greater than array size"
+        );
+
+
+    }
+
 }
 
 

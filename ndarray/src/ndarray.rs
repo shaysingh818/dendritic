@@ -342,4 +342,27 @@ impl<T: Default + Clone + std::fmt::Debug + std::cmp::PartialEq> NDArray<T> {
             .collect()
     }
 
+
+    pub fn indice_query(&self, indices: Vec<usize>) -> Result<NDArray<T>, String> {
+
+        if indices.len() > self.size() {
+            let msg = "Indices length is greater than array size";
+            return Err(msg.to_string());
+        }
+
+        let mut values: Vec<T> = Vec::new();
+        for idx in &indices {
+        
+            if *idx > self.size() {
+                let msg = "Specified index greater than array size";
+                return Err(msg.to_string()); 
+            }
+
+            let val = self.idx(*idx);
+            values.push(val.clone());
+        }
+
+        Ok(NDArray::array(vec![values.len(), 1], values).unwrap())
+    }
+
 }

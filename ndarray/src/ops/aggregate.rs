@@ -13,7 +13,8 @@ pub trait AggregateOps {
     fn sort(&self) -> Vec<f64>;
     fn unique(&self) -> Vec<f64>;
     fn mean(&self, axis: usize) -> Result<Vec<f64>, String>;
-    fn stdev(&self, axis: usize) -> Result<Vec<f64>, String>;
+    fn stdev(&self, axis: usize) -> Result<Vec<f64>, String>; 
+    fn stdev_sample(&self, axis: usize) -> Result<Vec<f64>, String>;
 }
 
 
@@ -116,6 +117,11 @@ impl AggregateOps for NDArray<f64> {
     /// Calculate the mean of values along a specific axis
     fn stdev(&self, axis: usize) -> Result<Vec<f64>, String> {
 
+        if axis >= self.shape().values().len() {
+            let msg = "stdev: Axis too large for current array";
+            return Err(msg.to_string());
+        }
+
         let mut results: Vec<f64> = Vec::new(); 
         let mean_axis = self.mean(axis).unwrap();
         let shape_axis = self.shape().dim(axis);
@@ -126,6 +132,31 @@ impl AggregateOps for NDArray<f64> {
             let squared = subtract_mean.norm(2).unwrap();
             let sum: f64 = squared.values().iter().sum();
             let avg = sum / axis_vals.size() as f64;
+            results.push(avg.sqrt()); 
+        }
+
+        Ok(results)
+    }
+
+
+    /// Calculate the mean of values along a specific axis
+    fn stdev_sample(&self, axis: usize) -> Result<Vec<f64>, String> {
+
+        if axis >= self.shape().values().len() {
+            let msg = "stdev sample: Axis too large for current array";
+            return Err(msg.to_string());
+        }
+
+        let mut results: Vec<f64> = Vec::new(); 
+        let mean_axis = self.mean(axis).unwrap();
+        let shape_axis = self.shape().dim(axis);
+        for shape in 0..shape_axis {
+            let axis_vals = self.axis(axis, shape).unwrap();
+            let mean_axis_val = mean_axis[shape];
+            let subtract_mean = axis_vals.scalar_subtract(mean_axis_val).unwrap();
+            let squared = subtract_mean.norm(2).unwrap();
+            let sum: f64 = squared.values().iter().sum();
+            let avg = sum / (axis_vals.size() - 1) as f64;
             results.push(avg.sqrt()); 
         }
 

@@ -2,9 +2,11 @@
 #[cfg(test)]
 mod naive_bayes_tests {
 
+    use metrics::loss::*; 
     use ndarray::ndarray::NDArray;
     use ndarray::ops::*;
     use bayes::naive_bayes::*;
+    use bayes::shared::*;
 
     #[test]
     fn test_class_indices() {
@@ -27,15 +29,15 @@ mod naive_bayes_tests {
         assert_eq!(features2.shape().values(), vec![14, 4]);
         assert_eq!(target2.shape().values(), vec![14, 1]);
 
-        let clf = NaiveBayes::new(
+        let mut clf = NaiveBayes::new(
             &features,
             &target
         ).unwrap();
 
-        let class_idxs = clf.class_idxs();
-        assert_eq!(class_idxs.len(), 2);
-        assert_eq!(class_idxs[0].len(), 4);
-        assert_eq!(class_idxs[1].len(), 10);
+        let class_idxs_vals = class_idxs(&target);
+        assert_eq!(class_idxs_vals.len(), 2);
+        assert_eq!(class_idxs_vals[0].len(), 4);
+        assert_eq!(class_idxs_vals[1].len(), 10);
 
         let expected: Vec<Vec<usize>> = vec![
             vec![4, 8, 9, 11],
@@ -44,16 +46,16 @@ mod naive_bayes_tests {
 
         let mut idx = 0;
         for item in &expected {
-            assert_eq!(class_idxs[idx], *item);
+            assert_eq!(class_idxs_vals[idx], *item);
             idx += 1; 
         } 
 
-        let clf2 = NaiveBayes::new(
+        let mut clf2 = NaiveBayes::new(
             &features2,
             &target2
         ).unwrap(); 
 
-        let class_idxs_2 = clf2.class_idxs();
+        let class_idxs_2 = class_idxs(&target2);
         assert_eq!(class_idxs_2.len(), 2);
         assert_eq!(class_idxs_2[0].len(), 5);
         assert_eq!(class_idxs_2[1].len(), 9);
@@ -93,12 +95,15 @@ mod naive_bayes_tests {
         assert_eq!(features2.shape().values(), vec![14, 4]);
         assert_eq!(target2.shape().values(), vec![14, 1]);
 
-        let clf = NaiveBayes::new(
+        let mut clf = NaiveBayes::new(
             &features,
             &target
         ).unwrap();
 
-        let class_probs = clf.class_probabilities();
+        let class_probs = class_probabilities(
+            &target, 
+            class_idxs(&target)
+        );
         assert_eq!(class_probs.len(), 2);
 
         let expected = vec![
@@ -112,12 +117,15 @@ mod naive_bayes_tests {
             idx += 1; 
         }
 
-        let clf2 = NaiveBayes::new(
+        let mut clf2 = NaiveBayes::new(
             &features2,
             &target2
         ).unwrap(); 
 
-        let class_probs_2 = clf2.class_probabilities();
+        let class_probs_2 = class_probabilities(
+            &target2,
+            class_idxs(&target2)
+        );
         assert_eq!(class_probs_2.len(), 2);
 
         let expected2 = vec![
@@ -159,32 +167,32 @@ mod naive_bayes_tests {
         let feature1 = features.axis(1, 0).unwrap();
         let feature2 = features2.axis(1, 1).unwrap();
 
-        let clf = NaiveBayes::new(
+        let mut clf = NaiveBayes::new(
             &features,
             &target
         ).unwrap();
 
-        let clf2 = NaiveBayes::new(
+        let mut clf2 = NaiveBayes::new(
             &features2,
             &target2
         ).unwrap();
 
-        let class_idxs = clf.class_idxs();
+        let class_idxs_vals = class_idxs(&target);
         let freq_table = clf.frequency_table(
             feature1, 
-            class_idxs.clone()
+            class_idxs_vals.clone()
         ).unwrap();
         let table_rows = freq_table.shape().dim(0);
 
-        assert_eq!(class_idxs.len(), 2);
-        assert_eq!(class_idxs[0].len(), 4);
-        assert_eq!(class_idxs[1].len(), 10);
+        assert_eq!(class_idxs_vals.len(), 2);
+        assert_eq!(class_idxs_vals[0].len(), 4);
+        assert_eq!(class_idxs_vals[1].len(), 10);
         assert_eq!(freq_table.shape().values(), vec![3, 3]);
 
-        let class_idxs_2 = clf2.class_idxs();
+        let class_idxs_2 = class_idxs(&target2);
         let freq_table_2 = clf2.frequency_table(
             feature2, 
-            class_idxs.clone()
+            class_idxs_2.clone()
         ).unwrap();
         let table_rows_2 = freq_table_2.shape().dim(0);
 
@@ -200,9 +208,9 @@ mod naive_bayes_tests {
         ];
 
         let expected2: Vec<Vec<f64>> = vec![
-            vec![0.0, 0.0, 4.0],
+            vec![0.0, 2.0, 2.0],
             vec![1.0, 2.0, 4.0],
-            vec![2.0, 2.0, 2.0],
+            vec![2.0, 1.0, 3.0],
         ];
 
         let mut idx = 0;
@@ -221,7 +229,7 @@ mod naive_bayes_tests {
 
     }
 
-    
+   
     #[test]
     fn test_likelihood_table() {
 
@@ -243,12 +251,12 @@ mod naive_bayes_tests {
         assert_eq!(features2.shape().values(), vec![14, 4]);
         assert_eq!(target2.shape().values(), vec![14, 1]);
 
-        let clf = NaiveBayes::new(
+        let mut clf = NaiveBayes::new(
             &features,
             &target
         ).unwrap();
 
-        let clf2 = NaiveBayes::new(
+        let mut clf2 = NaiveBayes::new(
             &features2,
             &target2
         ).unwrap();
@@ -265,13 +273,13 @@ mod naive_bayes_tests {
             vec![2.0, 0.4, 0.3333333333333333]
         ]; 
 
-        let class_idxs = clf.class_idxs();
+        let class_idxs_vals = class_idxs(&target);
         let freq_table = clf.frequency_table(
             features.axis(1, 0).unwrap(), 
-            class_idxs
+            class_idxs_vals
         ).unwrap();
 
-        let class_idxs_2 = clf2.class_idxs();
+        let class_idxs_2 = class_idxs(&target2);
         let freq_table_2 = clf2.frequency_table(
             features2.axis(1, 0).unwrap(), 
             class_idxs_2
@@ -281,7 +289,7 @@ mod naive_bayes_tests {
         let lh_table = clf.likelihood_table(freq_table);
         let table_rows = lh_table.shape().dim(0);
         for row in 0..table_rows {
-            let item = lh_table.axis(0, row).unwrap();
+            let item = lh_table.axis(1, row).unwrap();
             assert_eq!(item.values(), &expected[idx]);
             idx += 1;
         }
@@ -290,10 +298,32 @@ mod naive_bayes_tests {
         let lh_table_2 = clf2.likelihood_table(freq_table_2);
         let table_rows_2 = lh_table_2.shape().dim(0);
         for row in 0..table_rows_2 {
-            let item = lh_table_2.axis(0, row).unwrap();
+            let item = lh_table_2.axis(1, row).unwrap();
             assert_eq!(item.values(), &expected2[idx]);
             idx += 1;
         }
+
+    } 
+
+    #[test]
+    fn test_likelihood_error_handling() {
+
+        let x_path_2 = "data/weather_multi_feature/inputs";
+        let y_path_2 = "data/weather_multi_feature/outputs";
+
+        let features2 = NDArray::load(x_path_2).unwrap();
+        let target2 = NDArray::load(y_path_2).unwrap();
+
+        assert_eq!(features2.shape().values(), vec![14, 4]);
+        assert_eq!(target2.shape().values(), vec![14, 1]);
+
+        let mut clf2 = NaiveBayes::new(
+            &features2,
+            &target2
+        ).unwrap();
+
+        let class_idx = 1.0; 
+        let bad = clf2.predict_feature(2, 1.0, class_idx);
 
     }
 
@@ -310,26 +340,30 @@ mod naive_bayes_tests {
         assert_eq!(features.shape().values(), vec![14, 1]);
         assert_eq!(target.shape().values(), vec![14, 1]);
 
-        let clf = NaiveBayes::new(
+        let mut clf = NaiveBayes::new(
             &features,
             &target
         ).unwrap();
 
         let mut class_idx: f64 = 1.0;
         let sunny = clf.predict_feature(0, 1.0, class_idx);
-        let class_prob = clf.class_probabilities()[class_idx as usize];
+        let class_prob = class_probabilities(
+            &target, class_idxs(&target)
+        )[class_idx as usize];
         let prior = clf.feature_prior_probability(0, 1.0);
         let output = sunny * class_prob / prior;
         assert_eq!(output, 0.6); 
 
         class_idx = 0.0;
         let sunny_no = clf.predict_feature(0, 1.0, class_idx);
-        let class_prob_no = clf.class_probabilities()[class_idx as usize];
+        let class_prob_no = class_probabilities(
+            &target, class_idxs(&target)
+        )[class_idx as usize];
         let prior_no = clf.feature_prior_probability(0, 1.0);
         let output_no = sunny_no * class_prob_no / prior_no;
-        assert_eq!(output_no, 0.39999999999999997);
+        assert_eq!(output_no, 0.39999999999999997); 
 
-    } 
+    }
 
 
     #[test]
@@ -344,7 +378,7 @@ mod naive_bayes_tests {
         assert_eq!(features2.shape().values(), vec![14, 4]);
         assert_eq!(target2.shape().values(), vec![14, 1]);
 
-        let clf2 = NaiveBayes::new(
+        let mut clf2 = NaiveBayes::new(
             &features2,
             &target2
         ).unwrap();
@@ -355,11 +389,16 @@ mod naive_bayes_tests {
         let output = overcast * mild;
         assert_eq!(output, 0.19753086419753085);
 
-        let class_prob = clf2.class_probabilities()[class_idx as usize];
+        let class_prob = class_probabilities(
+            &target2, 
+            class_idxs(&target2)
+        )[class_idx as usize];
         assert_eq!(class_prob, 0.6428571428571429);
 
         let final_output = output * class_prob;
         assert_eq!(final_output, 0.12698412698412698);
+
+
 
     } 
 
@@ -383,6 +422,48 @@ mod naive_bayes_tests {
 
         let prior = clf.feature_prior_probability(0, 1.0);
         assert_eq!(prior, 0.35714285714285715); 
+
+    }
+
+
+
+    #[test]
+    fn test_fit() {
+
+        let x_path_2 = "data/weather_multi_feature/inputs";
+        let y_path_2 = "data/weather_multi_feature/outputs";
+
+        let features2 = NDArray::load(x_path_2).unwrap();
+        let target2 = NDArray::load(y_path_2).unwrap();
+        let row1 = features2.axis(0, 0).unwrap();
+
+        assert_eq!(features2.shape().values(), vec![14, 4]);
+        assert_eq!(target2.shape().values(), vec![14, 1]);
+
+        let mut clf2 = NaiveBayes::new(
+            &features2,
+            &target2
+        ).unwrap();
+
+        let predict = clf2.fit(row1);
+        assert_eq!(predict, 0); 
+
+        let mut predictions: Vec<f64> = Vec::new();
+        for row in 0..features2.shape().dim(0) {
+            let item = features2.axis(0, row).unwrap();
+            let predict = clf2.fit(item);
+            predictions.push(predict as f64);
+        }
+
+        assert_eq!(predictions.len(), target2.size()); 
+
+        let preds = NDArray::array(
+            vec![predictions.len(), 1],
+            predictions
+        ).unwrap();
+
+        let error = mse(&target2, &preds).unwrap();
+        assert_eq!(error, 0.07142857142857142);
 
     }
 
@@ -431,7 +512,7 @@ mod naive_bayes_tests {
         ).unwrap();
 
         let clf = NaiveBayes::new(&features, &outputs).unwrap();
-        let class_idxs = clf.class_idxs();
+        let class_idxs = class_idxs(&outputs);
         let freq_table = clf.frequency_table(
             features, 
             class_idxs.clone()
@@ -452,7 +533,7 @@ mod naive_bayes_tests {
             "Rows of feature must match rows of output"
         );
 
-    }
+    } 
 
 }
 
