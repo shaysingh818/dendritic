@@ -1,3 +1,5 @@
+use std::env;
+use std::path::{Path, PathBuf};
 use std::fs::File; 
 use ndarray::ndarray::NDArray;
 use arrow_schema::{DataType, Field, Schema};
@@ -31,10 +33,8 @@ pub fn convert_airfoil_csv_to_parquet() {
 }
 
 
-pub fn load_airfoil_data() -> Result<(NDArray<f64>, NDArray<f64>)> {
+pub fn load_airfoil_data(path: &str) -> Result<(NDArray<f64>, NDArray<f64>)> {
     
-    /* switch to datasets/data directory */
-    let path = "data/airfoil_noise_data.parquet";
     let file = File::open(path).unwrap();
     let mut reader = ParquetRecordBatchReaderBuilder::try_new(file)?
         .build()?;

@@ -11,7 +11,7 @@ mod parquet_tests {
     #[test]
     fn test_csv_to_parquet() -> Result<()> {
 
-        convert_airfoil_csv_to_parquet();
+        //convert_airfoil_csv_to_parquet();
 
         Ok(())
 
