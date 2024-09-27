@@ -14,6 +14,7 @@ metrics = { workspace = true }
 autodiff = { workspace = true }
 datasets = { workspace = true }
 trees = { workspace = true }
+knn = { workspace = true }
 rand = "0.8"
 serde = { version = "1.0.126", features = ["derive"] }
 serde_json = "1.0.64"

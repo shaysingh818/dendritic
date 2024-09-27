@@ -365,4 +365,42 @@ impl<T: Default + Clone + std::fmt::Debug + std::cmp::PartialEq> NDArray<T> {
         Ok(NDArray::array(vec![values.len(), 1], values).unwrap())
     }
 
+    pub fn split(
+        &self, 
+        axis: usize,
+        percentage: f64) -> Result<(NDArray<T>, NDArray<T>), String> {
+
+        if axis > self.shape().values().len() {
+            let msg = "AXIS greater than current NDArray shape";
+            return Err(msg.to_string());
+        } 
+        
+        let axis_shape = self.shape().dim(axis);
+        let split_dist = (percentage * axis_shape as f64).ceil();
+        let rem = (axis_shape as f64 - split_dist).ceil();
+
+        let mut x_shape: Vec<usize> = self.shape().values();
+        let mut y_shape: Vec<usize> = self.shape().values();
+        x_shape[axis] = split_dist as usize;
+        y_shape[axis] = rem as usize;
+
+        let mut x_vals: Vec<T> = Vec::new();
+        let mut y_vals: Vec<T> = Vec::new();
+
+        for axis_idx in 0..axis_shape {
+            let item = self.axis(axis, axis_idx).unwrap();
+            let mut x_item = item.values().clone();
+            if axis_idx < split_dist as usize { 
+                x_vals.append(&mut x_item);
+            } else {
+                y_vals.append(&mut x_item);
+            }
+        }
+
+        let x: NDArray<T> = NDArray::array(x_shape, x_vals).unwrap();
+        let y: NDArray<T> = NDArray::array(y_shape, y_vals).unwrap();
+        Ok((x, y))
+    }
+
+
 }

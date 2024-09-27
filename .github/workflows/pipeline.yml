@@ -77,7 +77,6 @@ jobs:
       working-directory: "./datasets"
       run: cargo test --color always
 
-
   trees:
     runs-on: ubuntu-20.04
     needs: [ndarray, metrics, autodiff, preprocessing, datasets]
@@ -91,6 +90,21 @@ jobs:
     - name: Test
       working-directory: "./trees"
       run: cargo test --color always
+
+  knn:
+    runs-on: ubuntu-20.04
+    needs: [ndarray, metrics, autodiff, preprocessing, datasets]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      working-directory: "./knn"
+      run: cargo build --color always
+
+    - name: Test
+      working-directory: "./knn"
+      run: cargo test --color always
+
 
   regression:
     runs-on: ubuntu-20.04

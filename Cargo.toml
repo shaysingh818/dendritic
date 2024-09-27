@@ -9,7 +9,8 @@ members = [
     "models",
     "datasets",
     "trees",
-    "bayes"
+    "bayes", 
+    "knn"
 ]
 
 
@@ -30,3 +31,4 @@ models = { version = "0.3.0", path= "./models" }
 datasets = { version = "0.3.0", path= "./datasets" }
 trees = { version = "0.3.0", path= "./trees" }
 bayes = { version = "0.3.0", path= "./bayes" }
+knn = { version = "0.3.0", path= "./knn" }
