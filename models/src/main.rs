@@ -15,6 +15,8 @@ use preprocessing::standard_scalar::*;
 use metrics::loss::*;
 use metrics::activations::*;
 use metrics::utils::*;
+use knn::knn::*;
+use knn::distance::*; 
 
 fn diabetes_model() {
 
@@ -201,26 +203,28 @@ fn iris_random_forest_classifier() {
 }
 
 
+fn iris_knn_classifier() {
+
+    let (x, y) = load_iris("../../datasets/data/iris.parquet").unwrap();
+    let (x_train, x_test) = x.split(0, 0.80).unwrap();
+    let (y_train, y_test) = y.split(0, 0.80).unwrap();
+
+    let clf = KNN::fit(
+        &x_train, 
+        &y_train, 
+        4, 
+        euclidean
+    ).unwrap();
+
+    let predictions = clf.predict(&x_test);
+    println!("Actual: {:?}", predictions.values());
+    println!("Prediction: {:?}", y_test.values()); 
+}
+
+
 fn main() -> std::io::Result<()> {
 
-    diabetes_model();
-    /*
-    // load data
-    let (x_train, y_train) = load_airfoil_data().unwrap();
-    let mut model = RandomForestRegressor::new(
-        30, 3,
-        30, 3,
-        mse
-    );
-
-    model.fit(&x_train, &y_train);
-    let sample_index = 30;
-    let x_test = x_train.batch(5).unwrap();
-    let y_test = y_train.batch(5).unwrap();
-    let y_pred = model.predict(x_test[sample_index].clone());
-    println!("Actual: {:?}", y_test[sample_index]);
-    println!("Prediction: {:?}", y_pred.values()); */
-
+    iris_knn_classifier(); 
     Ok(())
 
 

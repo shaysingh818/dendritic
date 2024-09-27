@@ -913,6 +913,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "knn"
+version = "0.3.0"
+dependencies = [
+ "metrics",
+ "ndarray",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1077,6 +1088,7 @@ dependencies = [
  "bigdecimal",
  "csv",
  "datasets",
+ "knn",
  "metrics",
  "ndarray",
  "parquet 52.1.0",

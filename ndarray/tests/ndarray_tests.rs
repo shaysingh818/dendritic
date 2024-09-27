@@ -380,6 +380,46 @@ mod ndarray_tests {
 
     }
 
+
+    #[test]
+    fn test_split() {
+
+        let x_path = "data/split_unit_testing/10_3"; 
+        let x: NDArray<f64> = NDArray::load(x_path).unwrap();
+        let (x_train, x_test) = x.split(0, 0.80).unwrap();
+
+        assert_eq!(
+            x_train.shape().values(),
+            vec![8, 3]
+        );
+
+        assert_eq!(
+            x_test.shape().values(),
+            vec![2, 3]
+        );
+
+        assert_eq!(
+            x.split(10, 0.80).unwrap_err(),
+            "AXIS greater than current NDArray shape"
+        ); 
+
+        let y_path = "data/split_unit_testing/7_3"; 
+        let y: NDArray<f64> = NDArray::load(y_path).unwrap();
+        let (y_train, y_test) = y.split(0, 0.50).unwrap();
+
+        assert_eq!(
+            y_train.shape().values(),
+            vec![4, 3]
+        );
+
+        assert_eq!(
+            y_test.shape().values(),
+            vec![3, 3]
+        );
+
+    }
+
+
 }
 
 
