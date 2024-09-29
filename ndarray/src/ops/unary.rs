@@ -12,6 +12,7 @@ pub trait UnaryOps {
     fn select_axis(&self, axis: usize, indices: Vec<usize>) -> Result<NDArray<f64>, String>;
     fn apply(&self, loss_func: fn(value: f64) -> f64) -> Result<NDArray<f64>, String>;
     fn argmax(&self, axis: usize) -> NDArray<f64>;
+    fn argmin(&self, axis: usize); 
 }
 
 
@@ -229,6 +230,32 @@ impl UnaryOps for NDArray<f64> {
             results
         ).unwrap();
         result
+
+    }
+
+
+    fn argmin(&self, axis: usize) -> NDArray<f64> {
+
+        // this only works for a row (for now)
+        let mut results: Vec<f64> = Vec::new();
+        let shape = self.shape().dim(axis);
+        for idx in 0..shape {
+            let axis_value = self.axis(axis, idx).unwrap();
+            let mut min_value = f64::INFINITY;
+            let mut min_idx = 0;
+            for (idx, val) in axis_value.values().iter().enumerate() {
+                if *val < min_value {
+                    min_value = *val; 
+                    min_idx = idx;
+                }
+            }
+            results.push(min_idx);
+        }
+
+        NDArray::array(
+            vec![shape, 1],
+            results
+        ).unwrap()
 
     }
 

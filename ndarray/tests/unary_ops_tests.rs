@@ -202,6 +202,24 @@ mod unary_ops {
 
     }
 
+
+    #[test]
+    fn test_argmin() {
+
+        let x: NDArray<f64> = NDArray::array(
+            vec![3, 3],
+            vec![
+                1.0, 2.0, 0.0,
+                0.0, 2.0, 1.0,
+                1.0, 0.0, 2.0,
+            ]
+        ).unwrap();
+
+        x.argmin(0);
+
+
+    }
+
     #[test]
     fn test_select_axis() {
 
@@ -262,7 +280,6 @@ mod unary_ops {
 
 
     }
-
 
 
 }
