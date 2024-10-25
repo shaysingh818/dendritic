@@ -6,7 +6,7 @@ use parquet::errors::Result;
 use crate::utils::*;
 use preprocessing::standard_scalar::*;
 
-
+/// Load schema for student performance data
 pub fn load_student_schema() -> Schema {
     Schema::new(vec![
         Field::new("student_id", DataType::Float64, false),
@@ -27,7 +27,7 @@ pub fn load_student_schema() -> Schema {
     ])
 }
 
-
+/// Convert student performance data to parquet
 pub fn convert_student_csv_to_parquet() {
 
     let student_schema = load_student_schema();
@@ -39,7 +39,7 @@ pub fn convert_student_csv_to_parquet() {
     ); 
 }
 
-
+/// Load student performance data from path
 pub fn load_student_data() -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     /* switch to datasets/data directory */

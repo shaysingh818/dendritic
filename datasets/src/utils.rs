@@ -50,7 +50,7 @@ pub fn csv_to_parquet(schema: Schema, filepath: &str, outpath: &str) {
 
 }
 
-
+/// Select specific features of dataset for training
 pub fn select_features(
     batch: RecordBatch,
     input_cols: Vec<&str>,

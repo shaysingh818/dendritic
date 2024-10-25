@@ -18,11 +18,13 @@ pub struct GaussianNB {
 
 impl GaussianNB {
 
+    /// Get all likelihoods of gaussian naive bayes
     pub fn likelihoods(&self) -> NDArray<f64> {
         self.likelihoods.clone()
     }
 
 
+    /// Save guassian bayes model parameters
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
         let likelihoods_file = format!("{}/likelihoods", filepath);
         fs::create_dir_all(filepath)?;
@@ -31,6 +33,7 @@ impl GaussianNB {
     }
 
 
+    /// Load guassian bayes model parameters
     pub fn load(
         filepath: &str, 
         features: &NDArray<f64>, 
@@ -46,7 +49,7 @@ impl GaussianNB {
         })
     }
 
-
+    /// Create new instance of gaussian bayes model
     pub fn new(
         features: &NDArray<f64>, 
         outputs: &NDArray<f64>) -> Result<GaussianNB, String> {
@@ -68,7 +71,7 @@ impl GaussianNB {
         Ok(instance)
     }
 
-
+    /// Build all likelihoods for gaussian naive bayes model
     pub fn build_likelihoods(&mut self) {
 
         let mut table_vals: Vec<f64> = Vec::new();
@@ -86,13 +89,13 @@ impl GaussianNB {
         }
 
         self.likelihoods = NDArray::array(
-    vec![class_idxs(&self.outputs).len(), feature_cols, 2],
+            vec![class_idxs(&self.outputs).len(), feature_cols, 2],
             table_vals
         ).unwrap()
     }
 
 
-    
+    /// Predict likelihood for a given feature
     pub fn predict_feature(
         &mut self,
         feature_col: usize,
@@ -110,7 +113,7 @@ impl GaussianNB {
         )
     }
 
-    
+    /// Fit prediction for a given row sample
     pub fn fit_row(&mut self, x: NDArray<f64>) -> Result<f64, String> {
      
         if x.shape().dim(0) != self.features.shape().dim(1) {
@@ -144,7 +147,7 @@ impl GaussianNB {
         Ok(predict_class)
     }
 
-
+    /// Fit all rows and give prediction for each feature
     pub fn fit(&mut self, x: NDArray<f64>) -> Result<NDArray<f64>, String> {
         if x.shape().dim(1) != self.features.shape().dim(1) {
             let msg = "row sample not equal to features column count";

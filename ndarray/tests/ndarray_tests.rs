@@ -377,7 +377,6 @@ mod ndarray_tests {
             "Specified index greater than array size"
         );
 
-
     }
 
 
@@ -416,9 +415,137 @@ mod ndarray_tests {
             y_test.shape().values(),
             vec![3, 3]
         );
-
     }
 
+    #[test]
+    fn test_drop_axis() {
+
+        let x: NDArray<f64> = NDArray::array(
+            vec![3, 3],
+            vec![
+                1.0, 2.0, 3.0,
+                2.0, 3.0, 4.0,
+                3.0, 4.0, 5.0,
+            ]
+        ).unwrap();
+
+        let y: NDArray<f64> = NDArray::array(
+            vec![3, 5],
+            vec![
+                1.0, 2.0, 3.0, 7.0, 8.0,
+                2.0, 3.0, 4.0, 7.0, 8.0,
+                3.0, 4.0, 5.0, 7.0, 8.0
+            ]
+        ).unwrap();
+
+        let z: NDArray<f64> = NDArray::array(
+            vec![2, 2, 2],
+            vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+        ).unwrap();
+
+        let expected_rows = vec![
+            vec![2.0, 3.0, 4.0],
+            vec![3.0, 4.0, 5.0]
+        ]; 
+
+        let expected_cols = vec![
+            vec![2.0, 3.0, 4.0],
+            vec![3.0, 4.0, 5.0]
+        ]; 
+
+        let expected_y_cols = vec![
+            vec![1.0, 2.0, 3.0],
+            vec![2.0, 3.0, 4.0],
+            vec![7.0, 7.0, 7.0],
+            vec![8.0, 8.0, 8.0],
+        ]; 
+
+        let expected_y_rows = vec![
+            vec![1.0, 2.0, 3.0, 7.0, 8.0],
+            vec![3.0, 4.0, 5.0, 7.0, 8.0],
+        ]; 
+
+        let x_1 = x.drop_axis(0, 0).unwrap();
+        let x_2 = x.drop_axis(1, 0).unwrap();
+        let y_1 = y.drop_axis(0, 1).unwrap();
+        let y_2 = y.drop_axis(1, 2).unwrap();
+
+        let bad_idx = x.drop_axis(0, 10); 
+        let bad_axis = x.drop_axis(2, 10);
+        let bad_array = z.drop_axis(0, 0);
+
+        assert_eq!(
+            bad_idx.unwrap_err(),
+            "Drop Axis: Selected indice too large for axis"
+        );
+
+        assert_eq!(
+            bad_axis.unwrap_err(),
+            "Drop Axis: Selected axis larger than rank"
+        );
+
+        assert_eq!(
+            bad_array.unwrap_err(),
+            "Drop Axis: Only supported for rank 2 values"
+        );
+
+        assert_eq!(
+            x_1.shape().values(), 
+            vec![2, 3]
+        ); 
+
+        assert_eq!(
+            x_2.shape().values(), 
+            vec![3, 2]
+        );
+
+        assert_eq!(
+            y_1.shape().values(), 
+            vec![2, 5]
+        ); 
+
+        assert_eq!(
+            y_2.shape().values(), 
+            vec![3, 4]
+        ); 
+
+        let x_rows = x_1.shape().dim(0);
+        let y_rows = y_1.shape().dim(0);
+        let y_cols = y_2.shape().dim(1);
+
+        for row in 0..x_rows {
+
+            let item = x_1.axis(0, row).unwrap();
+            let item2 = x_2.axis(1, row).unwrap(); 
+
+            assert_eq!(
+                item.values(),
+                &expected_rows[row]
+            );
+
+            assert_eq!(
+                item2.values(),
+                &expected_rows[row]
+            ); 
+        }
+
+        for col in 0..y_cols {
+            let item = y_2.axis(1, col).unwrap();
+            assert_eq!(
+                item.values(),
+                &expected_y_cols[col]
+            );
+        }
+
+        for row in 0..y_rows {
+            let item = y_1.axis(0, row).unwrap();
+            assert_eq!(
+                item.values(),
+                &expected_y_rows[row]
+            );
+        }
+
+    }
 
 }
 

@@ -8,7 +8,7 @@ use parquet::errors::Result;
 use crate::utils::*;
 use preprocessing::standard_scalar::*;
 
-
+/// Load schema for airfoil noise data
 pub fn load_airfoil_schema() -> Schema {
     Schema::new(vec![
         Field::new("x0", DataType::Float64, false),
@@ -20,7 +20,7 @@ pub fn load_airfoil_schema() -> Schema {
     ])
 }
 
-
+/// Utility method to convert airfoil csv to parquet
 pub fn convert_airfoil_csv_to_parquet() {
 
     let airfoil_schema = load_airfoil_schema();
@@ -32,7 +32,7 @@ pub fn convert_airfoil_csv_to_parquet() {
     ); 
 }
 
-
+/// Load airfoil noise data from path
 pub fn load_airfoil_data(path: &str) -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     let file = File::open(path).unwrap();

@@ -34,6 +34,7 @@ type NodeRef =  Rc<RefCell<Node>>;
 
 impl Node {
 
+    /// Create new instance of decision tree classifier node
     pub fn new(
         data: NDArray<f64>,
         threshold: f64,
@@ -57,6 +58,7 @@ impl Node {
     }
 
 
+    /// Create new instance of decision tree regressor node
     pub fn regression(
         data: NDArray<f64>,
         threshold: f64,
@@ -79,6 +81,8 @@ impl Node {
 
     }
 
+
+    /// Create new instance of decision tree leaf node
     pub fn leaf(value: f64) -> Node {
 
         Node {
@@ -94,18 +98,24 @@ impl Node {
 
     }
 
+    /// Retrieve data attribute of decision node
     pub fn data(&self) -> NDArray<f64> {
         self.data.clone()
     }
 
+    /// Retrieve threshold attribute of decision node
     pub fn threshold(&self) -> f64 {
         self.threshold
     }
 
+
+    /// Retrieve feature index attribute of decision node
     pub fn feature_idx(&self) -> usize {
         self.feature_idx
     }
 
+
+    /// Retrieve information gain attribute of decision node
     pub fn information_gain(&self) -> Option<f64> {
         match self.information_gain {
             Some(value) => Some(value),
@@ -113,6 +123,7 @@ impl Node {
         }
     }
 
+    /// Get mean squared error attribute of decision node
     pub fn mse(&self) -> Option<f64> {
         match self.mse {
             Some(value) => Some(value),
@@ -120,6 +131,7 @@ impl Node {
         }
     }
 
+    /// Retrieve value attribute of decision node
     pub fn value(&self) -> Option<f64> {
         match self.value {
             Some(value) => Some(value),
@@ -127,6 +139,7 @@ impl Node {
         }
     }
 
+    /// Retrieve right pointer of decision node
     pub fn right(&self) -> Option<Node> {
         match &self.right {
             Some(right) => Some(right.borrow().clone()),
@@ -134,6 +147,7 @@ impl Node {
         }
     }
 
+    /// Retrieve left pointer of decision node
     pub fn left(&self) -> Option<Node> {
         match &self.left {
             Some(left) => Some(left.borrow().clone()),
@@ -141,6 +155,7 @@ impl Node {
         }
     }
 
+    /// Save and serialize instance of decision node to JSON format
     pub fn save(&self) -> NodeSerialized {
         
         let node = NodeSerialized {
@@ -156,6 +171,7 @@ impl Node {
         node
     }
 
+    /// Load instance of decision node to JSON format
     pub fn load(node: NodeSerialized) -> Node {
 
         Node {

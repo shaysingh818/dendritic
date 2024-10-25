@@ -2,6 +2,7 @@ use ndarray::ndarray::NDArray;
 use ndarray::ops::*;
 
 
+/// Get class indices of target variable in dataset
 pub fn class_idxs(target: &NDArray<f64> ) -> Vec<Vec<usize>> {
     let mut class_indices: Vec<Vec<usize>> = Vec::new();
     let y_target = target.unique();
@@ -13,7 +14,7 @@ pub fn class_idxs(target: &NDArray<f64> ) -> Vec<Vec<usize>> {
     class_indices
 }
 
-
+/// Get likelihood of class probability with target and class indexes
 pub fn class_probabilities(
     target: &NDArray<f64>,
     class_idxs: Vec<Vec<usize>>) -> Vec<f64> {
@@ -25,7 +26,7 @@ pub fn class_probabilities(
     probabilities
 }
 
-
+/// Gaussian probability of row sample
 pub fn gaussian_probability(x: f64, mu: f64, sigma: f64) -> f64 {
     let pi = std::f64::consts::PI;
     let denom = sigma * (2.0 * pi).sqrt();

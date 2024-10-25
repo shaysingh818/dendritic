@@ -14,6 +14,7 @@ pub struct Bootstrap {
 
 impl Bootstrap {
 
+    /// Create new instance of data bootstrapper
     pub fn new(
         n_bootstraps: usize,
         num_features: usize,
@@ -31,22 +32,27 @@ impl Bootstrap {
 
     }
 
+    /// Retrieve dataset partitions of bootstrap instance
     pub fn datasets(&self) -> &Vec<NDArray<f64>> {
         &self.datasets
     }
 
+    /// Retrieve number of bootstraps
     pub fn n_bootstraps(&self) -> usize {
         self.n_bootstraps
     }
 
+    /// Retrieve number of sub features for bootstraps
     pub fn num_features(&self) -> usize {
         self.num_features
     }
 
+    /// Retrieve sample size for each data partition
     pub fn sample_size(&self) -> usize {
         self.sample_size
     }
 
+    /// Generate all data bootstraps
     pub fn generate(&mut self) {
         for item in 0..self.n_bootstraps {
             let dataset = self.sample(self.sample_size);
@@ -55,6 +61,7 @@ impl Bootstrap {
     }
 
 
+    /// Select sub set of features for entire dataset for bootstrap generation
     pub fn feature_sub_select(&self)  -> NDArray<f64> {
 
         let num_cols = self.x_train.shape().dim(1)-1; 
@@ -70,6 +77,7 @@ impl Bootstrap {
     }
 
 
+    /// Sample bootstrap subset of dataset
     pub fn sample(&self, sample_size: usize) -> NDArray<f64> {
 
         let rows = self.x_train.shape().dim(0);

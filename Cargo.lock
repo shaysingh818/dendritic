@@ -580,6 +580,7 @@ dependencies = [
 name = "clustering"
 version = "0.3.0"
 dependencies = [
+ "datasets",
  "knn",
  "metrics",
  "ndarray",

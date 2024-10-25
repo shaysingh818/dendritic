@@ -1,6 +1,6 @@
 use ndarray::ndarray::NDArray;
 
-
+/// Mean squared error function
 pub fn mse(y_true: &NDArray<f64>, y_pred: &NDArray<f64>) -> Result<f64, String>  {
 
     if y_true.size() != y_pred.size() {
@@ -19,7 +19,7 @@ pub fn mse(y_true: &NDArray<f64>, y_pred: &NDArray<f64>) -> Result<f64, String> 
     Ok(result)
 }
 
-
+/// Binary cross entropy for logistic binary classification
 pub fn binary_cross_entropy(y_hat: &NDArray<f64>, y_true: &NDArray<f64>) -> Result<f64, String> {
     
     let mut index = 0;
@@ -36,7 +36,7 @@ pub fn binary_cross_entropy(y_hat: &NDArray<f64>, y_true: &NDArray<f64>) -> Resu
     Ok(result)
 }
 
-
+/// Categorical cross entropy for multi class classification
 pub fn categorical_cross_entropy(y_hat: &NDArray<f64>, y_true: &NDArray<f64>) -> Result<f64, String> {
 
     let mut index = 0;

@@ -215,8 +215,25 @@ mod unary_ops {
             ]
         ).unwrap();
 
-        x.argmin(0);
+        let results = x.argmin(0).unwrap();
+        assert_eq!(results.shape().values(), vec![3, 1]);
+        assert_eq!(
+            results.values(),
+            &vec![2.0, 0.0, 1.0]
+        );
 
+        let results_col = x.argmin(1).unwrap();
+        assert_eq!(results_col.shape().values(), vec![3, 1]);
+        assert_eq!(
+            results_col.values(),
+            &vec![1.0, 2.0, 0.0]
+        );
+
+        let bad = x.argmin(10);
+        assert_eq!(
+            bad.unwrap_err(),
+            "Argmin: Selected axis larger than rank"
+        );
 
     }
 

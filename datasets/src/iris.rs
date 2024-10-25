@@ -5,7 +5,7 @@ use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 use parquet::errors::Result; 
 use crate::utils::*;
 
-
+/// Load schema for iris flowers dataset
 pub fn load_iris_schema() -> Schema {
     Schema::new(vec![
         Field::new("id", DataType::Utf8, false),
@@ -19,7 +19,7 @@ pub fn load_iris_schema() -> Schema {
 }
 
 
-/// unused but here for transparency on how datasets became parquet
+/// Convert iris dataset to parquet
 pub fn convert_iris_csv_to_parquet() {
 
     let iris_schema = load_iris_schema();
@@ -31,7 +31,7 @@ pub fn convert_iris_csv_to_parquet() {
     ); 
 }
 
-
+/// Load iris data from path
 pub fn load_iris(path: &str) -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     let file = File::open(path).unwrap();
@@ -55,7 +55,7 @@ pub fn load_iris(path: &str) -> Result<(NDArray<f64>, NDArray<f64>)> {
 
 }
 
-
+/// Load all features of iris dataset 
 pub fn load_all_iris(path: &str) -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     let file = File::open(path).unwrap();

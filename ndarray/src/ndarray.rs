@@ -197,12 +197,6 @@ impl<T: Default + Clone + std::fmt::Debug + std::cmp::PartialEq> NDArray<T> {
         Ok(())
     }
 
-    /*
-    pub fn fill(&mut self, value: T) {
-        for index in 0..self.size() {
-            self.values[index] = value.clone(); 
-        }
-    }*/
 
     /// Get rows dimension associated with multi dimensional array
     pub fn rows(&self, index: usize) -> Result<Vec<T>, String> {
@@ -297,6 +291,49 @@ impl<T: Default + Clone + std::fmt::Debug + std::cmp::PartialEq> NDArray<T> {
     }
 
 
+    /// Drop specified axis of ndarray
+    pub fn drop_axis(&self, axis: usize, index: usize) -> Result<NDArray<T>, String> {
+
+        if axis > self.rank() - 1 { 
+            let msg = "Drop Axis: Selected axis larger than rank";
+            return Err(msg.to_string());
+        }
+
+        if index > self.shape().dim(axis) { 
+            let msg = "Drop Axis: Selected indice too large for axis";
+            return Err(msg.to_string());
+        }
+
+        if self.rank() > 2 {
+            let msg = "Drop Axis: Only supported for rank 2 values";
+            return Err(msg.to_string()); 
+        }
+
+        let mut shape_vals = self.shape().values();
+        shape_vals[axis] -= 1;
+        let shape = Shape::new(shape_vals.clone());
+        let mut result: NDArray<T> = NDArray::new(shape_vals).unwrap();
+
+        let mut coords: Vec<usize> = vec![0, 0];
+        let coord_len = coords.len() - 1;
+        let axis_shape = self.shape().dim(axis); 
+        for item in 0..axis_shape {
+            let value = self.axis(axis, item).unwrap();
+            if item != index {
+                for val in value.values() {
+                    result.set(coords.clone(), val.clone());
+                    coords[coord_len - axis] += 1;
+                }
+                coords[coord_len - axis] = 0; 
+                coords[axis] += 1;
+            }
+        }
+
+        Ok(result)
+    }
+   
+
+    /// Batch ndarray in specified amount of chunks of rows, cols etc.
     pub fn batch(&self, batch_size: usize) -> Result<Vec<NDArray<T>>, String> {
        
         if batch_size == 0 || batch_size >= self.size() {

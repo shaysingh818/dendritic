@@ -6,7 +6,7 @@ use parquet::errors::Result;
 use crate::utils::*;
 use preprocessing::standard_scalar::*;
 
-
+/// Load schema for housing data
 pub fn load_housing_schema() -> Schema {
     Schema::new(vec![
         Field::new("CRIM", DataType::Float64, false),
@@ -26,7 +26,7 @@ pub fn load_housing_schema() -> Schema {
     ])
 }
 
-
+/// Utility for converting housing data to parquet file
 pub fn convert_housing_csv_to_parquet() {
 
     let housing_schema = load_housing_schema();
@@ -38,7 +38,7 @@ pub fn convert_housing_csv_to_parquet() {
     ); 
 }
 
-
+/// Load housing data from path
 pub fn load_housing_data() -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     /* switch to datasets/data directory */

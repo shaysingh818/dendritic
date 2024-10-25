@@ -12,7 +12,8 @@ pub trait UnaryOps {
     fn select_axis(&self, axis: usize, indices: Vec<usize>) -> Result<NDArray<f64>, String>;
     fn apply(&self, loss_func: fn(value: f64) -> f64) -> Result<NDArray<f64>, String>;
     fn argmax(&self, axis: usize) -> NDArray<f64>;
-    fn argmin(&self, axis: usize); 
+    fn argmin(&self, axis: usize) -> Result<NDArray<f64>, String>;
+    fn nonzero(&self) -> NDArray<f64>;
 }
 
 
@@ -108,6 +109,7 @@ impl UnaryOps for NDArray<f64> {
     }
 
 
+    /// Sum values along a specified axis
     fn sum_axis(&self, axis: usize) -> Result<NDArray<f64>, String> {
 
         if axis > self.rank()-1 {
@@ -203,6 +205,7 @@ impl UnaryOps for NDArray<f64> {
         Ok(result)
     }
 
+    /// Get's the maximum values index along a specified axis
     fn argmax(&self, axis: usize) -> NDArray<f64> {
 
         // this only works for a row (for now)
@@ -234,7 +237,13 @@ impl UnaryOps for NDArray<f64> {
     }
 
 
-    fn argmin(&self, axis: usize) -> NDArray<f64> {
+    /// Get's the minimum values index along a specified axis
+    fn argmin(&self, axis: usize) -> Result<NDArray<f64>, String> {
+
+        if axis > self.rank() - 1 {
+            let msg = "Argmin: Selected axis larger than rank";
+            return Err(msg.to_string());
+        }
 
         // this only works for a row (for now)
         let mut results: Vec<f64> = Vec::new();
@@ -249,15 +258,26 @@ impl UnaryOps for NDArray<f64> {
                     min_idx = idx;
                 }
             }
-            results.push(min_idx);
+            results.push(min_idx as f64);
         }
 
-        NDArray::array(
+        Ok(NDArray::array(
             vec![shape, 1],
             results
-        ).unwrap()
+        ).unwrap())
 
     }
 
+    /// Retrieve all non zero elements in an ndarray
+    fn nonzero(&self) -> NDArray<f64> {
+        let mut vals: Vec<f64> = Vec::new();
+        for item in self.values() {
+            if *item != 0.0 {
+                vals.push(*item);
+            }
+        }
+
+        NDArray::array(vec![vals.len(), 1], vals).unwrap()
+    }
 
 }

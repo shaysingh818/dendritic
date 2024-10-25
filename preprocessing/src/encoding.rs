@@ -11,6 +11,7 @@ pub struct OneHotEncoding {
 
 impl OneHotEncoding {
 
+    /// Create new instance of one hot encoding
     pub fn new(input_column: NDArray<f64>) -> Result<OneHotEncoding, String>  {
 
         if input_column.shape().dim(1) != 1 {
@@ -37,14 +38,17 @@ impl OneHotEncoding {
         })
     }
 
+    /// Get the maximum bound of one hot encoder
     pub fn max_value(&self) -> f64 {
         self.max_value
     }
 
+    /// Get number of samples in one hot encoding
     pub fn num_samples(&self) -> f64 {
         self.num_samples
     }
 
+    /// Transform data to be one hot encoded
     pub fn transform(&mut self) -> &NDArray<f64> {
 
         let mut row = 0;

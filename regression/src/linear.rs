@@ -19,6 +19,7 @@ pub struct Linear {
 
 impl Linear {
 
+    /// Create new instance of linear regression
     pub fn new(
         features: NDArray<f64>, 
         y: NDArray<f64>, 
@@ -43,6 +44,7 @@ impl Linear {
         })
     }
 
+    /// Predict outcomes for linear regression model
     pub fn predict(&mut self, inputs: NDArray<f64>) -> NDArray<f64> {
 
         self.features = Value::new(&inputs); 
@@ -57,7 +59,7 @@ impl Linear {
         
     }
 
-
+    /// Save model parameters for linear regression
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         let weights_file = format!("{}/weights", filepath);
@@ -70,7 +72,7 @@ impl Linear {
         Ok(())
     }
 
-
+    /// Load model parameters for linear regression
     pub fn load(
         filepath: &str, 
         features: NDArray<f64>, 
@@ -96,7 +98,7 @@ impl Linear {
 
     }
 
-
+    /// Train model parameters for linear regression
     pub fn train(&mut self, epochs: usize, log_output: bool) {
         
         /* create node graph */     
@@ -145,6 +147,7 @@ impl Linear {
     }
 
 
+    /// Train model parameters for linear regression with batch gradient descent
     pub fn sgd(&mut self, epochs: usize, log_output: bool, batch_size: usize) {
         
         let mut loss: f64 = 0.0;

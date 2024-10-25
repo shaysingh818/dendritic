@@ -22,6 +22,7 @@ pub struct Logistic {
 
 impl Logistic {
 
+    /// Create new instance of logistic regression
     pub fn new(
         features: &NDArray<f64>, 
         y: &NDArray<f64>,
@@ -50,6 +51,7 @@ impl Logistic {
         })
     }
 
+    /// Predict output for logistic regression
     pub fn predict(&mut self, inputs: NDArray<f64>) -> NDArray<f64> {
 
         self.features = Value::new(&inputs); 
@@ -64,6 +66,7 @@ impl Logistic {
     }
 
 
+    /// Save model parameters for logistic regression
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         let weights_file = format!("{}/weights", filepath);
@@ -77,6 +80,7 @@ impl Logistic {
     }
 
 
+    /// Load model parameters for logistic regression
     pub fn load(
         filepath: &str, 
         features: &NDArray<f64>, 
@@ -105,6 +109,7 @@ impl Logistic {
     }
 
 
+    /// Train model parameters for logistic regression
     pub fn train(&mut self, epochs: usize, log_output: bool) {
 
         /* create node graph */     
@@ -152,6 +157,7 @@ impl Logistic {
     }
 
 
+    /// Train model parameters for logistic regression with batch gradient descent
     pub fn sgd(&mut self, epochs: usize, log_output: bool, batch_size: usize) {
 
         let mut loss: f64 = 0.0;
@@ -228,6 +234,7 @@ pub struct MultiClassLogistic {
 
 impl MultiClassLogistic {
 
+    /// Create instance of multi class logistic regression
     pub fn new(
         features: &NDArray<f64>, 
         y: &NDArray<f64>,
@@ -265,6 +272,7 @@ impl MultiClassLogistic {
     }
 
 
+    /// Make prediction for multi class logistic regression
     pub fn predict(&mut self, inputs: NDArray<f64>) -> NDArray<f64> {
 
         self.features = Value::new(&inputs); 
@@ -285,6 +293,7 @@ impl MultiClassLogistic {
     }
 
 
+    /// Save model parameters for multi class logistic regression
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         let weights_file = format!("{}/weights", filepath);
@@ -298,6 +307,7 @@ impl MultiClassLogistic {
     }
 
 
+    /// Load model parameters for multi class logistic regression
     pub fn load(
         filepath: &str, 
         features: NDArray<f64>, 
@@ -326,6 +336,7 @@ impl MultiClassLogistic {
     }
 
 
+    /// Train model parameters for multi class logistic regression
     pub fn train(&mut self, epochs: usize, log_output: bool) {
 
         /* create node graph */     
@@ -377,6 +388,7 @@ impl MultiClassLogistic {
     }
 
 
+    /// Train model paramaters with batch gradient descent for multi class logistic regression
     pub fn sgd(&mut self, epochs: usize, log_output: bool, batch_size: usize) {
 
         let mut loss: f64 = 0.0;

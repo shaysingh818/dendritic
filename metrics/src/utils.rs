@@ -1,6 +1,7 @@
 use ndarray::ndarray::NDArray;
 use ndarray::ops::*; 
 
+/// Apply vector function on ndarray value
 pub fn apply(
     value: NDArray<f64>,
     axis: usize, 
@@ -23,6 +24,7 @@ pub fn apply(
     result
 }
 
+/// Gini impurity for tree based models
 pub fn gini_impurity(y: NDArray<f64>) -> f64 {
     let unique_samples = y.unique();
     let n = unique_samples.len();
@@ -36,7 +38,7 @@ pub fn gini_impurity(y: NDArray<f64>) -> f64 {
     1.0 - gini
 }
 
-
+/// Entropy calculation for tree based models
 pub fn entropy(y: NDArray<f64>) -> f64 { 
     let mut ent = 0.0;
     let class_labels = y.unique();

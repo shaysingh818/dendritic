@@ -19,6 +19,7 @@ pub struct KNN {
 
 impl KNN {
 
+    /// Fit new dataset to the K nearest neighbors classifier model
     pub fn fit(
         features: &NDArray<f64>, 
         outputs: &NDArray<f64>,
@@ -44,7 +45,7 @@ impl KNN {
         })
     }
 
-    
+    /// Predict nearest neighbors for a given point (sample)
     pub fn predict_sample(&self, point: &NDArray<f64>) -> f64 {
 
         let distances = calculate_distances(
@@ -76,7 +77,7 @@ impl KNN {
         max_class
     }
 
-
+    /// Predict nearest neighbors for all dataset samples
     pub fn predict(&self, point: &NDArray<f64>) -> NDArray<f64> {
 
         let mut preds: Vec<f64> =Vec::new();
@@ -107,6 +108,8 @@ pub struct KNNRegressor {
 
 impl KNNRegressor {
 
+    
+    /// Fit new dataset to the K nearest neighbors regression model
     pub fn fit(
         features: &NDArray<f64>, 
         outputs: &NDArray<f64>,
@@ -133,6 +136,7 @@ impl KNNRegressor {
     }
 
 
+    /// Predict a given sample (point) for KNN Regression
     pub fn predict_sample(&self, point: &NDArray<f64>) -> f64 {
 
         let distances = calculate_distances(
@@ -155,6 +159,7 @@ impl KNNRegressor {
     }
 
 
+    /// Predict all samples for KNN regression
     pub fn predict(&self, point: &NDArray<f64>) -> NDArray<f64> {
 
         let mut preds: Vec<f64> =Vec::new();

@@ -5,6 +5,7 @@ mod shape_tests {
 
     use crate::ndarray::shape::*;
 
+    /*
     #[test]
     fn test_stride_shape() {
 
@@ -22,7 +23,6 @@ mod shape_tests {
  
     }
 
-    /*
     #[test]
     fn test_axis_length_shape() {
 

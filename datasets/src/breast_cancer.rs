@@ -46,6 +46,7 @@ pub fn load_breast_cancer_schema() -> Schema {
     ])
 }
 
+/// Utility to convert breast cancer data to parquet
 pub fn convert_breast_cancer_csv_to_parquet() {
 
     let breast_cancer_schema = load_breast_cancer_schema();
@@ -57,7 +58,7 @@ pub fn convert_breast_cancer_csv_to_parquet() {
     );
 }
 
-
+/// Load breast cancer data from parquet file
 pub fn load_breast_cancer(path: &str) -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     /* switch to datasets/data directory */

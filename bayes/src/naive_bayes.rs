@@ -17,6 +17,7 @@ pub struct NaiveBayes {
 
 impl NaiveBayes {
 
+    /// Create new instance of naive bayes model
     pub fn new(
         features: &NDArray<f64>, 
         outputs: &NDArray<f64>) -> Result<NaiveBayes, String> {
@@ -38,6 +39,7 @@ impl NaiveBayes {
     }
 
 
+    /// Create frequency table of values
     pub fn frequency_table(
         &self,
         feature: NDArray<f64>,
@@ -83,6 +85,7 @@ impl NaiveBayes {
         Ok(freq_table)
     }
 
+    /// Create likelihood of values based on row samples
     pub fn likelihood_table(
         &self, 
         freq_table: NDArray<f64>) -> NDArray<f64> {
@@ -125,6 +128,7 @@ impl NaiveBayes {
     }
 
 
+    /// Feature prior probability utility
     pub fn feature_prior_probability(
         &self,
         feature_idx: usize,
@@ -141,7 +145,7 @@ impl NaiveBayes {
 
     }
 
-
+    /// Predict likelihood of feature occurring
     pub fn predict_feature(
         &mut self, 
         feature_col: usize,
@@ -176,6 +180,7 @@ impl NaiveBayes {
     }
 
 
+    /// Fit naive bayes model to all feature probabilities
     pub fn fit(&mut self, data: NDArray<f64>) -> usize {
 
         let mut largest_prob: f64 = 0.0;

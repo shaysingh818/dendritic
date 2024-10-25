@@ -22,6 +22,7 @@ where
     LHS: Node,
 {
 
+    /// Create new instance of L2 regularization operation
     pub fn new(rhs: RHS, lhs: LHS, learning_rate: f64) -> Self {
 
         let weights = rhs.value();
@@ -39,10 +40,12 @@ where
         }
     }
 
+    /// Get right hand side value of L2 regularization operation
     pub fn rhs(&self) -> RefMut<dyn Node> {
         self.rhs.borrow_mut()
     }
 
+    /// Get left hand side value of L2 regularization operation
     pub fn lhs(&self) -> RefMut<dyn Node> {
         self.lhs.borrow_mut()
     }
@@ -56,6 +59,7 @@ where
     LHS: Node,
 {
 
+    /// Perform forward pass on L2 regularization
     fn forward(&mut self) {
 
         self.rhs().forward();
@@ -68,6 +72,7 @@ where
         self.output = Value::new(&op_result).into(); 
     } 
 
+    /// Perform backward pass on L2 regularization
     fn backward(&mut self, upstream_gradient: NDArray<f64>) {
         let lr = self.learning_rate / upstream_gradient.size() as f64;
         let alpha = self.lhs().value().scalar_mult(2.0 * lr).unwrap();
@@ -75,14 +80,17 @@ where
         self.gradient = Value::new(&weight_update).into();
     }
 
+    /// Get output value of L2 regularization
     fn value(&self) -> NDArray<f64> {
         self.output.borrow().val().clone()
     }
 
+    /// Get gradient of L2 regularization
     fn grad(&self) -> NDArray<f64> {
         self.gradient.borrow().val().clone()
     }
-
+ 
+    /// Set gradient of L2 regularization
     fn set_grad(&mut self, upstream_gradient: NDArray<f64>) {
         self.gradient = Value::new(&upstream_gradient).into();
     } 
@@ -108,6 +116,7 @@ where
     LHS: Node,
 {
 
+    /// Create new instance of L1 regularization operation
     pub fn new(rhs: RHS, lhs: LHS, learning_rate: f64) -> Self {
 
         let weights = rhs.value();
@@ -125,10 +134,12 @@ where
         }
     }
 
+    /// Get right hand side value of L1 regularization operation
     pub fn rhs(&self) -> RefMut<dyn Node> {
         self.rhs.borrow_mut()
     }
 
+    /// Get left hand side value of L1 regularization operation
     pub fn lhs(&self) -> RefMut<dyn Node> {
         self.lhs.borrow_mut()
     }
@@ -142,6 +153,7 @@ where
     LHS: Node,
 {
 
+    /// Perform forward pass on L1 regularization
     fn forward(&mut self) {
 
         self.rhs().forward();
@@ -154,6 +166,7 @@ where
         self.output = Value::new(&op_result).into(); 
     } 
 
+    /// Perform backward pass on L1 regularization
     fn backward(&mut self, upstream_gradient: NDArray<f64>) {
         let lr = self.learning_rate / upstream_gradient.size() as f64;
         let alpha = self.lhs().value().scalar_mult(lr).unwrap();
@@ -163,14 +176,17 @@ where
         
     }
 
+    /// Get output value of L1 regularization
     fn value(&self) -> NDArray<f64> {
         self.output.borrow().val().clone()
     }
 
+    /// Get gradient of L1 regularization
     fn grad(&self) -> NDArray<f64> {
         self.gradient.borrow().val().clone()
     }
 
+    /// Set gradient of L1 regularization
     fn set_grad(&mut self, upstream_gradient: NDArray<f64>) {
         self.gradient = Value::new(&upstream_gradient).into();
     } 

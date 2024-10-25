@@ -17,6 +17,7 @@ where
     LHS: Node,
 {
 
+    /// Create new instance of dot product operation in computation graph
     pub fn new(rhs: RHS, lhs: LHS) -> Dot<RHS, LHS> {
 
         let op_result = rhs.value().dot(lhs.value().clone()).unwrap();
@@ -30,10 +31,12 @@ where
         }
     }
 
+    /// Get right hand side value of dot product operation
     pub fn rhs(&self) -> RefMut<dyn Node> {
         self.rhs.borrow_mut()
     }
 
+    /// Get left hand side value of dot product operation
     pub fn lhs(&self) -> RefMut<dyn Node> {
         self.lhs.borrow_mut()
     }
@@ -47,6 +50,7 @@ where
     LHS: Node,    
 {
 
+    /// Perform forward pass of dot product
     fn forward(&mut self) {
 
         let rhs = self.rhs().value();
@@ -59,6 +63,7 @@ where
         self.output = Value::new(&result).into(); 
     } 
 
+    /// Perform backward pass of dot product
     fn backward(&mut self, upstream_gradient: NDArray<f64>) {
 
         self.gradient = Value::new(&upstream_gradient).into();
@@ -75,14 +80,17 @@ where
     }
 
 
+    /// Get output value of dot product operation
     fn value(&self) -> NDArray<f64> {
         self.output.borrow().val().clone()
     }
- 
+
+    /// Get gradient of dot product operation
     fn grad(&self) -> NDArray<f64> {
         self.gradient.borrow().val().clone()
     }
 
+    /// Set gradient of dot product operation
     fn set_grad(&mut self, upstream_gradient: NDArray<f64>) {
         self.gradient = Value::new(&upstream_gradient).into();
     } 
@@ -108,6 +116,7 @@ where
     LHS: Node,
 {
 
+    /// Create new instance of elememtwise add operation
     pub fn new(rhs: RHS, lhs: LHS) -> Self {
 
         let scalar_vec = lhs.value();
@@ -122,10 +131,12 @@ where
         }
     }
 
+    /// Retrieve right hand side value of elementwise add operation
     pub fn rhs(&self) -> RefMut<dyn Node> {
         self.rhs.borrow_mut()
     }
 
+    /// Retrieve left hand side value of elementwise add operation
     pub fn lhs(&self) -> RefMut<dyn Node> {
         self.lhs.borrow_mut()
     }
@@ -140,6 +151,7 @@ where
     LHS: Node,
 {
 
+    /// Perform forward pass of elementwise add operation
     fn forward(&mut self) {
 
         self.rhs().forward();
@@ -150,20 +162,24 @@ where
         self.output = Value::new(&op_result).into(); 
     } 
 
+    /// Perform backward pass of elementwise add operation
     fn backward(&mut self, upstream_gradient: NDArray<f64>) {
         self.gradient = Value::new(&upstream_gradient).into();
         self.lhs().backward(upstream_gradient.clone());
         self.rhs().backward(upstream_gradient);
     }
 
+    /// Get output value of elementwise add operation
     fn value(&self) -> NDArray<f64> {
         self.output.borrow().val().clone()
     }
 
+    /// Get gradient of elementwise add operation
     fn grad(&self) -> NDArray<f64> {
         self.gradient.borrow().val().clone()
     }
 
+    /// Set gradient of elementwise add operation
     fn set_grad(&mut self, upstream_gradient: NDArray<f64>) {
         self.gradient = Value::new(&upstream_gradient).into();
     } 
@@ -190,6 +206,7 @@ where
     LHS: Node,
 {
 
+    /// Create new instance of regularization operation
     pub fn new(rhs: RHS, lhs: LHS, learning_rate: f64) -> Self {
 
         let weights = rhs.value();
@@ -207,10 +224,12 @@ where
         }
     }
 
+    /// Get right hand side value of regularization operation
     pub fn rhs(&self) -> RefMut<dyn Node> {
         self.rhs.borrow_mut()
     }
 
+    /// Get left hand side value of regularization operation
     pub fn lhs(&self) -> RefMut<dyn Node> {
         self.lhs.borrow_mut()
     }
@@ -224,6 +243,7 @@ where
     LHS: Node,
 {
 
+    /// Perform forward pass of regularization operation
     fn forward(&mut self) {
 
         self.rhs().forward();
@@ -236,6 +256,7 @@ where
         self.output = Value::new(&op_result).into(); 
     } 
 
+    /// Perform backward pass of regularization operation
     fn backward(&mut self, upstream_gradient: NDArray<f64>) {
         let lr = self.learning_rate / upstream_gradient.size() as f64;
         let alpha = self.lhs().value().scalar_mult(2.0 * lr).unwrap();
@@ -243,14 +264,17 @@ where
         self.gradient = Value::new(&weight_update).into();
     }
 
+    /// Get output value of regularization operation
     fn value(&self) -> NDArray<f64> {
         self.output.borrow().val().clone()
     }
 
+    /// Get gradient of regularization operation
     fn grad(&self) -> NDArray<f64> {
         self.gradient.borrow().val().clone()
     }
 
+    /// Set gradient of regularization operation
     fn set_grad(&mut self, upstream_gradient: NDArray<f64>) {
         self.gradient = Value::new(&upstream_gradient).into();
     } 

@@ -23,6 +23,8 @@ pub struct RandomForestClassifier {
 
 impl RandomForestClassifier {
 
+
+    /// Create new instance of random forest classifier
     pub fn new(
         max_depth: usize,
         samples_split: usize,
@@ -42,31 +44,33 @@ impl RandomForestClassifier {
 
     }
 
-
+    /// Retrieve max depth of random forest classifier
     pub fn max_depth(&self) -> usize {
         self.max_depth
     }
 
-
+    /// Retrieve sample split criteria for random forest classifier
     pub fn samples_split(&self) -> usize {
         self.samples_split
     }
 
-    
+    /// Retrieve number of trees for random forest classifier
     pub fn n_trees(&self) -> usize {
         self.n_trees
     }
 
-    
+    /// Retrieve number of subset features for random forest classifier
     pub fn num_features(&self) -> usize {
         self.num_features
     }
     
+
+    /// Retrieve trees for random forest classifier
     pub fn trees(&self) -> &Vec<DecisionTreeClassifier> {
         &self.trees
     }
 
-
+    /// Create bootstrapped trees for random forest classifier
     pub fn bootstrap_trees(
         &mut self,
         features: &NDArray<f64>,
@@ -101,7 +105,7 @@ impl RandomForestClassifier {
         Ok(())
     }
 
-
+    /// Load trees with bootstrapped data for random forest classifier
     pub fn load_trees(
         &mut self,
         filepath: &str,
@@ -127,6 +131,7 @@ impl RandomForestClassifier {
     }
 
 
+    /// Fit serialized tree for random forest classifier
     pub fn fit_loaded(
         &mut self,
         features: &NDArray<f64>,
@@ -141,6 +146,7 @@ impl RandomForestClassifier {
 
     }
 
+    /// Fit target and features for random forest classifier
     pub fn fit(
         &mut self, 
         features: &NDArray<f64>, 
@@ -150,6 +156,7 @@ impl RandomForestClassifier {
     }
 
 
+    /// Predict row samples for random forest classifier
     pub fn predict(&self, features: NDArray<f64>) -> NDArray<f64> {
         let rows = features.shape().dim(0);
         let mut y_predictions: Vec<f64> = Vec::new(); 
@@ -171,6 +178,7 @@ impl RandomForestClassifier {
     }
 
 
+    /// Retrieve frequency counts for random forest classifier
     pub fn frequency_check(&self, values: Vec<f64>) -> Option<usize> {
         let mut frequency_map = BTreeMap::new(); 
         for &item in &values {
@@ -183,6 +191,7 @@ impl RandomForestClassifier {
     }
 
 
+    /// Save model parameters for random forest classifier
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         let mut counter = 0;
@@ -198,7 +207,7 @@ impl RandomForestClassifier {
         Ok(())
     }
 
-
+    /// Load model parameters for random forest classifier
     pub fn load(
         max_depth: usize,
         samples_split: usize,
@@ -231,7 +240,7 @@ pub struct RandomForestRegressor {
 
 impl RandomForestRegressor {
 
-
+    /// Create new instance of random forest regression tree
     pub fn new(
         max_depth: usize,
         samples_split: usize,
@@ -254,31 +263,35 @@ impl RandomForestRegressor {
     }
 
 
+    /// Retrieve max depth of random forest regression tree
     pub fn max_depth(&self) -> usize {
         self.max_depth
     }
 
 
+    /// Retrieve sample splitting criteria for trees for random forest regressor
     pub fn samples_split(&self) -> usize {
         self.samples_split
     }
 
     
+    /// Retrieve number of trees for random forest regressor
     pub fn n_trees(&self) -> usize {
         self.n_trees
     }
 
     
+    /// Retrieve number of features considered for random forest regressor
     pub fn num_features(&self) -> usize {
         self.num_features
     }
 
-    
+    /// Retrieve all bootstrapped trees for random forest regressor
     pub fn trees(&self) -> &Vec<DecisionTreeRegressor> {
         &self.trees
     }
 
-
+    /// Save bootstrapped trees for random forest regression
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         let mut counter = 0;
@@ -294,6 +307,7 @@ impl RandomForestRegressor {
         Ok(())
     }
 
+    /// Bootstrap variations of trees for random forest regression
     pub fn bootstrap_trees(
         &mut self,
         features: &NDArray<f64>,
@@ -328,7 +342,7 @@ impl RandomForestRegressor {
         Ok(())
     }
 
-
+    /// Load all bootstrapped trees for random forest regressor
     pub fn load_trees(
         &mut self,
         filepath: &str,
@@ -354,11 +368,12 @@ impl RandomForestRegressor {
     }
 
 
+    /// Fit target and features for regression random forest
     pub fn fit(&mut self, features: &NDArray<f64>, target: &NDArray<f64>) {
         self.bootstrap_trees(features, target).unwrap();
     }
 
-
+    /// Fit preloaded regression tree from json file
     pub fn fit_loaded(
         &mut self,
         features: &NDArray<f64>,
@@ -372,7 +387,7 @@ impl RandomForestRegressor {
         );
     }
 
-
+    /// Predict random forest regressor with all data samples
     pub fn predict(&self, features: NDArray<f64>) -> NDArray<f64> {
         let rows = features.shape().dim(0);
         let mut y_predictions: Vec<f64> = Vec::new(); 
@@ -397,7 +412,7 @@ impl RandomForestRegressor {
         NDArray::array(vec![rows, 1], y_predictions).unwrap() 
     }
 
-
+    /// Load random forest regressor from json path
     pub fn load(
         max_depth: usize,
         samples_split: usize,

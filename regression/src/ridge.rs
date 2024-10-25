@@ -21,6 +21,7 @@ pub struct Ridge {
 
 impl Ridge {
 
+    /// Create new instance of ridge regression
     pub fn new(
         features: NDArray<f64>, 
         y: NDArray<f64>,
@@ -52,6 +53,7 @@ impl Ridge {
     }
 
 
+    /// Generate prediction for ridge regression
     pub fn predict(&mut self, inputs: NDArray<f64>) -> NDArray<f64> {
 
         self.features = Value::new(&inputs); 
@@ -66,6 +68,7 @@ impl Ridge {
     }
 
 
+    /// Save model parameters for ridge regression
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         let weights_file = format!("{}/weights", filepath);
@@ -79,6 +82,7 @@ impl Ridge {
     }
 
 
+    /// Load model parameters for ridge regression
     pub fn load(
         filepath: &str, 
         features: NDArray<f64>, 
@@ -111,6 +115,7 @@ impl Ridge {
     }
 
 
+    /// Train model parameters for ridge regression
     pub fn train(&mut self, epochs: usize, log_output: bool) {
 
         let mut linear = ScaleAdd::new(
@@ -162,6 +167,7 @@ impl Ridge {
     }
 
  
+    /// Train model parameters for ridge regression with batch gradient descent
     pub fn sgd(&mut self, epochs: usize, log_output: bool, batch_size: usize) {
 
         let mut loss: f64 = 0.0;

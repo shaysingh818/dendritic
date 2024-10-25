@@ -30,10 +30,12 @@ impl Shape {
         cloned_shape
     }
 
+    /// Remove axis from shape
     pub fn remove(&mut self, index: usize) {
         self.values.remove(index);
     }
 
+    /// Add axis to shape
     pub fn push(&mut self, value: usize) {
         self.values.push(value);
     }
@@ -77,6 +79,7 @@ impl Shape {
         indexs
     }
 
+    /// Get associated multi dimensional index with a single index
     pub fn multi_index(&self, flat_index: usize) -> Vec<usize> {
         let mut indices = Vec::new(); 
         let mut flat_index = flat_index; 
@@ -90,24 +93,16 @@ impl Shape {
 
     /// Get stride for provided axis (dimension)
     pub fn strides(&self) -> Vec<usize> {
-
-        let byte_size = 8;
-        let mut counter = self.values.len()-1;
-        let mut strides = Vec::new(); 
-        let mut base_case = byte_size;
-        strides.push(base_case);
- 
-        for _item in 0..self.values.len()-1 {
-            let val = self.values[counter] * base_case;
-            base_case = val; 
-            strides.push(val); 
-            counter -= 1; 
-        }
-
-        let mut final_strides = strides.clone();
-        final_strides.reverse();
-        final_strides
-
+        let mut counter = self.values().len();  
+        let mut stride = 1; 
+        let mut strides: Vec<usize> = Vec::new();
+        for n in 0..self.values().len() {
+            let curr_shape = self.values[counter-1];
+            strides.push(stride);
+            stride *= curr_shape;
+            counter -= 1;
+        }        
+        strides
     }
 
 }

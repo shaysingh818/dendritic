@@ -22,6 +22,7 @@ pub struct Lasso {
 
 impl Lasso {
 
+    /// Create new instance of lasso regression
     pub fn new(
         features: NDArray<f64>, 
         y: NDArray<f64>,
@@ -52,7 +53,7 @@ impl Lasso {
         })
     }
 
-
+    /// Predict data for lasso regression
     pub fn predict(&mut self, inputs: NDArray<f64>) -> NDArray<f64> {
 
         self.features = Value::new(&inputs); 
@@ -66,7 +67,7 @@ impl Lasso {
         linear.value() 
     }
 
-    
+    /// Save model parameters for lasso regression
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         let weights_file = format!("{}/weights", filepath);
@@ -80,6 +81,7 @@ impl Lasso {
     }
 
 
+    /// Load model parameters for lasso regression
     pub fn load(
         filepath: &str, 
         features: NDArray<f64>, 
@@ -111,7 +113,7 @@ impl Lasso {
 
     }
 
-
+    /// Train model parameters for lasso regression
     pub fn train(&mut self, epochs: usize, log_output: bool) {
 
         let mut linear = ScaleAdd::new(
@@ -159,10 +161,10 @@ impl Lasso {
             }
 
         }
-
     }
 
 
+    /// Train model parameters for lasso regression with batch gradient descent
     pub fn sgd(&mut self, epochs: usize, log_output: bool, batch_size: usize) {
         
         let mut loss: f64 = 0.0;

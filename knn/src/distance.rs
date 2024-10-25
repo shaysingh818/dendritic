@@ -1,7 +1,7 @@
 use ndarray::ndarray::NDArray;
 use ndarray::ops::*;
 
-
+/// Euclidean distance between two points
 pub fn euclidean(p1: &NDArray<f64>, p2: &NDArray<f64>) -> Result<f64, String> {
     
     if p1.shape().values() != p2.shape().values() {
@@ -17,6 +17,7 @@ pub fn euclidean(p1: &NDArray<f64>, p2: &NDArray<f64>) -> Result<f64, String> {
 
 
 
+/// Manhattan distance between two points
 pub fn manhattan(p1: &NDArray<f64>, p2: &NDArray<f64>) -> Result<f64, String> {
     
     if p1.shape().values() != p2.shape().values() {

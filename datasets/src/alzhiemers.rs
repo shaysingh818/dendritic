@@ -8,7 +8,7 @@ use crate::utils::*;
 
 
 
-/// loading the schema for the breast cancer data
+/// loading the schema for alzheimers disease data
 pub fn load_alzheimers_schema() -> Schema {
     Schema::new(vec![
         Field::new("patient_id", DataType::Utf8, false),
@@ -49,7 +49,7 @@ pub fn load_alzheimers_schema() -> Schema {
     ])
 }
 
-
+/// Utility method for converting alzheimers data to parquet
 pub fn convert_alzhiemers_to_parquet() {
 
     let alz_schema = load_alzheimers_schema();
@@ -61,7 +61,7 @@ pub fn convert_alzhiemers_to_parquet() {
     );
 }
 
-
+/// Load alzhiemers data from path
 pub fn load_alzhiemers(path: &str) -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     let file = File::open(path).unwrap();

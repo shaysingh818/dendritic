@@ -1,7 +1,7 @@
 use ndarray::ndarray::NDArray;
 use ndarray::ops::*;
 
-
+/// Calculate all distances with a given distance metric
 pub fn calculate_distances(
     distance_metric: fn(
         y1: &NDArray<f64>, 

@@ -20,6 +20,8 @@ pub struct DecisionTreeRegressor {
 
 impl DecisionTreeRegressor {
 
+
+    /// Create new instance of decision tree regression model
     pub fn new(
         max_depth: usize,
         samples_split: usize,
@@ -37,10 +39,12 @@ impl DecisionTreeRegressor {
 
     }
 
+    /// Retrieve root node of regression tree
     pub fn root(&self) -> &Node {
         &self.root
     }
 
+    /// Build regression tree from root node
     pub fn build_tree(
         &self,
         features: &NDArray<f64>,
@@ -89,6 +93,7 @@ impl DecisionTreeRegressor {
     }
 
 
+    /// Find optimal split for regression tree
     pub fn best_split(&self, features: NDArray<f64>) -> (f64, usize, f64) {
 
         let mut feature_index = 0;
@@ -129,6 +134,7 @@ impl DecisionTreeRegressor {
 
     }
 
+    /// Find information gain for regression tree
     pub fn gain(&self, left: NDArray<f64>, right: NDArray<f64>) -> f64 {
 
         let left_avg = NDArray::fill(
@@ -148,6 +154,7 @@ impl DecisionTreeRegressor {
     }
 
 
+    /// Generate row prediction for regression tree
     pub fn prediction(&self, inputs: NDArray<f64>, node: Node) -> f64 {
 
         let right = node.right();
@@ -175,7 +182,7 @@ None => -1.0
 
     }
 
-
+    /// Predict outcomes for regression tree with all row samples
     pub fn predict(&self, input: NDArray<f64>) -> NDArray<f64> {
         let rows = input.shape().dim(0);
         let mut results = Vec::new();
@@ -189,11 +196,13 @@ None => -1.0
     }
 
 
+    /// Fit features and target for regression tree
     pub fn fit(&mut self, features: &NDArray<f64>, _target: &NDArray<f64>) {
        self.root = self.build_tree(features, 0);
     }
 
 
+    /// Save model parameters for regression tree
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         let mut node_save = self.root.save();
@@ -215,6 +224,7 @@ None => -1.0
     }
 
 
+    /// Load model parameters for regression tree
     pub fn load(
         filepath: &str, 
         max_depth: usize,

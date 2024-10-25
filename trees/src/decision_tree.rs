@@ -18,6 +18,7 @@ pub struct DecisionTreeClassifier {
 
 impl DecisionTreeClassifier {
 
+    /// Create instance of decision tree classifier
     pub fn new(
         max_depth: usize,
         samples_split: usize,
@@ -33,12 +34,13 @@ impl DecisionTreeClassifier {
 
     }
 
-    
+    /// Return root node of decision tree classifier tree
     pub fn root(&self) -> &Node {
         &self.root
     }
 
 
+    /// Build decision tree classifier
     pub fn build_tree(
         &self, 
         features: &NDArray<f64>, 
@@ -90,6 +92,7 @@ impl DecisionTreeClassifier {
     }   
 
 
+    /// Find optimal split for decision tree classifier
     pub fn best_split(&self, features: NDArray<f64>) -> (f64, usize, f64) {
 
         let mut max_info_gain = f64::NEG_INFINITY;
@@ -129,7 +132,7 @@ impl DecisionTreeClassifier {
         (max_info_gain, feature_index, selected_threshold)
     }
 
-
+    /// Calculate information gain for decision tree classifier
     pub fn information_gain(
         &self,
         feature: NDArray<f64>,
@@ -148,6 +151,7 @@ impl DecisionTreeClassifier {
     }
 
 
+    /// Select highest probability class from target output
     pub fn select_max_class(&self, target: NDArray<f64>) -> f64 {
         let max = target.values().iter().max_by(
             |a, b| a.total_cmp(b)
@@ -155,6 +159,7 @@ impl DecisionTreeClassifier {
         *max
     }
 
+    /// Fit decision tree classifier to features and target
     pub fn fit(
         &mut self, 
         features: &NDArray<f64>, 
@@ -162,6 +167,7 @@ impl DecisionTreeClassifier {
        self.root = self.build_tree(features, 0);
     }
 
+    /// Generate prediction for row sample of decision tree classifier
     pub fn prediction(&self, inputs: NDArray<f64>, node: Node) -> f64 {
 
         let right = node.right();
@@ -189,6 +195,7 @@ None => -1.0
 
     }
 
+    /// Generate prediction for all row samples for decision tree classification
     pub fn predict(&self, input: NDArray<f64>) -> NDArray<f64> {
         let rows = input.shape().dim(0);
         let mut results = Vec::new();
@@ -202,6 +209,7 @@ None => -1.0
     }
 
 
+    /// Save model parameters for decision tree classification
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         let mut node_save = self.root.save();
@@ -223,6 +231,7 @@ None => -1.0
     }
 
 
+    /// Load model parameters for decision tree classification
     pub fn load(
         filepath: &str, 
         max_depth: usize,

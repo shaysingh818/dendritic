@@ -6,7 +6,7 @@ use parquet::errors::Result;
 use crate::utils::*;
 use preprocessing::standard_scalar::*;
 
-
+/// Load customer data schema
 pub fn load_customer_schema() -> Schema {
     Schema::new(vec![
         Field::new("age", DataType::Float64, false),
@@ -21,7 +21,7 @@ pub fn load_customer_schema() -> Schema {
     ])
 }
 
-
+/// Utility to convert customer data to parquet 
 pub fn convert_customer_csv_to_parquet() {
 
     let iris_schema = load_customer_schema();
@@ -33,7 +33,7 @@ pub fn convert_customer_csv_to_parquet() {
     ); 
 }
 
-
+/// Load customer data from path
 pub fn load_customer_data() -> Result<(NDArray<f64>, NDArray<f64>)> {
     
     /* switch to datasets/data directory */

@@ -1,7 +1,7 @@
 use ndarray::ndarray::NDArray;
 use ndarray::ops::*;
 
-
+/// Standard scalar normalization of data
 pub fn standard_scalar(input: NDArray<f64>) -> Result<NDArray<f64>, String>  {
    
     if input.rank() < 2 {
@@ -35,6 +35,7 @@ pub fn standard_scalar(input: NDArray<f64>) -> Result<NDArray<f64>, String>  {
 }
 
 
+/// Min Max normalization of data
 pub fn min_max_scalar(input: NDArray<f64>) -> Result<NDArray<f64>, String> {
 
     if input.rank() < 2 {

@@ -22,6 +22,7 @@ pub struct ElasticNet {
 
 impl ElasticNet {
 
+    /// Create new instance of elastic net regression
     pub fn new(
         features: NDArray<f64>, 
         y: NDArray<f64>,
@@ -53,6 +54,7 @@ impl ElasticNet {
     }
 
 
+    /// Predict features for elastic net regression
     pub fn predict(&mut self, inputs: NDArray<f64>) -> NDArray<f64> {
 
         self.features = Value::new(&inputs); 
@@ -66,7 +68,7 @@ impl ElasticNet {
         linear.value() 
     }
 
-
+    /// Save parameters for elastic net regression
     pub fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         let weights_file = format!("{}/weights", filepath);
@@ -80,6 +82,7 @@ impl ElasticNet {
     }
 
 
+    /// Load parameters for elastic net regression
     pub fn load(
         filepath: &str, 
         features: NDArray<f64>, 
@@ -112,6 +115,7 @@ impl ElasticNet {
     }
 
 
+    /// Train elastic net regression model
     pub fn train(&mut self, epochs: usize, log_output: bool) {
 
         let mut linear = ScaleAdd::new(
@@ -174,6 +178,7 @@ impl ElasticNet {
     }
 
 
+    /// Train elastic net regression model with batch gradient descent
     pub fn sgd(&mut self, epochs: usize, log_output: bool, batch_size: usize) {
 
         let mut loss: f64 = 0.0;

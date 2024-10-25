@@ -1,11 +1,11 @@
 use ndarray::ndarray::NDArray;
 
-
+/// Sigmoid function for non linear activation
 pub fn sigmoid(x: f64) -> f64 {
     1.0 / (1.0 + f64::exp(-x))
 }
 
-
+/// Sigmoid function to be performed on multi dimensional value
 pub fn sigmoid_vec(x: NDArray<f64>) -> NDArray<f64> {
 
     let sig = x.values().iter().map(
@@ -19,7 +19,7 @@ pub fn sigmoid_vec(x: NDArray<f64>) -> NDArray<f64> {
     result
 }
 
-
+/// Derivative of the sigmoid function
 pub fn sigmoid_prime(x: NDArray<f64>) -> NDArray<f64> {
 
     let sig = x.values().iter().map(
@@ -33,7 +33,7 @@ pub fn sigmoid_prime(x: NDArray<f64>) -> NDArray<f64> {
     result
 }
 
-
+/// Softmax activiation function for multi class tasks
 pub fn softmax(x: NDArray<f64>) -> NDArray<f64> {
 
     // get max value from input array
@@ -62,7 +62,7 @@ pub fn softmax(x: NDArray<f64>) -> NDArray<f64> {
     result
 }
 
-
+/// Derivative of softmax activiation function
 pub fn softmax_prime(x: NDArray<f64>) -> NDArray<f64>  {
 
     let softmax_x = softmax(x.clone());
@@ -95,6 +95,7 @@ pub fn softmax_prime(x: NDArray<f64>) -> NDArray<f64>  {
     
 }
 
+/// Relu activation function
 pub fn relu(x: f64) -> f64 {
     if x > 0.0 {
         return x;
