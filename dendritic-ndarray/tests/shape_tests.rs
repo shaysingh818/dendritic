@@ -3,7 +3,7 @@ use dendritic_ndarray;
 #[cfg(test)]
 mod shape_tests {
 
-    use crate::ndarray::shape::*;
+    use crate::dendritic_ndarray::shape::*;
 
     /*
     #[test]

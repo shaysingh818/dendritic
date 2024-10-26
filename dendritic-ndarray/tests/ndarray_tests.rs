@@ -3,7 +3,7 @@ use dendritic_ndarray;
 #[cfg(test)]
 mod ndarray_tests {
 
-    use crate::ndarray::ndarray::NDArray;
+    use crate::dendritic_ndarray::ndarray::NDArray;
     use dendritic_ndarray::ops::*;
 
     #[test]
