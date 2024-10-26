@@ -1,4 +1,4 @@
-use ndarray;
+use dendritic_ndarray;
 
 #[cfg(test)]
 mod ndarray_tests {
