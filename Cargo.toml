@@ -1,22 +1,20 @@
 [workspace]
-
 members = [
-    "ndarray",
-    "metrics",
-    "autodiff",
-    "regression",
-    "preprocessing",
-    "models",
-    "datasets",
-    "trees",
-    "bayes", 
-    "knn",
-    "clustering"
+    "dendritic-ndarray",
+    "dendritic-metrics",
+    "dendritic-autodiff",
+    "dendritic-regression",
+    "dendritic-preprocessing",
+    "dendritic-models",
+    "dendritic-datasets",
+    "dendritic-trees",
+    "dendritic-bayes", 
+    "dendritic-knn",
+    "dendritic-clustering",
 ]
 
-
 [workspace.package]
-name = "steepgrad"
+name = "dendritic"
 version = "0.3.0"
 edition = "2021"
 include = [
@@ -26,14 +24,13 @@ include = [
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace.dependencies]
-ndarray = { path= "./ndarray" }
-metrics = { version = "0.3.0", path= "./metrics" }
-autodiff = { version = "0.3.0", path= "./autodiff" }
-regression = { version = "0.3.0", path= "./regression" }
-preprocessing = { version = "0.3.0", path= "./preprocessing" }
-models = { version = "0.3.0", path= "./models" }
-datasets = { version = "0.3.0", path= "./datasets" }
-trees = { version = "0.3.0", path= "./trees" }
-bayes = { version = "0.3.0", path= "./bayes" }
-knn = { version = "0.3.0", path= "./knn" }
-clustering = { version = "0.3.0", path= "./clustering" }
+dendritic-ndarray = { path= "./dendritic-ndarray" }
+dendritic-metrics = { version = "0.3.0", path= "./dendritic-metrics" }
+dendritic-autodiff = { version = "0.3.0", path= "./dendritic-autodiff" }
+dendritic-regression = { version = "0.3.0", path= "./dendritic-regression" }
+dendritic-preprocessing = { version = "0.3.0", path= "./dendritic-preprocessing" }
+dendritic-models = { version = "0.3.0", path= "./dendritic-models" }
+dendritic-datasets = { version = "0.3.0", path= "./dendritic-datasets" }
+dendritic-trees = { version = "0.3.0", path= "./dendritic-trees" }
+dendritic-bayes = { version = "0.3.0", path= "./dendritic-bayes" }
+dendritic-knn = { version = "0.3.0", path= "./dendritic-knn" }

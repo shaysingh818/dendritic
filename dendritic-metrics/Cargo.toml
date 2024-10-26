@@ -1,0 +1,17 @@
+[package]
+name = "dendritic-metrics"
+version = "0.1.0"
+edition = "2021" 
+description = "Collection of loss & activation functions for machine learning models"
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dendritic-ndarray = { path = '../dendritic-ndarray' }
+
+[dev-dependencies]
+rand = "0.8"
+serde = { version = "1.0.126", features = ["derive"] }
+serde_json = "1.0.64"
+

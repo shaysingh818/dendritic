@@ -405,17 +405,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c4b4d0bd25bd0b74681c0ad21497610ce1b7c91b1022cd21c80c6fbdd9476b0"
 
 [[package]]
-name = "autodiff"
-version = "0.3.0"
-dependencies = [
- "metrics",
- "ndarray",
- "rand",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "backtrace"
 version = "0.3.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -441,17 +430,6 @@ name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
-
-[[package]]
-name = "bayes"
-version = "0.3.0"
-dependencies = [
- "metrics",
- "ndarray",
- "rand",
- "serde",
- "serde_json",
-]
 
 [[package]]
 name = "bigdecimal"
@@ -577,19 +555,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "clustering"
-version = "0.3.0"
-dependencies = [
- "datasets",
- "knn",
- "metrics",
- "ndarray",
- "rand",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "const-random"
 version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -671,17 +636,143 @@ dependencies = [
 ]
 
 [[package]]
-name = "datasets"
-version = "0.3.0"
+name = "dendritic-autodiff"
+version = "0.1.0"
+dependencies = [
+ "dendritic-metrics",
+ "dendritic-ndarray",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "dendritic-bayes"
+version = "0.1.0"
+dependencies = [
+ "dendritic-metrics",
+ "dendritic-ndarray",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "dendritic-clustering"
+version = "0.1.0"
+dependencies = [
+ "dendritic-datasets",
+ "dendritic-knn",
+ "dendritic-metrics",
+ "dendritic-ndarray",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "dendritic-datasets"
+version = "0.1.0"
 dependencies = [
  "arrow",
  "arrow-array 51.0.0",
  "arrow-csv",
  "arrow-schema 51.0.0",
  "csv",
- "ndarray",
+ "dendritic-ndarray",
+ "dendritic-preprocessing",
  "parquet 51.0.0",
- "preprocessing",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "dendritic-knn"
+version = "0.1.0"
+dependencies = [
+ "dendritic-metrics",
+ "dendritic-ndarray",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "dendritic-metrics"
+version = "0.1.0"
+dependencies = [
+ "dendritic-ndarray",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "dendritic-models"
+version = "0.1.0"
+dependencies = [
+ "arrow",
+ "arrow-array 51.0.0",
+ "arrow-json",
+ "arrow-schema 51.0.0",
+ "bigdecimal",
+ "csv",
+ "dendritic-autodiff",
+ "dendritic-datasets",
+ "dendritic-knn",
+ "dendritic-metrics",
+ "dendritic-ndarray",
+ "dendritic-preprocessing",
+ "dendritic-regression",
+ "dendritic-trees",
+ "parquet 52.1.0",
+ "postgres",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "dendritic-ndarray"
+version = "0.3.0"
+dependencies = [
+ "itertools",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "dendritic-preprocessing"
+version = "0.3.0"
+dependencies = [
+ "dendritic-ndarray",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "dendritic-regression"
+version = "0.1.0"
+dependencies = [
+ "dendritic-autodiff",
+ "dendritic-metrics",
+ "dendritic-ndarray",
+ "dendritic-preprocessing",
+ "rand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "dendritic-trees"
+version = "0.1.0"
+dependencies = [
+ "dendritic-datasets",
+ "dendritic-metrics",
+ "dendritic-ndarray",
  "rand",
  "serde",
  "serde_json",
@@ -926,17 +1017,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "knn"
-version = "0.3.0"
-dependencies = [
- "metrics",
- "ndarray",
- "rand",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1060,16 +1140,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
-name = "metrics"
-version = "0.3.0"
-dependencies = [
- "ndarray",
- "rand",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "miniz_oxide"
 version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1087,41 +1157,6 @@ dependencies = [
  "libc",
  "wasi",
  "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "models"
-version = "0.3.0"
-dependencies = [
- "arrow",
- "arrow-array 51.0.0",
- "arrow-json",
- "arrow-schema 51.0.0",
- "autodiff",
- "bigdecimal",
- "csv",
- "datasets",
- "knn",
- "metrics",
- "ndarray",
- "parquet 52.1.0",
- "postgres",
- "preprocessing",
- "rand",
- "regression",
- "serde",
- "serde_json",
- "trees",
-]
-
-[[package]]
-name = "ndarray"
-version = "0.3.0"
-dependencies = [
- "itertools",
- "rand",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -1408,16 +1443,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de"
 
 [[package]]
-name = "preprocessing"
-version = "0.3.0"
-dependencies = [
- "ndarray",
- "rand",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "proc-macro2"
 version = "1.0.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1511,19 +1536,6 @@ name = "regex-syntax"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
-
-[[package]]
-name = "regression"
-version = "0.3.0"
-dependencies = [
- "autodiff",
- "metrics",
- "ndarray",
- "preprocessing",
- "rand",
- "serde",
- "serde_json",
-]
 
 [[package]]
 name = "rustc-demangle"
@@ -1764,18 +1776,6 @@ dependencies = [
  "futures-sink",
  "pin-project-lite",
  "tokio",
-]
-
-[[package]]
-name = "trees"
-version = "0.3.0"
-dependencies = [
- "datasets",
- "metrics",
- "ndarray",
- "rand",
- "serde",
- "serde_json",
 ]
 
 [[package]]
