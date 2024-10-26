@@ -6,7 +6,6 @@ use arrow_array::RecordBatch;
 use arrow_schema::{Schema, Field, DataType};
 use arrow_array::array::{Float64Array};
 
-
 use dendritic_ndarray::ndarray::NDArray;
 use dendritic_regression::logistic::Logistic;
 use dendritic_metrics::activations::*;

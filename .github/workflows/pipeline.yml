@@ -14,11 +14,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./ndarray"
+      working-directory: "./dendritic-ndarray"
       run: cargo build --color always
 
     - name: Test
-      working-directory: "./ndarray"
+      working-directory: "./dendritic-ndarray"
       run: cargo test --color always
 
   metrics:
@@ -28,11 +28,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./metrics"
+      working-directory: "./dendritic-metrics"
       run: cargo build --color always
 
     - name: Test
-      working-directory: "./metrics"
+      working-directory: "./dendritic-metrics"
       run: cargo test --color always
 
   autodiff:
@@ -42,11 +42,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./autodiff"
+      working-directory: "./dendritic-autodiff"
       run: cargo build --color always
 
     - name: Test
-      working-directory: "./autodiff"
+      working-directory: "./dendritic-autodiff"
       run: cargo test --color always
 
   preprocessing:
@@ -56,11 +56,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./preprocessing"
+      working-directory: "./dendritic-preprocessing"
       run: cargo build --color always
 
     - name: Test
-      working-directory: "./preprocessing"
+      working-directory: "./dendritic-preprocessing"
       run: cargo test --color always
 
   datasets:
@@ -70,11 +70,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./datasets"
+      working-directory: "./dendritic-datasets"
       run: cargo build --color always
 
     - name: Test
-      working-directory: "./datasets"
+      working-directory: "./dendritic-datasets"
       run: cargo test --color always
 
   trees:
@@ -84,11 +84,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./trees"
+      working-directory: "./dendritic-trees"
       run: cargo build --color always
 
     - name: Test
-      working-directory: "./trees"
+      working-directory: "./dendritic-trees"
       run: cargo test --color always
 
   knn:
@@ -98,11 +98,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./knn"
+      working-directory: "./dendritic-knn"
       run: cargo build --color always
 
     - name: Test
-      working-directory: "./knn"
+      working-directory: "./dendritic-knn"
       run: cargo test --color always
 
 
@@ -113,11 +113,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./regression"
+      working-directory: "./dendritic-regression"
       run: cargo build --color always
 
     - name: Test
-      working-directory: "./regression"
+      working-directory: "./dendritic-regression"
       run: cargo test --color always
 
   bayes:
@@ -127,11 +127,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./bayes"
+      working-directory: "./dendritic-bayes"
       run: cargo build --color always
 
     - name: Test
-      working-directory: "./bayes"
+      working-directory: "./dendritic-bayes"
       run: cargo test --color always
 
 
