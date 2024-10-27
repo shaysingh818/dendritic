@@ -20,7 +20,7 @@ jobs:
           cargo build --workspace --release
           cargo test --release --no-run
 
-      - name: Publish to Crates.io
-        run: cargo publish --workspace --token $CRATES_IO_TOKEN
+      - name: Publish NDArray Package
+        run: cargo publish -p dendritic-ndarray --workspace --token $CRATES_IO_TOKEN
         env:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
