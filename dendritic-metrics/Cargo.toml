@@ -3,12 +3,12 @@ name = "dendritic-metrics"
 version = { workspace = true  } 
 edition = "2021" 
 description = "Collection of loss & activation functions for machine learning models"
-publish = false
+publish = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dendritic-ndarray = { path = '../dendritic-ndarray' }
+dendritic-ndarray = { version = "1.1.0", path = '../dendritic-ndarray' }
 
 [dev-dependencies]
 rand = "0.8"
