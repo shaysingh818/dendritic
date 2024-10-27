@@ -2,8 +2,9 @@
 name = "dendritic-metrics"
 version = { workspace = true  } 
 edition = "2021" 
-description = "Collection of loss & activation functions for machine learning models"
 publish = true
+description = "Metrics package for dendritic"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
