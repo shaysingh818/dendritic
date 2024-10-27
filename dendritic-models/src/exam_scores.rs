@@ -52,8 +52,8 @@ impl ExamScoresModel {
             database: database,
             view_name: view_name,
             model: Ridge::new(
-                NDArray::new(vec![1, 1]).unwrap(),
-                NDArray::new(vec![1, 1]).unwrap(),
+                &NDArray::new(vec![1, 1]).unwrap(),
+                &NDArray::new(vec![1, 1]).unwrap(),
                 0.0001,
                 0.01
             ).unwrap()
@@ -180,8 +180,8 @@ impl ExamScoresModel {
         //let y_train_processed = min_max_scalar(y_train).unwrap(); 
 
         self.model = Ridge::new(
-            x_train_processed, 
-            y_train, 
+            &x_train_processed, 
+            &y_train, 
             0.00001, 
             0.3
         ).unwrap();
@@ -197,8 +197,8 @@ impl ExamScoresModel {
 
         self.model = Ridge::load(
             filepath,
-            x_train_processed, 
-            y_train,
+            &x_train_processed, 
+            &y_train,
             0.0001, 0.1
         ).unwrap();
     }

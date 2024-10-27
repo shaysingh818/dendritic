@@ -53,8 +53,8 @@ impl MPGModel {
             view_name: view_name,
             learning_rate: learning_rate.clone(),
             model: Linear::new(
-                NDArray::new(vec![1, 1]).unwrap(),
-                NDArray::new(vec![1, 1]).unwrap(),
+                &NDArray::new(vec![1, 1]).unwrap(),
+                &NDArray::new(vec![1, 1]).unwrap(),
                 learning_rate
             ).unwrap()
         }
@@ -178,8 +178,8 @@ impl MPGModel {
         //println!("{:?}", y_train); 
 
         self.model = Linear::new(
-            x_train_processed, 
-            y_train_processed, 
+            &x_train_processed, 
+            &y_train_processed, 
             self.learning_rate
         ).unwrap();
 
@@ -209,8 +209,8 @@ impl MPGModel {
 
         self.model = Linear::load(
             filepath,
-            x_train_processed, 
-            y_train_processed,
+            &x_train_processed, 
+            &y_train_processed,
             self.learning_rate
         ).unwrap();
     }
