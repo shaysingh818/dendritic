@@ -1,7 +1,6 @@
 [package]
 name = "dendritic-metrics"
 version = { workspace = true  } 
-version = "1.1.0"
 edition = "2021" 
 description = "Collection of loss & activation functions for machine learning models"
 publish = false
