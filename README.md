@@ -1,4 +1,4 @@
-# Dendrite
+# Dendritic
 [![Downloads](https://img.shields.io/crates/d/duckdb)](https://img.shields.io/crates/d/duckdb)
 [![Build Status](https://github.com/wangfenjin/duckdb-rs/workflows/CI/badge.svg)](https://github.com/wangfenjin/duckdb-rs/actions)
 [![dependency status](https://deps.rs/repo/github/wangfenjin/duckdb-rs/status.svg)](https://deps.rs/repo/github/wangfenjin/duckdb-rs)
@@ -8,23 +8,38 @@
 
 Dendrite is a general purpose supervised/un-supervised machine learning library written for the rust ecosystem. It contains the required data structures & algorithms needed for general machine learning. It acts as core library with packages for predictive data modeling.
 
-# Table of Contents
+# Disclaimer
+The dendritic project is a toy machine learning library built for learning and research purposes.
+It is not advised by the maintainer to use this library as a production ready machine learning library.
+This is a project that is still very much a work in progress.
 
-* [Examples](#Examples)
-* [NDArray](#NDArray)
-* [Autodiff](#Autodiff)
-* [Metrics](#Metrics)
-* [Regression](#Regression)
-* [Data sets](#Data%20sets)
+# Published Packages
 
+| Rust Crate                | Description                                                                            |
+| ------------------------- | -------------------------------------------------------------------------------------- |
+| `dendritic_autodiff`      | Autodifferentiation crate for backward and forward operations                          |
+| `dendritic_bayes`         | Bayesian statistics package                                                            |
+| `dendritic_clustering`    | Clustering package utilizing various distance metrics                                  |
+| `dendritic_datasets`      | Combination of lasso and ridge regression                                              |
+| `dendritic_knn`           | K Nearest Neighbors for regression and classification                                  |
+| `dendritic_metrics`       | Metrics package for measuring loss and activiation functions for non linear boundaries |
+| `dendritic_models`        | Pre-trained models for testing `dendritic` functionality                               |
+| `dendritic_ndarray`       | N Dimensional array library for numerical computing                                    |
+| `dendritic_preprocessing` | Preprocessing library for normalization and encoding of data                           |
+| `dendritic_regression`    | Regression package for linear modeling & multi class classification                    |
+| `dendritic_trees`         | Tree based models using decision trees and random forests                              |
 
-## Examples
-* Examples of creating predictive models using the Dedrite package
-* Current examples are classification based with logistic regression
-* Demonstrates preprocessing capbilities along with metrics functions for measuring loss/accuracy
+## Building The Dendritic Packages
+Dendritic is made up of multiple indepedent packages that can be built separatley.
+To install a package, add the following to your `Cargo.toml` file.
 
+```toml
+[dependencies]
+# Assume that version Dendritic version 1.1.0 is used.
+dendritic_regression = { version = "1.1.0", features = ["bundled"] }
+```
 
-## IRIS Flowers Prediction
+## Example IRIS Flowers Prediction
 
 ```rust
 use datasets::iris::*;
@@ -62,7 +77,6 @@ let loss = mse(&y_test[sample_index], &y_pred).unwrap();
 println!("LOSS: {:?}", loss);  
 ```
 
-# NDArray
 
 
 
