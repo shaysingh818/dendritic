@@ -21,8 +21,8 @@ impl Linear {
 
     /// Create new instance of linear regression
     pub fn new(
-        features: NDArray<f64>, 
-        y: NDArray<f64>, 
+        features: &NDArray<f64>, 
+        y: &NDArray<f64>, 
         learning_rate: f64) -> Result<Linear, String> {
 
         if learning_rate < 0.0 || learning_rate > 1.0 {
@@ -31,8 +31,8 @@ impl Linear {
 
         let weights = NDArray::new(vec![features.shape().dim(1), 1]).unwrap();
         let bias = NDArray::new(vec![1, 1]).unwrap();
-        let inputs = Value::new(&features); 
-        let outputs = Value::new(&y);
+        let inputs = Value::new(features); 
+        let outputs = Value::new(y);
 
         Ok(Self {
             features: inputs.clone(),
@@ -75,15 +75,15 @@ impl Linear {
     /// Load model parameters for linear regression
     pub fn load(
         filepath: &str, 
-        features: NDArray<f64>, 
-        y: NDArray<f64>, 
+        features: &NDArray<f64>, 
+        y: &NDArray<f64>, 
         learning_rate: f64) -> std::io::Result<Linear> {
 
         let weights_file = format!("{}/weights", filepath);
         let bias_path = format!("{}/bias", filepath); 
 
-        let inputs = Value::new(&features); 
-        let outputs = Value::new(&y);
+        let inputs = Value::new(features); 
+        let outputs = Value::new(y);
         let load_weights = NDArray::load(&weights_file).unwrap();
         let load_bias = NDArray::load(&bias_path).unwrap();
 

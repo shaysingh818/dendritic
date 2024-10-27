@@ -21,7 +21,7 @@ mod ridge_test {
         let lambda = 0.0001; 
 
         let mut model = Ridge::new(
-            x.clone(), y.clone(),
+            &x, &y,
             lambda, learning_rate
         ).unwrap();
 
@@ -49,7 +49,7 @@ mod ridge_test {
         ];
 
         let mut model = Ridge::new(
-            x.clone(), y.clone(),
+            &x, &y,
             lambda, learning_rate
         ).unwrap();
 
@@ -81,7 +81,7 @@ mod ridge_test {
         for lambda in &lambdas {
 
             let mut model = Ridge::new(
-                x.clone(), y.clone(),
+                &x, &y,
                 *lambda, learning_rate
             ).unwrap();
 
@@ -119,7 +119,7 @@ mod ridge_test {
         ];
 
         let mut model = Ridge::new(
-            x.clone(), y.clone(),
+            &x, &y,
             lambda, learning_rate
         ).unwrap();
 
@@ -132,7 +132,7 @@ mod ridge_test {
         model.save(model_path).unwrap();
 
         let mut loaded_model = Ridge::load(
-            model_path, x.clone(), y.clone(),
+            model_path, &x, &y,
             lambda, learning_rate
         ).unwrap();
 

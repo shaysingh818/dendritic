@@ -23,7 +23,7 @@ mod elastic {
         ];
 
         let mut model = ElasticNet::new(
-            x.clone(), y.clone(),
+            &x, &y,
             lambda, learning_rate
         ).unwrap();
 
@@ -52,10 +52,9 @@ mod elastic {
         let expected_predictions: Vec<f64> = vec![11.0, 13.0];
 
         let mut model = ElasticNet::new(
-            x.clone(), y.clone(),
+            &x, &y,
             lambda, learning_rate
         ).unwrap();
-
 
         let x_train = x.batch(batch_size).unwrap();
         let y_train = y.batch(batch_size).unwrap();
@@ -88,7 +87,7 @@ mod elastic {
         ];
 
         let mut model = ElasticNet::new(
-            x.clone(), y.clone(),
+            &x, &y,
             lambda, learning_rate
         ).unwrap();
 
@@ -97,7 +96,7 @@ mod elastic {
 
         let mut loaded_model = ElasticNet::load(
             model_path,
-            x.clone(), y.clone(),
+            &x, &y,
             lambda, learning_rate
         ).unwrap();
 

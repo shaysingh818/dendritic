@@ -5,7 +5,7 @@
   "mse": null,
   "information_gain": 0.9798687566511529,
   "left": {
-    "threshold": 69.0,
+    "threshold": 65.0,
     "feature_idx": 0,
     "value": null,
     "mse": null,

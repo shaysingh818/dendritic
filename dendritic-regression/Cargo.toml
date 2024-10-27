@@ -11,6 +11,7 @@ dendritic-ndarray = { path = '../dendritic-ndarray' }
 dendritic-metrics = { path = '../dendritic-metrics' }
 dendritic-autodiff = { path = '../dendritic-autodiff' }
 dendritic-preprocessing = { path = '../dendritic-preprocessing' }
+dendritic-datasets = { path = '../dendritic-datasets' }
 
 [dev-dependencies]
 rand = "0.8"

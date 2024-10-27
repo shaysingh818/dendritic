@@ -758,6 +758,7 @@ name = "dendritic-regression"
 version = "0.1.0"
 dependencies = [
  "dendritic-autodiff",
+ "dendritic-datasets",
  "dendritic-metrics",
  "dendritic-ndarray",
  "dendritic-preprocessing",

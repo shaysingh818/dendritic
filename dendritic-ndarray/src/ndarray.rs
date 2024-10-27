@@ -3,10 +3,10 @@ use crate::shape::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct NDArray<T> {
-    shape: Shape,
-    size: usize,
-    rank: usize,
-    values: Vec<T>
+    pub shape: Shape,
+    pub size: usize,
+    pub rank: usize,
+    pub values: Vec<T>
 }
 
 

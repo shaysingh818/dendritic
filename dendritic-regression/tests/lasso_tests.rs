@@ -20,7 +20,7 @@ mod lasso {
         let lambda = 0.001; 
 
         let mut model = Lasso::new(
-            x.clone(), y.clone(),
+            &x, &y,
             lambda, learning_rate
         ).unwrap();
 
@@ -47,7 +47,7 @@ mod lasso {
         ];
 
         let mut model = Lasso::new(
-            x.clone(), y.clone(),
+            &x, &y,
             lambda, learning_rate
         ).unwrap();
 
@@ -78,7 +78,7 @@ mod lasso {
         let expected_predictions: Vec<f64> = vec![10.0, 13.0];
 
         let mut model = Lasso::new(
-            x.clone(), y.clone(),
+            &x, &y,
             lambda, learning_rate
         ).unwrap();
 
@@ -90,7 +90,7 @@ mod lasso {
 
         let mut loaded_model = Lasso::load(
             model_path,
-            x.clone(), y.clone(),
+            &x, &y,
             lambda, learning_rate
         ).unwrap();
 

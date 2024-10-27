@@ -16,7 +16,7 @@ mod linear {
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
         let model = Linear::new(
-            x.clone(), y.clone(), 0.01
+            &x, &y, 0.01
         ).unwrap();
 
         assert_eq!(model.features.val().shape().values(), x.shape().values()); 
@@ -58,7 +58,7 @@ mod linear {
 
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
-        let mut model = Linear::new(x.clone(), y.clone(), 0.01).unwrap();
+        let mut model = Linear::new(&x, &y, 0.01).unwrap();
 
         let weights_binding = model.weights.val(); 
         let bias_binding = model.bias.val();
@@ -91,7 +91,7 @@ mod linear {
         let x: NDArray<f64> = NDArray::load(x_path).unwrap();
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
         let mut model = Linear::new(
-            x.clone(), y.clone(), 0.01
+            &x, &y, 0.01
         ).unwrap();
 
         let weights_binding = model.weights.val(); 
@@ -131,7 +131,7 @@ mod linear {
         let y: NDArray<f64> = NDArray::load(y_path).unwrap();
 
         let mut model = Linear::new(
-            x.clone(), y.clone(), 0.01
+            &x, &y, 0.01
         ).unwrap();
 
         model.sgd(500, false, 2);
@@ -142,7 +142,7 @@ mod linear {
         let y_train = y.batch(batch_size).unwrap();
 
         let mut loaded_model = Linear::load(
-            model_path, x.clone(), y.clone(), 0.01
+            model_path, &x, &y, 0.01
         ).unwrap();
 
         let results = loaded_model.predict(x_train[1].clone());

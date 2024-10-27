@@ -23,8 +23,8 @@ impl Ridge {
 
     /// Create new instance of ridge regression
     pub fn new(
-        features: NDArray<f64>, 
-        y: NDArray<f64>,
+        features: &NDArray<f64>, 
+        y: &NDArray<f64>,
         lambda: f64, 
         learning_rate: f64) -> Result<Ridge, String> {
 
@@ -34,8 +34,8 @@ impl Ridge {
 
         let weights = NDArray::new(vec![features.shape().dim(1), 1]).unwrap();
         let bias = NDArray::new(vec![1, 1]).unwrap();
-        let inputs = Value::new(&features); 
-        let outputs = Value::new(&y);
+        let inputs = Value::new(features); 
+        let outputs = Value::new(y);
 
         let lambda_value: NDArray<f64> = NDArray::array(
             vec![1, 1], vec![lambda]
@@ -85,16 +85,16 @@ impl Ridge {
     /// Load model parameters for ridge regression
     pub fn load(
         filepath: &str, 
-        features: NDArray<f64>, 
-        y: NDArray<f64>, 
+        features: &NDArray<f64>, 
+        y: &NDArray<f64>, 
         learning_rate: f64,
         lambda: f64) -> std::io::Result<Ridge> {
 
         let weights_file = format!("{}/weights", filepath);
         let bias_path = format!("{}/bias", filepath); 
 
-        let inputs = Value::new(&features); 
-        let outputs = Value::new(&y);
+        let inputs = Value::new(features); 
+        let outputs = Value::new(y);
         let load_weights = NDArray::load(&weights_file).unwrap();
         let load_bias = NDArray::load(&bias_path).unwrap();
 

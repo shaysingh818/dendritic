@@ -1,4 +1,4 @@
-name: Dendrite
+name: Dendritic
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
 
     - name: Test
       working-directory: "./dendritic-ndarray"
-      run: cargo test --color always
+      run: cargo test --release --color always
 
   metrics:
     runs-on: ubuntu-20.04
@@ -33,7 +33,7 @@ jobs:
 
     - name: Test
       working-directory: "./dendritic-metrics"
-      run: cargo test --color always
+      run: cargo test --release --color always
 
   autodiff:
     runs-on: ubuntu-20.04
@@ -47,7 +47,7 @@ jobs:
 
     - name: Test
       working-directory: "./dendritic-autodiff"
-      run: cargo test --color always
+      run: cargo test --release --color always
 
   preprocessing:
     runs-on: ubuntu-20.04
@@ -61,7 +61,7 @@ jobs:
 
     - name: Test
       working-directory: "./dendritic-preprocessing"
-      run: cargo test --color always
+      run: cargo test --release --color always
 
   datasets:
     runs-on: ubuntu-20.04
@@ -75,7 +75,7 @@ jobs:
 
     - name: Test
       working-directory: "./dendritic-datasets"
-      run: cargo test --color always
+      run: cargo test --release --color always
 
   trees:
     runs-on: ubuntu-20.04
@@ -89,7 +89,7 @@ jobs:
 
     - name: Test
       working-directory: "./dendritic-trees"
-      run: cargo test --color always
+      run: cargo test --release --color always
 
   knn:
     runs-on: ubuntu-20.04
@@ -103,7 +103,7 @@ jobs:
 
     - name: Test
       working-directory: "./dendritic-knn"
-      run: cargo test --color always
+      run: cargo test --release --color always
 
 
   regression:
@@ -118,7 +118,7 @@ jobs:
 
     - name: Test
       working-directory: "./dendritic-regression"
-      run: cargo test --color always
+      run: cargo test --release --color always
 
   bayes:
     runs-on: ubuntu-20.04
@@ -132,7 +132,7 @@ jobs:
 
     - name: Test
       working-directory: "./dendritic-bayes"
-      run: cargo test --color always
+      run: cargo test --release --color always
 
   clustering:
     runs-on: ubuntu-20.04
@@ -146,6 +146,6 @@ jobs:
 
     - name: Test
       working-directory: "./dendritic-clustering"
-      run: cargo test --color always
+      run: cargo test --release --color always
 
 
