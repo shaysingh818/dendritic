@@ -3,6 +3,8 @@ name = "dendritic-ndarray"
 version = { workspace = true } 
 edition = "2021"
 publish = true
+description  = "NDArray Package for dendritic"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
