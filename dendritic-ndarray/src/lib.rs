@@ -35,9 +35,9 @@
 //!     // perform add operation
 //!     let add_result : NDArray<f64> = x.add(y).unwrap();
 //!     // save result to json file
-//!     add_result.save('name_of_saved_ndarray').unwrap();
+//!     add_result.save("name_of_saved_ndarray").unwrap();
 //!     // load result back to new ndarray
-//!     let loaded = NDArray::load('name_of_saved_ndarray').unwrap();
+//!     let loaded = NDArray::load("name_of_saved_ndarray").unwrap();
 //! }
 //! ```
 
@@ -54,7 +54,7 @@
 //!     let x: NDArray<f64> = NDArray::array(vec![2, 3], vec![0.0,0.0,1.0,1.0,2.0,2.0]).unwrap();
 //!     
 //!     // perform transpose operation
-//!     let y : NDArray<f64> = x.transpose.unwrap(); // will return result with shape (3, 2)
+//!     let y : NDArray<f64> = x.transpose().unwrap(); // will return result with shape (3, 2)
 //! }
 //! ```
 
@@ -69,7 +69,7 @@
 //! fn main() {
 //!     // Create instance of ndarray, multiply by f64 scalar value
 //!     let x: NDArray<f64> = NDArray::array(vec![2, 3], vec![0.0,0.0,1.0,1.0,2.0,2.0]).unwrap();
-//!     let y: f64 = 10.0
+//!     let y: f64 = 10.0;
 //!     
 //!     // perform add operation
 //!     let scalar_result : NDArray<f64> = x.scalar_add(y).unwrap();
@@ -90,11 +90,10 @@
 //!     let x: NDArray<f64> = NDArray::array(vec![2, 3], vec![0.0,0.0,1.0,1.0,2.0,2.0]).unwrap();
 //!     
 //!     // perform add operation
-//!     let x_avg : NDArray<f64> = x.avg().unwrap();
+//!     let x_avg: f64 = x.avg();
 //! }
 //! ```
 
-// No items to document here
 pub mod ndarray;
 pub mod shape; 
 pub mod ops;
