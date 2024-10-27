@@ -46,10 +46,14 @@
 //!     
 //!     // Make prediction with first row of features
 //!     let row1 = features.axis(0, 0).unwrap();
-//!     let nb_pred = nb_clf.fit(row1);
+//!     let nb_pred = nb_clf.fit(row1.clone());
 //!     let gb_pred = gb_clf.fit(row1.clone()); // This will take in references eventually
 //! }
 //! ```
+//! ## Disclaimer
+//! The dendritic project is a toy machine learning library built for learning and research purposes.
+//! It is not advised by the maintainer to use this library as a production ready machine learning library.
+//! This is a project that is still very much a work in progress.
 pub mod shared; 
 pub mod naive_bayes;
 pub mod gaussian_bayes; 

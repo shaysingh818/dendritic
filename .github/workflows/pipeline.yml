@@ -13,7 +13,7 @@ jobs:
 
     - name: Build
       working-directory: "./dendritic-ndarray"
-      run: cargo build --color always
+      run: cargo build --release --color always
 
     - name: Test
       working-directory: "./dendritic-ndarray"
@@ -27,7 +27,7 @@ jobs:
 
     - name: Build
       working-directory: "./dendritic-metrics"
-      run: cargo build --color always
+      run: cargo build --release --color always
 
     - name: Test
       working-directory: "./dendritic-metrics"
@@ -41,7 +41,7 @@ jobs:
 
     - name: Build
       working-directory: "./dendritic-autodiff"
-      run: cargo build --color always
+      run: cargo build --release --color always
 
     - name: Test
       working-directory: "./dendritic-autodiff"
@@ -55,7 +55,7 @@ jobs:
 
     - name: Build
       working-directory: "./dendritic-preprocessing"
-      run: cargo build --color always
+      run: cargo build --release --color always
 
     - name: Test
       working-directory: "./dendritic-preprocessing"
@@ -69,7 +69,7 @@ jobs:
 
     - name: Build
       working-directory: "./dendritic-datasets"
-      run: cargo build --color always
+      run: cargo build --release --color always
 
     - name: Test
       working-directory: "./dendritic-datasets"
@@ -83,7 +83,7 @@ jobs:
 
     - name: Build
       working-directory: "./dendritic-trees"
-      run: cargo build --color always
+      run: cargo build --release --color always
 
     - name: Test
       working-directory: "./dendritic-trees"
@@ -97,7 +97,7 @@ jobs:
 
     - name: Build
       working-directory: "./dendritic-knn"
-      run: cargo build --color always
+      run: cargo build --release --color always
 
     - name: Test
       working-directory: "./dendritic-knn"
@@ -112,7 +112,7 @@ jobs:
 
     - name: Build
       working-directory: "./dendritic-regression"
-      run: cargo build --color always
+      run: cargo build --release --color always
 
     - name: Test
       working-directory: "./dendritic-regression"
@@ -126,7 +126,7 @@ jobs:
 
     - name: Build
       working-directory: "./dendritic-bayes"
-      run: cargo build --color always
+      run: cargo build --release --color always
 
     - name: Test
       working-directory: "./dendritic-bayes"
@@ -140,7 +140,7 @@ jobs:
 
     - name: Build
       working-directory: "./dendritic-clustering"
-      run: cargo build --color always
+      run: cargo build --release --color always
 
     - name: Test
       working-directory: "./dendritic-clustering"

@@ -691,6 +691,7 @@ dependencies = [
 name = "dendritic-knn"
 version = "1.1.0"
 dependencies = [
+ "dendritic-datasets",
  "dendritic-metrics",
  "dendritic-ndarray",
  "rand",
