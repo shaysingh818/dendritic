@@ -33,7 +33,7 @@
 //!    println!("Num Samples: {:?}", encoder.num_samples()); // 10.0 
 //!
 //!    let encoded_vals = encoder.transform();
-//!    println!("Encoded Values: {:?}", encoded_vals()); 
+//!    println!("Encoded Values: {:?}", encoded_vals); 
 //!
 //! }
 //! ```

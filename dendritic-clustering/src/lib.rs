@@ -25,7 +25,7 @@
 //! fn main() {
 //!
 //!     // Load datasets from saved ndarray
-//!     let data_path = "../datasets/data/iris.parquet";
+//!     let data_path = "../dendritic-datasets/data/iris.parquet";
 //!     let (x_train, y_train) = load_iris(data_path).unwrap();
 //!
 //!     // Iterations and K value for K means cluster

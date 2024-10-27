@@ -23,7 +23,7 @@
 //! fn main() {
 //!
 //!    // Load iris flowers dataset
-//!    let (x, y) = load_iris("../../datasets/data/iris.parquet").unwrap();
+//!    let (x, y) = load_iris("../dendritic-datasets/data/iris.parquet").unwrap();
 //!    let (x_train, x_test) = x.split(0, 0.80).unwrap(); // split rows with 80/20 split
 //!    let (y_train, y_test) = y.split(0, 0.80).unwrap();
 //!
