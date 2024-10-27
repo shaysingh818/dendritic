@@ -1,6 +1,6 @@
 [package]
 name = "dendritic-knn"
-version = "0.1.0"
+version = { workspace = true  } 
 edition = "2021" 
 description = "Package for algorithms related to K Nearest Neighbors"
 publish = false

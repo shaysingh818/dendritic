@@ -15,7 +15,7 @@ members = [
 
 [workspace.package]
 name = "dendritic"
-version = "0.3.0"
+version = "1.1.0"
 edition = "2021"
 include = [
     "Cargo.toml"
@@ -25,12 +25,12 @@ include = [
 
 [workspace.dependencies]
 dendritic-ndarray = { path= "./dendritic-ndarray" }
-dendritic-metrics = { version = "0.3.0", path= "./dendritic-metrics" }
-dendritic-autodiff = { version = "0.3.0", path= "./dendritic-autodiff" }
-dendritic-regression = { version = "0.3.0", path= "./dendritic-regression" }
-dendritic-preprocessing = { version = "0.3.0", path= "./dendritic-preprocessing" }
-dendritic-models = { version = "0.3.0", path= "./dendritic-models" }
-dendritic-datasets = { version = "0.3.0", path= "./dendritic-datasets" }
-dendritic-trees = { version = "0.3.0", path= "./dendritic-trees" }
-dendritic-bayes = { version = "0.3.0", path= "./dendritic-bayes" }
-dendritic-knn = { version = "0.3.0", path= "./dendritic-knn" }
+dendritic-metrics = { version = "1.1.0", path= "./dendritic-metrics" }
+dendritic-autodiff = { version = "1.1.0", path= "./dendritic-autodiff" }
+dendritic-regression = { version = "1.1.0", path= "./dendritic-regression" }
+dendritic-preprocessing = { version = "1.1.0", path= "./dendritic-preprocessing" }
+dendritic-models = { version = "1.1.0", path= "./dendritic-models" }
+dendritic-datasets = { version = "1.1.0", path= "./dendritic-datasets" }
+dendritic-trees = { version = "1.1.0", path= "./dendritic-trees" }
+dendritic-bayes = { version = "1.1.0", path= "./dendritic-bayes" }
+dendritic-knn = { version = "1.1.0", path= "./dendritic-knn" }

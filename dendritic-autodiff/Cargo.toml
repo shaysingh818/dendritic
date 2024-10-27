@@ -1,6 +1,6 @@
 [package]
 name = "dendritic-autodiff"
-version = "0.1.0"
+version = { workspace = true  } 
 edition = "2021" 
 description = "Autodifferentation package for scalar and multi dimensional values"
 publish = false

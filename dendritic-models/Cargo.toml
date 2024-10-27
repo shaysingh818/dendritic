@@ -1,6 +1,6 @@
 [package]
 name = "dendritic-models"
-version = "0.1.0"
+version = { workspace = true } 
 edition = "2021" 
 description = "Package of trained machine learning models for dendritic"
 publish = false

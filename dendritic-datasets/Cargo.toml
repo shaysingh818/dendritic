@@ -1,6 +1,6 @@
 [package]
 name = "dendritic-datasets"
-version = "0.1.0"
+version = { workspace = true  } 
 edition = "2021" 
 description = "Prebuilt datasets that can be imported for ML model training"
 publish = false

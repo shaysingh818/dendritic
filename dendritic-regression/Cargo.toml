@@ -1,6 +1,6 @@
 [package]
 name = "dendritic-regression"
-version = "0.1.0"
+version = { workspace = true  } 
 edition = "2021" 
 description = "Machine Learning algorithms that are based on regression techniques"
 
