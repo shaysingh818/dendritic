@@ -1,5 +1,5 @@
 # Dendritic
-[![Downloads](https://img.shields.io/crates/d/duckdb)](https://img.shields.io/crates/d/duckdb)
+[![Downloads](https://img.shields.io/crates/d/dendritic-ndarray)](https://img.shields.io/crates/d/dendritic-ndarray)
 [![Build Status](https://github.com/shaysingh818/Dendrite/workflows/CI/badge.svg)](https://github.com/shaysingh818/Dendrite/actions)
 [![dependency status](https://deps.rs/repo/github/shaysingh818/Dendrite/status.svg)](https://deps.rs/repo/github/shaysingh818/Dendrite)
 [![codecov](https://codecov.io/gh/wangfenjin/duckdb-rs/branch/main/graph/badge.svg?token=0xV88q8KU0)](https://codecov.io/gh/wangfenjin/duckdb-rs)
