@@ -16,9 +16,10 @@
 //! ## Example Usage
 //! This is an example of some of the loss and activation functions dendritic has to offer
 //! ```rust
-//! use dendritic_datasets::iris::*;
-//! use dendritic_knn::knn::*;
-//! use dendritic_knn::distance::*; 
+//! use dendritic_ndarray::ndarray::NDArray;
+//! use dendritic_ndarray::ops::*;
+//! use dendritic_metrics::activations::*; 
+//! use dendritic_metrics::loss::*; 
 //! 
 //! fn main() {
 //!
