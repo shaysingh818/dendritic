@@ -6,6 +6,11 @@ publish = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[package.metadata.cargo-package]
+exclude = [
+    "data/*"
+]
+
 [dependencies]
 itertools = "0.13.0"
 rand = "0.8"
