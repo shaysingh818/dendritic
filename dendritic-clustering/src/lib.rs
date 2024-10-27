@@ -20,6 +20,7 @@
 //! use dendritic_ndarray::ndarray::NDArray;
 //! use dendritic_ndarray::ops::*;
 //! use dendritic_clustering::k_means::*;
+//! use dendritic_knn::distance::*;
 //! use dendritic_datasets::iris::*; 
 //!
 //! fn main() {

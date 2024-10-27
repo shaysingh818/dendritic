@@ -180,7 +180,7 @@ mod kmeans_tests {
 
         // load data
         let k_value = 3; 
-        let data_path = "../datasets/data/iris.parquet";
+        let data_path = "../dendritic-datasets/data/iris.parquet";
         let (x_train, y_train) = load_iris(data_path).unwrap();
 
         let mut clf = KMeans::new(

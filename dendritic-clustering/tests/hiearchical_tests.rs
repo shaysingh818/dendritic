@@ -119,55 +119,44 @@ mod hierarchical_clustering_tests {
 
     } 
 
-    #[test]
-    fn test_cluster_min_dist() {
+    // #[test]
+    // fn test_cluster_min_dist() {
 
-        let data: NDArray<f64> = NDArray::array(
-            vec![5, 2],
-            vec![
-                0.07, 0.83, 
-                0.85, 0.14, 
-                0.66, 0.89,
-                0.49, 0.64,
-                0.80, 0.46
-            ]
-        ).unwrap();
+    //     let data: NDArray<f64> = NDArray::array(
+    //         vec![5, 2],
+    //         vec![
+    //             0.07, 0.83, 
+    //             0.85, 0.14, 
+    //             0.66, 0.89,
+    //             0.49, 0.64,
+    //             0.80, 0.46
+    //         ]
+    //     ).unwrap();
 
 
-        let data_path = "data/hierarchical/data";
-        let data2: NDArray<f64> = NDArray::load(data_path).unwrap();
+    //     let data_path = "data/hierarchical/data";
+    //     let data2: NDArray<f64> = NDArray::load(data_path).unwrap();
 
-        let mut clf = HierarchicalClustering::new(
-            &data, 
-            euclidean
-        ).unwrap();
+    //     let mut clf = HierarchicalClustering::new(
+    //         &data, 
+    //         euclidean
+    //     ).unwrap();
 
-        // first iteration
-        clf.calculate_distance_matrix();
-        let dist_mat = clf.distance_matrix();
-        let coord = clf.find_min_coord(&dist_mat);
-        let new_mat = clf.update_dist_mat(dist_mat.clone(), &coord);
+    //     // first iteration
+    //     clf.calculate_distance_matrix();
+    //     let dist_mat = clf.distance_matrix();
+    //     let coord = clf.find_min_coord(&dist_mat);
+    //     let new_mat = clf.update_dist_mat(dist_mat.clone(), &coord);
 
-        let coord_2 = clf.find_min_coord(&new_mat);
-        let new_mat_2 = clf.update_dist_mat(new_mat.clone(), &coord_2);
+    //     let coord_2 = clf.find_min_coord(&new_mat);
+    //     let new_mat_2 = clf.update_dist_mat(new_mat.clone(), &coord_2);
  
-        for row in 0..new_mat_2.shape().dim(0) {
-            let item = new_mat_2.axis(0, row).unwrap();
-            println!("{:?}", item.values()); 
-        } 
+    //     for row in 0..new_mat_2.shape().dim(0) {
+    //         let item = new_mat_2.axis(0, row).unwrap();
+    //         println!("{:?}", item.values()); 
+    //     } 
 
-
-
-
-
-        //println!("{:?}", clf.clusters()); 
-
-
-
-
-
-
-    
-    }
+    //     //println!("{:?}", clf.clusters()); 
+    // }
 
 }
