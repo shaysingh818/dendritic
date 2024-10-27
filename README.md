@@ -40,6 +40,8 @@ dendritic_regression = { version = "1.1.0", features = ["bundled"] }
 ```
 
 ## Example IRIS Flowers Prediction
+Down below is an example of using a multi class logstic regression model on the well known iris flowers dataset.
+For more examples, refer to the `dendritic-models/src/main.rs` file. 
 
 ```rust
 use datasets::iris::*;
@@ -48,33 +50,38 @@ use metrics::loss::*;
 use metrics::activations::*;
 use preprocessing::encoding::*;
 
-// load data
-let (x_train, y_train) = load_iris().unwrap();
 
-// encode the target variables
-let mut encoder = OneHotEncoding::new(y_train.clone()).unwrap();
-let y_train_encoded = encoder.transform();
+fn main() {
 
-// create logistic regression model
-let mut log_model = MultiClassLogistic::new(
-    x_train.clone(),
-    y_train_encoded.clone(),
-    softmax,
-    0.1
-).unwrap();
+    // load data
+    let data_path = "../../datasets/data/iris.parquet";
+    let (x_train, y_train) = load_iris(data_path).unwrap();
 
-log_model.sgd(500, true, 5);
+    // encode the target variables
+    let mut encoder = OneHotEncoding::new(y_train.clone()).unwrap();
+    let y_train_encoded = encoder.transform();
 
-let sample_index = 50;
-let x_test = x_train.batch(5).unwrap();
-let y_test = y_train.batch(5).unwrap();
-let y_pred = log_model.predict(x_test[sample_index].clone());
+    // create logistic regression model
+    let mut log_model = MultiClassLogistic::new(
+        &x_train,
+        &y_train_encoded,
+        softmax,
+        0.1
+    ).unwrap();
 
-println!("Actual: {:?}", y_test[sample_index]);
-println!("Prediction: {:?}", y_pred.values());
+    log_model.sgd(500, true, 5);
 
-let loss = mse(&y_test[sample_index], &y_pred).unwrap(); 
-println!("LOSS: {:?}", loss);  
+    let sample_index = 100;
+    let x_test = x_train.batch(5).unwrap();
+    let y_test = y_train.batch(5).unwrap();
+    let y_pred = log_model.predict(x_test[sample_index].clone());
+
+    println!("Actual: {:?}", y_test[sample_index]);
+    println!("Prediction: {:?}", y_pred.values());
+
+    let loss = mse(&y_test[sample_index], &y_pred).unwrap(); 
+    println!("LOSS: {:?}", loss);  
+}
 ```
 
 
