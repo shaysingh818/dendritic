@@ -12,11 +12,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./dendritic-ndarray"
+      working-directory: "./crates/dendritic-ndarray"
       run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./dendritic-ndarray"
+      working-directory: "./crates/dendritic-ndarray"
       run: cargo test --release --color always
 
   metrics:
@@ -26,11 +26,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./dendritic-metrics"
+      working-directory: "./crates/dendritic-metrics"
       run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./dendritic-metrics"
+      working-directory: "./crates/dendritic-metrics"
       run: cargo test --release --color always
 
   autodiff:
@@ -40,11 +40,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./dendritic-autodiff"
+      working-directory: "./crates/dendritic-autodiff"
       run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./dendritic-autodiff"
+      working-directory: "./crates/dendritic-autodiff"
       run: cargo test --release --color always
 
   preprocessing:
@@ -54,11 +54,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./dendritic-preprocessing"
+      working-directory: "./crates/dendritic-preprocessing"
       run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./dendritic-preprocessing"
+      working-directory: "./crates/dendritic-preprocessing"
       run: cargo test --release --color always
 
   datasets:
@@ -68,11 +68,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./dendritic-datasets"
+      working-directory: "./crates/dendritic-datasets"
       run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./dendritic-datasets"
+      working-directory: "./crates/dendritic-datasets"
       run: cargo test --release --color always
 
   trees:
@@ -82,11 +82,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./dendritic-trees"
+      working-directory: "./crates/dendritic-trees"
       run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./dendritic-trees"
+      working-directory: "./crates/dendritic-trees"
       run: cargo test --release --color always
 
   knn:
@@ -96,11 +96,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./dendritic-knn"
+      working-directory: "./crates/dendritic-knn"
       run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./dendritic-knn"
+      working-directory: "./crates/dendritic-knn"
       run: cargo test --release --color always
 
 
@@ -111,11 +111,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./dendritic-regression"
+      working-directory: "./crates/dendritic-regression"
       run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./dendritic-regression"
+      working-directory: "./crates/dendritic-regression"
       run: cargo test --release --color always
 
   bayes:
@@ -125,11 +125,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./dendritic-bayes"
+      working-directory: "./crates/dendritic-bayes"
       run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./dendritic-bayes"
+      working-directory: "./crates/dendritic-bayes"
       run: cargo test --release --color always
 
   clustering:
@@ -139,11 +139,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./dendritic-clustering"
+      working-directory: "./crates/dendritic-clustering"
       run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./dendritic-clustering"
+      working-directory: "./crates/dendritic-clustering"
       run: cargo test --release --color always
 
 
