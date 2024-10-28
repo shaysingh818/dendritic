@@ -9,3 +9,7 @@ license = "MIT"
 
 [workspace]
 members = ["crates/*"]
+
+
+[dependencies]
+dendritic-ndarray = { version = "1.1.0", path = './crates/dendritic-ndarray' }
