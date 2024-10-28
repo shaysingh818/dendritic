@@ -9,7 +9,8 @@ license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dendritic-ndarray = { version = "1.1.0", path = '../dendritic-ndarray' }
+dendritic = {version = "1.1.1", path = "../../" }
+dendritic-ndarray = { version = "1.1.1", path = '../dendritic-ndarray' }
 
 [dev-dependencies]
 rand = "0.8"

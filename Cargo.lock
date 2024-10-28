@@ -637,7 +637,10 @@ dependencies = [
 
 [[package]]
 name = "dendritic"
-version = "1.1.0"
+version = "1.1.2"
+dependencies = [
+ "dendritic-ndarray",
+]
 
 [[package]]
 name = "dendritic-autodiff"

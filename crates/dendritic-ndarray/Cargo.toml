@@ -1,6 +1,6 @@
 [package]
 name = "dendritic-ndarray"
-version = "1.1.0"
+version = "1.1.1"
 edition = "2021"
 publish = true
 description  = "NDArray Package for dendritic"
@@ -15,7 +15,7 @@ exclude = [
 ]
 
 [dependencies]
-dendritic = {version = "1.1.0", path = "../../" }
+dendritic = {version = "1.1.1", path = "../../" }
 itertools = "0.13.0"
 rand = "0.8"
 serde = { version = "1.0.126", features = ["derive"] }
