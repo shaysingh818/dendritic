@@ -4,7 +4,7 @@
 [![dependency status](https://deps.rs/repo/github/shaysingh818/Dendrite/status.svg)](https://deps.rs/repo/github/shaysingh818/Dendrite)
 [![codecov](https://codecov.io/gh/wangfenjin/duckdb-rs/branch/main/graph/badge.svg?token=0xV88q8KU0)](https://codecov.io/gh/wangfenjin/duckdb-rs)
 [![Latest Version](https://img.shields.io/crates/v/dendritic.svg)](https://crates.io/crates/dendritic)
-[![Docs](https://img.shields.io/badge/docs.rs-duckdb-green)](https://docs.rs/dendritic)
+[![Docs](https://img.shields.io/badge/docs.denritic-green)](https://docs.rs/dendritic)
 
 Dendrite is a general purpose supervised/un-supervised machine learning library written for the rust ecosystem. It contains the required data structures & algorithms needed for general machine learning. It acts as core library with packages for predictive data modeling.
 
