@@ -1,0 +1,17 @@
+[package]
+name = "dendritic-knn"
+version = "1.1.0"
+edition = "2021" 
+description = "Package for algorithms related to K Nearest Neighbors"
+publish = false
+
+[dependencies]
+dendritic-ndarray = { path = '../dendritic-ndarray' }
+dendritic-metrics = { path = '../dendritic-metrics' }
+dendritic-datasets = { path = '../dendritic-datasets' }
+
+[dev-dependencies]
+rand = "0.8"
+serde = { version = "1.0.126", features = ["derive"] }
+serde_json = "1.0.64"
+

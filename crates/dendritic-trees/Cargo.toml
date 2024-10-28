@@ -1,0 +1,14 @@
+[package]
+name = "dendritic-trees"
+version = "1.1.0"
+edition = "2021" 
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dendritic-ndarray = { version = "1.1.0", path = '../dendritic-ndarray' }
+dendritic-metrics = { version = "1.1.0", path = '../dendritic-metrics' }
+dendritic-datasets = { version = "1.1.0", path = '../dendritic-datasets' }
+serde = { version = "1.0.126", features = ["derive"] }
+serde_json = "1.0.64"
+rand = "0.8.5"

@@ -1,36 +1,13 @@
-[workspace]
-members = [
-    "dendritic-ndarray",
-    "dendritic-metrics",
-    "dendritic-autodiff",
-    "dendritic-regression",
-    "dendritic-preprocessing",
-    "dendritic-models",
-    "dendritic-datasets",
-    "dendritic-trees",
-    "dendritic-bayes", 
-    "dendritic-knn",
-    "dendritic-clustering",
-]
-
-[workspace.package]
+[package]
 name = "dendritic"
 version = "1.1.0"
 edition = "2021"
+description = "Machine learning library for Rust"
 include = [
     "Cargo.toml"
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[workspace.dependencies]
-dendritic-ndarray = { path= "./dendritic-ndarray" }
-dendritic-metrics = { version = "1.1.0", path= "./dendritic-metrics" }
-dendritic-autodiff = { version = "1.1.0", path= "./dendritic-autodiff" }
-dendritic-regression = { version = "1.1.0", path= "./dendritic-regression" }
-dendritic-preprocessing = { version = "1.1.0", path= "./dendritic-preprocessing" }
-dendritic-models = { version = "1.1.0", path= "./dendritic-models" }
-dendritic-datasets = { version = "1.1.0", path= "./dendritic-datasets" }
-dendritic-trees = { version = "1.1.0", path= "./dendritic-trees" }
-dendritic-bayes = { version = "1.1.0", path= "./dendritic-bayes" }
-dendritic-knn = { version = "1.1.0", path= "./dendritic-knn" }
+[workspace]
+members = ["crates/*"]

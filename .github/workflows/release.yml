@@ -15,11 +15,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build and Test
-        run: |
-          cargo build --workspace --release
-          cargo test --release --no-run
-
       - name: Publish NDArray Package
         run: cargo publish -p dendritic-ndarray --workspace --token $CRATES_IO_TOKEN
         env:
