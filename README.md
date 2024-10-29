@@ -17,6 +17,7 @@ This is a project that is still very much a work in progress.
 
 | Rust Crate                                                                  | Description                                                                            |
 | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [dendritic_ndarray](https://crates.io/crates/dendritic-ndarray)             | N Dimensional array library for numerical computing                                    |
 | [dendritic_autodiff](https://crates.io/crates/dendritic-autodiff)           | Autodifferentiation crate for backward and forward operations                          |
 | [dendritic_bayes](https://crates.io/crates/dendritic-bayes)                 | Bayesian statistics package                                                            |
 | [dendritic_clustering](https://crates.io/crates/dendritic-clustering)       | Clustering package utilizing various distance metrics                                  |
@@ -24,7 +25,6 @@ This is a project that is still very much a work in progress.
 | [dendritic_knn](https://crates.io/crates/dendritic-knn)                     | K Nearest Neighbors for regression and classification                                  |
 | [dendritic_metrics](https://crates.io/crates/dendritic-metrics)             | Metrics package for measuring loss and activiation functions for non linear boundaries |
 | [dendritic_models]()                                                        | Pre-trained models for testing `dendritic` functionality                               |
-| [dendritic_ndarray](https://crates.io/crates/dendritic-ndarray)             | N Dimensional array library for numerical computing                                    |
 | [dendritic_preprocessing](https://crates.io/crates/dendritic-preprocessing) | Preprocessing library for normalization and encoding of data                           |
 | [dendritic_regression](https://crates.io/crates/dendritic-regression)       | Regression package for linear modeling & multi class classification                    |
 | [dendritic_trees](https://crates.io/crates/dendritic-trees)                 | Tree based models using decision trees and random forests                              |
