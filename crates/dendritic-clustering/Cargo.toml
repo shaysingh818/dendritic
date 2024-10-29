@@ -3,13 +3,15 @@ name = "dendritic-clustering"
 version = "1.1.0"
 edition = "2021" 
 description = "Package for algorithms related to clustering"
-publish = false
+publish = true
+license = "MIT" 
 
 [dependencies]
-dendritic-ndarray = { path = '../dendritic-ndarray' }
-dendritic-metrics = { path = '../dendritic-metrics' }
-dendritic-knn = { path = '../dendritic-knn' }
-dendritic-datasets = { path = '../dendritic-datasets' }
+dendritic = {version = "1.1.1", path = "../../" }
+dendritic-ndarray = { version = "1.1.1", path = '../dendritic-ndarray' }
+dendritic-metrics = { version = "1.1.0", path = '../dendritic-metrics' }
+dendritic-knn = { version = "1.1.0", path = '../dendritic-knn' }
+dendritic-datasets = { version = "1.1.0", path = '../dendritic-datasets' }
 
 [dev-dependencies]
 rand = "0.8"
