@@ -13,21 +13,22 @@ The dendritic project is a toy machine learning library built for learning and r
 It is not advised by the maintainer to use this library as a production ready machine learning library.
 This is a project that is still very much a work in progress.
 
-# Published Packages
+# Published Crates
 
-| Rust Crate                | Description                                                                            |
-| ------------------------- | -------------------------------------------------------------------------------------- |
-| `dendritic_ndarray`       | N Dimensional array library for numerical computing                                    |
-| `dendritic_datasets`      | Combination of lasso and ridge regression                                              |
-| `dendritic_metrics`       | Metrics package for measuring loss and activiation functions for non linear boundaries |
-| `dendritic_preprocessing` | Preprocessing library for normalization and encoding of data                           |
-| `dendritic_autodiff`      | Autodifferentiation crate for backward and forward operations                          |
-| `dendritic_trees`         | Tree based models using decision trees and random forests                              |
-| `dendritic_knn`           | K Nearest Neighbors for regression and classification                                  |
-| `dendritic_bayes`         | Bayesian statistics package                                                            |
-| `dendritic_clustering`    | Clustering package utilizing various distance metrics                                  |
-| `dendritic_models`        | Pre-trained models for testing `dendritic` functionality                               |
-| `dendritic_regression`    | Regression package for linear modeling & multi class classification                    |
+| Rust Crate                                                                  | Description                                                                            |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+
+| [dendritic_ndarray](https://crates.io/crates/dendritic-ndarray)             | N Dimensional array library for numerical computing                                    |
+| [dendritic_datasets](https://crates.io/crates/dendritic-datasets)           | Combination of lasso and ridge regression                                              |
+| [dendritic_metrics](https://crates.io/crates/dendritic-metrics)             | Metrics package for measuring loss and activiation functions for non linear boundaries |
+| [dendritic_preprocessing](https://crates.io/crates/dendritic-preprocessing) | Preprocessing library for normalization and encoding of data                           |
+| [dendritic_autodiff](https://crates.io/crates/dendritic-autodiff)           | Autodifferentiation crate for backward and forward operations                          |
+| [dendritic_trees](https://crates.io/crates/dendritic-trees)                 | Tree based models using decision trees and random forests                              |
+| [dendritic_knn](https://crates.io/crates/dendritic-knn)                     | K Nearest Neighbors for regression and classification                                  |
+| [dendritic_bayes](https://crates.io/crates/dendritic-bayes)                 | Bayesian statistics package                                                            |
+| [dendritic_clustering](https://crates.io/crates/dendritic-clustering)       | Clustering package utilizing various distance metrics                                  |
+| [dendritic_regression](https://crates.io/crates/dendritic-regression)       | Regression package for linear modeling & multi class classification                    |
+| [dendritic_models]()                                                        | Pre-trained models for testing `dendritic` functionality                               |
 
 ## Building The Dendritic Packages
 Dendritic is made up of multiple indepedent packages that can be built separatley.

@@ -3,13 +3,15 @@ name = "dendritic-bayes"
 version = "1.1.0"
 edition = "2021" 
 description = "Package for doing baysian statistics"
-publish = false
+publish = true
+license = "MIT" 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dendritic-ndarray = { path = '../dendritic-ndarray' }
-dendritic-metrics = { path = '../dendritic-metrics' }
+dendritic = {version = "1.1.1", path = "../../" }
+dendritic-ndarray = { version = "1.1.1", path = '../dendritic-ndarray' }
+dendritic-metrics = { version = "1.1.0", path = '../dendritic-metrics' }
 
 [dev-dependencies]
 rand = "0.8"
