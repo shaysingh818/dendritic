@@ -638,14 +638,12 @@ dependencies = [
 [[package]]
 name = "dendritic"
 version = "1.1.2"
-dependencies = [
- "dendritic-ndarray",
-]
 
 [[package]]
 name = "dendritic-autodiff"
 version = "1.1.0"
 dependencies = [
+ "dendritic",
  "dendritic-metrics",
  "dendritic-ndarray",
  "rand",
@@ -657,6 +655,7 @@ dependencies = [
 name = "dendritic-bayes"
 version = "1.1.0"
 dependencies = [
+ "dendritic",
  "dendritic-metrics",
  "dendritic-ndarray",
  "rand",
@@ -668,6 +667,7 @@ dependencies = [
 name = "dendritic-clustering"
 version = "1.1.0"
 dependencies = [
+ "dendritic",
  "dendritic-datasets",
  "dendritic-knn",
  "dendritic-metrics",
@@ -686,6 +686,7 @@ dependencies = [
  "arrow-csv",
  "arrow-schema 51.0.0",
  "csv",
+ "dendritic",
  "dendritic-ndarray",
  "dendritic-preprocessing",
  "parquet 51.0.0",
@@ -698,6 +699,7 @@ dependencies = [
 name = "dendritic-knn"
 version = "1.1.0"
 dependencies = [
+ "dendritic",
  "dendritic-datasets",
  "dendritic-metrics",
  "dendritic-ndarray",
@@ -710,6 +712,7 @@ dependencies = [
 name = "dendritic-metrics"
 version = "1.1.0"
 dependencies = [
+ "dendritic",
  "dendritic-ndarray",
  "rand",
  "serde",
@@ -743,8 +746,9 @@ dependencies = [
 
 [[package]]
 name = "dendritic-ndarray"
-version = "1.1.0"
+version = "1.1.1"
 dependencies = [
+ "dendritic",
  "itertools",
  "rand",
  "serde",
@@ -755,6 +759,7 @@ dependencies = [
 name = "dendritic-preprocessing"
 version = "1.1.0"
 dependencies = [
+ "dendritic",
  "dendritic-ndarray",
  "rand",
  "serde",
@@ -765,6 +770,7 @@ dependencies = [
 name = "dendritic-regression"
 version = "1.1.0"
 dependencies = [
+ "dendritic",
  "dendritic-autodiff",
  "dendritic-datasets",
  "dendritic-metrics",
@@ -777,8 +783,9 @@ dependencies = [
 
 [[package]]
 name = "dendritic-trees"
-version = "1.1.0"
+version = "1.1.1"
 dependencies = [
+ "dendritic",
  "dendritic-datasets",
  "dendritic-metrics",
  "dendritic-ndarray",

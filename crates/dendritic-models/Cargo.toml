@@ -3,19 +3,21 @@ name = "dendritic-models"
 version = "1.1.0"
 edition = "2021" 
 description = "Package of trained machine learning models for dendritic"
-publish = false
+publish = true
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dendritic-ndarray = { path= "../dendritic-ndarray" }
-dendritic-metrics = { path= "../dendritic-metrics" }
-dendritic-autodiff = { path= "../dendritic-autodiff" }
-dendritic-regression = { path= "../dendritic-regression" }
-dendritic-preprocessing = { path= "../dendritic-preprocessing" }
-dendritic-datasets = { path= "../dendritic-datasets" }
-dendritic-trees = { path= "../dendritic-trees" }
-dendritic-knn = { path= "../dendritic-knn" }
+dendritic = {version = "1.1.1", path = "../../" }
+dendritic-ndarray = { version = "1.1.1", path= "../dendritic-ndarray" }
+dendritic-metrics = { version = "1.1.0", path= "../dendritic-metrics" }
+dendritic-autodiff = { version = "1.1.0", path= "../dendritic-autodiff" }
+dendritic-regression = { version = "1.1.0", path= "../dendritic-regression" }
+dendritic-preprocessing = { version = "1.1.0", path= "../dendritic-preprocessing" }
+dendritic-datasets = { version = "1.1.0", path= "../dendritic-datasets" }
+dendritic-trees = { version = "1.1.0", path= "../dendritic-trees" }
+dendritic-knn = { version = "1.1.0", path= "../dendritic-knn" }
 rand = "0.8"
 serde = { version = "1.0.126", features = ["derive"] }
 serde_json = "1.0.64"

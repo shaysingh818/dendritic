@@ -25,7 +25,7 @@ This is a project that is still very much a work in progress.
 | [dendritic_bayes](https://crates.io/crates/dendritic-bayes)                 | Bayesian statistics package                                                            |
 | [dendritic_clustering](https://crates.io/crates/dendritic-clustering)       | Clustering package utilizing various distance metrics                                  |
 | [dendritic_knn](https://crates.io/crates/dendritic-knn)                     | K Nearest Neighbors for regression and classification                                  |
-| [dendritic_models]()                                                        | Pre-trained models for testing `dendritic` functionality                               |
+| [dendritic_models](https://crates.io/crates/dendritic-models)                  | Pre-trained models for testing `dendritic` functionality                               |
 | [dendritic_regression](https://crates.io/crates/dendritic-regression)       | Regression package for linear modeling & multi class classification                    |
 | [dendritic_trees](https://crates.io/crates/dendritic-trees)                 | Tree based models using decision trees and random forests                              |
 
