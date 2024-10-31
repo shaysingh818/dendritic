@@ -1,13 +1,13 @@
 {
-  "threshold": 5.0,
+  "threshold": 6.0,
   "feature_idx": 2,
   "value": null,
-  "mse": 3.555555555555556,
+  "mse": 1.0,
   "information_gain": null,
   "left": {
     "threshold": 0.0,
     "feature_idx": 0,
-    "value": 12.666666666666666,
+    "value": 13.0,
     "mse": null,
     "information_gain": null,
     "left": null,

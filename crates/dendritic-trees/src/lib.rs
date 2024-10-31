@@ -12,7 +12,7 @@
 //! To get started, add this to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
-//! dendritic-trees = "0.1"
+//! dendritic-trees = "1.1.0"
 //! ```
 //! ## Example Usage
 //! This is an example of using the decision tree classifier model provided by dendritic.

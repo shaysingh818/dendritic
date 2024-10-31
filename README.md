@@ -1,7 +1,7 @@
 # Dendritic
 [![Downloads](https://img.shields.io/crates/d/dendritic)](https://img.shields.io/crates/d/dendritic)
-[![Build Status](https://github.com/shaysingh818/Dendrite/actions/workflows/pipeline.yml/badge.svg)](https://github.com/shaysingh818/Dendrite/actions)
-[![dependency status](https://deps.rs/repo/github/shaysingh818/Dendrite/status.svg)](https://deps.rs/repo/github/shaysingh818/Dendrite)
+[![Build Status](https://github.com/shaysingh818/Dendritic/actions/workflows/pipeline.yml/badge.svg)](https://github.com/shaysingh818/Dendrite/actions)
+[![dependency status](https://deps.rs/repo/github/shaysingh818/Dendritic/status.svg)](https://deps.rs/repo/github/shaysingh818/Dendrite)
 [![codecov](https://codecov.io/gh/wangfenjin/duckdb-rs/branch/main/graph/badge.svg?token=0xV88q8KU0)](https://codecov.io/gh/wangfenjin/duckdb-rs)
 [![Latest Version](https://img.shields.io/crates/v/dendritic.svg)](https://crates.io/crates/dendritic)
 [![Docs](https://img.shields.io/badge/docs.rs-denritic-green)](https://docs.rs/dendritic)
@@ -35,8 +35,7 @@ To install a package, add the following to your `Cargo.toml` file.
 
 ```toml
 [dependencies]
-# Assume that version Dendritic version 1.1.0 is used.
-dendritic_regression = { version = "1.1.0", features = ["bundled"] }
+dendritic = { version = "1.1.3", features = ["bundled"] }
 ```
 
 ## Example IRIS Flowers Prediction

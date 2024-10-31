@@ -1,5 +1,5 @@
 {
-  "threshold": 1.0,
+  "threshold": 2.0,
   "feature_idx": 0,
   "value": null,
   "mse": 0.75,
@@ -7,7 +7,7 @@
   "left": {
     "threshold": 0.0,
     "feature_idx": 0,
-    "value": 10.0,
+    "value": 10.5,
     "mse": null,
     "information_gain": null,
     "left": null,
@@ -16,7 +16,7 @@
   "right": {
     "threshold": 0.0,
     "feature_idx": 0,
-    "value": 15.5,
+    "value": 14.0,
     "mse": null,
     "information_gain": null,
     "left": null,

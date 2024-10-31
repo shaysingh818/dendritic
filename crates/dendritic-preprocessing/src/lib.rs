@@ -12,7 +12,7 @@
 //! To get started, add this to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
-//! dendritic-preprocessing = "0.1"
+//! dendritic-preprocessing = "1.1.0"
 //! ```
 //! ## Example Usage
 //! This is an example of using the one hot encoder for data with multiple class labels
