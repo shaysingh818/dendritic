@@ -1,5 +1,4 @@
 use dendritic_ndarray::ndarray::NDArray;
-use dendritic_ndarray::ops::*;
 
 /// Calculate all distances with a given distance metric
 pub fn calculate_distances(

@@ -1,12 +1,8 @@
 use std::fs; 
-use std::fs::{File}; 
-use std::io::{BufWriter, Write};
 use std::collections::BTreeMap;
 
 use dendritic_ndarray::ndarray::NDArray;
 use dendritic_ndarray::ops::*;
-use crate::node::*;
-use crate::utils::*;
 use crate::bootstrap::*;
 use crate::decision_tree::*; 
 use crate::decision_tree_regressor::*; 
@@ -89,7 +85,6 @@ impl RandomForestClassifier {
         );
         bs.generate();
 
-        let mut counter = 0; 
         for item in bs.datasets() {
 
            let mut tree = DecisionTreeClassifier::new(
@@ -99,7 +94,6 @@ impl RandomForestClassifier {
            );
            tree.fit(&item, &target);
            self.trees.push(tree);
-           counter += 1; 
         }
 
         Ok(())
@@ -326,7 +320,6 @@ impl RandomForestRegressor {
         );
         bs.generate(); 
 
-        let mut counter = 0; 
         for item in bs.datasets() {
 
            let mut tree = DecisionTreeRegressor::new(
@@ -336,7 +329,6 @@ impl RandomForestRegressor {
            );
            tree.fit(&item, &target);
            self.trees.push(tree);
-           counter += 1; 
         }
 
         Ok(())

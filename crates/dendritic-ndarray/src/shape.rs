@@ -96,7 +96,7 @@ impl Shape {
         let mut counter = self.values().len();  
         let mut stride = 1; 
         let mut strides: Vec<usize> = Vec::new();
-        for n in 0..self.values().len() {
+        for _n in 0..self.values().len() {
             let curr_shape = self.values[counter-1];
             strides.push(stride);
             stride *= curr_shape;

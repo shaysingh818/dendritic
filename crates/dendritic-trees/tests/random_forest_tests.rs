@@ -5,9 +5,7 @@ mod random_forest_tests {
     use std::fs; 
     use dendritic_ndarray::ndarray::NDArray;
     use dendritic_ndarray::ops::*;
-    use dendritic_trees::decision_tree::*; 
     use dendritic_trees::random_forest::*;
-    use dendritic_trees::utils::*; 
     use dendritic_metrics::utils::*;
     use dendritic_metrics::loss::*;
 
@@ -52,10 +50,6 @@ mod random_forest_tests {
         model.bootstrap_trees(&dataset, &target).unwrap();
         assert_eq!(model.trees().len(), 4);
 
-        for tree in model.trees() {
-           let root_ft_idx = tree.root().feature_idx();
-           assert_eq!(root_ft_idx >= 0, true);
-        }
 
         let mut bad_model = RandomForestClassifier::new(
             3, 3,
@@ -166,16 +160,10 @@ mod random_forest_tests {
         model.save("data/random_forest_classifier").unwrap();
         assert_eq!(model.trees().len(), 100);
  
-        let mut counter = 0; 
         let paths = fs::read_dir("data/random_forest_classifier").unwrap();
         for path in paths {
-            let expected = format!(
-                "data/random_forest_classifier/tree_{}", 
-                counter
-            );
             let actual = path.unwrap().path().display().to_string();
             assert!(actual.contains("data/random_forest_classifier/tree_"));
-            counter += 1; 
         } 
     } 
 
@@ -231,9 +219,9 @@ mod random_forest_tests {
         let y_path = "data/classification/outputs";
 
         let target: NDArray<f64> = NDArray::load(y_path).unwrap();
-        let dataset: NDArray<f64> = NDArray::load(x_path).unwrap();
+        let _dataset: NDArray<f64> = NDArray::load(x_path).unwrap();
 
-        let mut model = RandomForestClassifier::new(
+        let model = RandomForestClassifier::new(
             3, 3,
             100, 3,
             entropy
@@ -368,16 +356,10 @@ mod random_forest_tests {
         model.save("data/random_forest_regressor").unwrap();
         assert_eq!(model.trees().len(), n_trees);
 
-        let mut counter = 0; 
         let paths = fs::read_dir("data/random_forest_regressor").unwrap();
         for path in paths {
-            let expected = format!(
-                "data/random_forest_regressor/tree_{}", 
-                counter
-            );
             let actual = path.unwrap().path().display().to_string();
             assert!(actual.contains("data/random_forest_regressor/tree_"));
-            counter += 1; 
         } 
 
     }
@@ -410,11 +392,6 @@ mod random_forest_tests {
         model.bootstrap_trees(&dataset, &target).unwrap();
         assert_eq!(model.trees().len(), n_trees);
         assert_eq!(model.n_trees(), n_trees); 
-
-        for tree in model.trees() {
-           let root_ft_idx = tree.root().feature_idx();
-           assert_eq!(root_ft_idx >= 0, true);
-        }
 
         let mut bad_model = RandomForestRegressor::new(
             3, 3,

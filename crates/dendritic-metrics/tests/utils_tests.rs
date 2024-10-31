@@ -3,7 +3,6 @@
 mod utils_tests {
 
     use dendritic_ndarray::ndarray::NDArray;
-    use dendritic_ndarray::ops::*;  
     use dendritic_metrics::utils::*; 
     use dendritic_metrics::activations::*;
 
@@ -34,17 +33,6 @@ mod utils_tests {
 
         assert_eq!(&rounded, &expected_vec);
 
-
-        let test: NDArray<f64> = NDArray::array(
-            vec![2, 3],
-            vec![
-                2.0, 1.0, 0.1,
-                1.0, 3.0, 0.3,
-            ]
-        ).unwrap();
-
-        let test_rows = apply(test, 0, softmax);
-        //println!("{:?}", test_rows.values()); 
     }
 
 

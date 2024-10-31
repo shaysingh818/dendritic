@@ -14,7 +14,7 @@
     "right": null
   },
   "right": {
-    "threshold": 5.79,
+    "threshold": 5.85,
     "feature_idx": 1,
     "value": null,
     "mse": null,

@@ -5,7 +5,6 @@ mod bootstrap_tests {
     use dendritic_ndarray::ndarray::NDArray;
     use dendritic_ndarray::ops::*; 
     use dendritic_trees::bootstrap::*;
-    use dendritic_metrics::utils::*; 
 
 
     #[test]
@@ -56,14 +55,14 @@ mod bootstrap_tests {
         let y_path = "data/classification/outputs";
 
         let dataset: NDArray<f64> = NDArray::load(x_path).unwrap(); 
-        let target: NDArray<f64> = NDArray::load(y_path).unwrap();
+        let _target: NDArray<f64> = NDArray::load(y_path).unwrap();
 
-        let mut bs = Bootstrap::new(3, 2, 12, dataset.clone());
+        let bs = Bootstrap::new(3, 2, 12, dataset.clone());
         let data = bs.feature_sub_select();
         assert_eq!(data.shape().values(), vec![12, 3]);
         assert_eq!(data.size(), 36);
 
-        let mut bs_2 = Bootstrap::new(3, 3, 12, dataset);
+        let bs_2 = Bootstrap::new(3, 3, 12, dataset);
         let data_2 = bs_2.feature_sub_select();
         assert_eq!(data_2.shape().values(), vec![12, 4]);
         assert_eq!(data_2.size(), 48);

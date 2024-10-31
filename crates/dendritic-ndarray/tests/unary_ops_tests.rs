@@ -282,7 +282,6 @@ mod unary_ops {
         assert_eq!(y_cols.shape().values(), vec![4, 3]); 
         assert_eq!(z_rows.shape().values(), vec![3, 4]); 
 
-        let mut counter = 0; 
         for col in 0..3 {
             let x_col = x_cols.axis(1, col).unwrap(); 
             let y_col = y_cols.axis(1, col).unwrap();
@@ -292,7 +291,6 @@ mod unary_ops {
             assert_eq!(y_col.values(), &expected_y_cols[col]); 
             assert_eq!(z_row.values(), &expected_z_rows[col]); 
 
-            counter += 1; 
         }
 
 

@@ -29,7 +29,7 @@ mod naive_bayes_tests {
         assert_eq!(features2.shape().values(), vec![14, 4]);
         assert_eq!(target2.shape().values(), vec![14, 1]);
 
-        let mut clf = NaiveBayes::new(
+        let _clf = NaiveBayes::new(
             &features,
             &target
         ).unwrap();
@@ -50,7 +50,7 @@ mod naive_bayes_tests {
             idx += 1; 
         } 
 
-        let mut clf2 = NaiveBayes::new(
+        let _clf2 = NaiveBayes::new(
             &features2,
             &target2
         ).unwrap(); 
@@ -95,7 +95,7 @@ mod naive_bayes_tests {
         assert_eq!(features2.shape().values(), vec![14, 4]);
         assert_eq!(target2.shape().values(), vec![14, 1]);
 
-        let mut clf = NaiveBayes::new(
+        let _clf = NaiveBayes::new(
             &features,
             &target
         ).unwrap();
@@ -117,7 +117,7 @@ mod naive_bayes_tests {
             idx += 1; 
         }
 
-        let mut clf2 = NaiveBayes::new(
+        let _clf2 = NaiveBayes::new(
             &features2,
             &target2
         ).unwrap(); 
@@ -167,12 +167,12 @@ mod naive_bayes_tests {
         let feature1 = features.axis(1, 0).unwrap();
         let feature2 = features2.axis(1, 1).unwrap();
 
-        let mut clf = NaiveBayes::new(
+        let clf = NaiveBayes::new(
             &features,
             &target
         ).unwrap();
 
-        let mut clf2 = NaiveBayes::new(
+        let clf2 = NaiveBayes::new(
             &features2,
             &target2
         ).unwrap();
@@ -251,12 +251,12 @@ mod naive_bayes_tests {
         assert_eq!(features2.shape().values(), vec![14, 4]);
         assert_eq!(target2.shape().values(), vec![14, 1]);
 
-        let mut clf = NaiveBayes::new(
+        let clf = NaiveBayes::new(
             &features,
             &target
         ).unwrap();
 
-        let mut clf2 = NaiveBayes::new(
+        let clf2 = NaiveBayes::new(
             &features2,
             &target2
         ).unwrap();
@@ -317,13 +317,11 @@ mod naive_bayes_tests {
         assert_eq!(features2.shape().values(), vec![14, 4]);
         assert_eq!(target2.shape().values(), vec![14, 1]);
 
-        let mut clf2 = NaiveBayes::new(
+        let _clf2 = NaiveBayes::new(
             &features2,
             &target2
         ).unwrap();
 
-        let class_idx = 1.0; 
-        let bad = clf2.predict_feature(2, 1.0, class_idx);
 
     }
 

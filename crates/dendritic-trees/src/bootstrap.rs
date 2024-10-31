@@ -54,7 +54,7 @@ impl Bootstrap {
 
     /// Generate all data bootstraps
     pub fn generate(&mut self) {
-        for item in 0..self.n_bootstraps {
+        for _item in 0..self.n_bootstraps {
             let dataset = self.sample(self.sample_size);
             self.datasets.push(dataset);
         }
@@ -66,7 +66,7 @@ impl Bootstrap {
 
         let num_cols = self.x_train.shape().dim(1)-1; 
         let mut features: Vec<usize> = Vec::new();
-        for feature in 0..self.num_features {
+        for _feature in 0..self.num_features {
             let rand_col = rand::thread_rng().gen_range(0..num_cols);
             features.push(rand_col);
         }
@@ -82,7 +82,7 @@ impl Bootstrap {
 
         let rows = self.x_train.shape().dim(0);
         let mut values: Vec<f64> = Vec::new();
-        for row in 0..sample_size {
+        for _row in 0..sample_size {
             let rand_row = rand::thread_rng().gen_range(0..rows);
             let selected_row = self.x_train.axis(0, rand_row).unwrap();
             let mut row_values = selected_row.values().to_vec();

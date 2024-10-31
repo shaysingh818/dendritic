@@ -53,7 +53,7 @@ impl HierarchicalClustering {
         let mut start = self.data.shape().dim(0); 
         for row in 0..self.data.shape().dim(0) { 
             let x = self.data.axis(0, row).unwrap();
-            for col in 0..start-1 {
+            for _col in 0..start-1 {
                 let y = self.data.axis(0, start_row).unwrap();
                 let dist = (self.distance_metric)(&x, &y).unwrap();
                 self.distance_matrix.set(vec![start_row, idx], dist).unwrap(); 
@@ -168,7 +168,7 @@ impl HierarchicalClustering {
 
     pub fn update_dist_mat(
         &mut self,
-        mut d_matrix: NDArray<f64>,
+        d_matrix: NDArray<f64>,
         coordinate: &Vec<usize>) -> NDArray<f64> {
 
         let min_coord = coordinate.into_iter().min().unwrap();
@@ -177,7 +177,7 @@ impl HierarchicalClustering {
         let drop_row = d_matrix.drop_axis(0, *max_coord).unwrap();
         let mut new_mat = drop_row.drop_axis(1, *max_coord).unwrap();
 
-        let mut rows = d_matrix.shape().dim(0);
+        let rows = d_matrix.shape().dim(0);
         /*
         if self.clusters.len() > 0 {
             rows = new_mat.shape().dim(0); 
@@ -186,8 +186,8 @@ impl HierarchicalClustering {
         for row in 0..rows {
 
             let row_check = !coordinate.iter().any(|&i| i == row);  
-            let clst_check = self.clusters.iter().any(|&i| i == row);
-            let mut coords: Vec<Vec<usize>> = Vec::new();
+            let _clst_check = self.clusters.iter().any(|&i| i == row);
+            let mut _coords: Vec<Vec<usize>> = Vec::new();
 
             /* generate all possible coordinates*/ 
             /* choose the pair that doesn't result in a distance of 0 */
@@ -205,7 +205,7 @@ impl HierarchicalClustering {
                 let p1 = d_matrix.get(c1.clone());
                 let p2 = d_matrix.get(c2.clone());
                 let min = f64::min(*p1, *p2); 
-                new_mat.set(c1, min);
+                let _ = new_mat.set(c1, min);
 
                 /*
                 println!(
@@ -238,14 +238,14 @@ impl HierarchicalClustering {
 
     pub fn fit_transform(&mut self) {
 
-        let mut d_matrix = self.distance_matrix.clone();
+        let d_matrix = self.distance_matrix.clone();
         let nonzero = d_matrix.nonzero();
         let nzero_vals = nonzero.values();
         let min = nzero_vals.iter().fold(f64::INFINITY, |a, &b| a.min(b));
         let indices = d_matrix.value_indices(min);
         let idx = indices[0];
         let coordinate = d_matrix.indices(idx).unwrap();
-        let cluster_idx = coordinate.iter().min().unwrap();
+        let _cluster_idx = coordinate.iter().min().unwrap();
 
 
     }

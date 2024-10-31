@@ -311,7 +311,6 @@ impl<T: Default + Clone + std::fmt::Debug + std::cmp::PartialEq> NDArray<T> {
 
         let mut shape_vals = self.shape().values();
         shape_vals[axis] -= 1;
-        let shape = Shape::new(shape_vals.clone());
         let mut result: NDArray<T> = NDArray::new(shape_vals).unwrap();
 
         let mut coords: Vec<usize> = vec![0, 0];
@@ -321,7 +320,7 @@ impl<T: Default + Clone + std::fmt::Debug + std::cmp::PartialEq> NDArray<T> {
             let value = self.axis(axis, item).unwrap();
             if item != index {
                 for val in value.values() {
-                    result.set(coords.clone(), val.clone());
+                    result.set(coords.clone(), val.clone()).unwrap();
                     coords[coord_len - axis] += 1;
                 }
                 coords[coord_len - axis] = 0; 

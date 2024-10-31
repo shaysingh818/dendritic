@@ -1,19 +1,28 @@
 {
-  "threshold": 5.79,
-  "feature_idx": 1,
+  "threshold": 69.0,
+  "feature_idx": 0,
   "value": null,
   "mse": null,
-  "information_gain": 0.9798687566511526,
+  "information_gain": 0.9182958340544894,
   "left": {
-    "threshold": 69.0,
+    "threshold": 0.0,
     "feature_idx": 0,
+    "value": 0.0,
+    "mse": null,
+    "information_gain": null,
+    "left": null,
+    "right": null
+  },
+  "right": {
+    "threshold": 5.85,
+    "feature_idx": 1,
     "value": null,
     "mse": null,
-    "information_gain": 0.863120568566631,
+    "information_gain": 0.954434002924965,
     "left": {
       "threshold": 0.0,
       "feature_idx": 0,
-      "value": 0.0,
+      "value": 1.0,
       "mse": null,
       "information_gain": null,
       "left": null,
@@ -22,20 +31,11 @@
     "right": {
       "threshold": 0.0,
       "feature_idx": 0,
-      "value": 1.0,
+      "value": 2.0,
       "mse": null,
       "information_gain": null,
       "left": null,
       "right": null
     }
-  },
-  "right": {
-    "threshold": 0.0,
-    "feature_idx": 0,
-    "value": 2.0,
-    "mse": null,
-    "information_gain": null,
-    "left": null,
-    "right": null
   }
 }

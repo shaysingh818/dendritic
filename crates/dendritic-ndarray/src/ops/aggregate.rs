@@ -1,8 +1,6 @@
 use crate::ops::unary::UnaryOps; 
 use crate::ops::scalar::ScalarOps; 
 use crate::ndarray::NDArray;
-use std::collections::btree_map::BTreeMap;
-use itertools::Itertools;
 
 pub trait AggregateOps {
     fn avg(&self) -> f64;

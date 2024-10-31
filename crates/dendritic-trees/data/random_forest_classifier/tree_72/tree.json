@@ -14,28 +14,12 @@
     "right": null
   },
   "right": {
-    "threshold": 5.79,
-    "feature_idx": 1,
-    "value": null,
+    "threshold": 0.0,
+    "feature_idx": 0,
+    "value": 2.0,
     "mse": null,
-    "information_gain": 1.0,
-    "left": {
-      "threshold": 0.0,
-      "feature_idx": 0,
-      "value": 1.0,
-      "mse": null,
-      "information_gain": null,
-      "left": null,
-      "right": null
-    },
-    "right": {
-      "threshold": 0.0,
-      "feature_idx": 0,
-      "value": 2.0,
-      "mse": null,
-      "information_gain": null,
-      "left": null,
-      "right": null
-    }
+    "information_gain": null,
+    "left": null,
+    "right": null
   }
 }

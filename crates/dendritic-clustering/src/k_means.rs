@@ -118,7 +118,7 @@ impl KMeans {
     pub fn fit(&mut self) -> NDArray<f64> {
 
         let mut assigned_clusters = self.assign_clusters();
-        for epoch in 0..self.max_iter {
+        for _epoch in 0..self.max_iter {
             self.calculate_centroids(&assigned_clusters);
             assigned_clusters = self.assign_clusters();
         }

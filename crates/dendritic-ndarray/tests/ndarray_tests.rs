@@ -448,11 +448,6 @@ mod ndarray_tests {
             vec![3.0, 4.0, 5.0]
         ]; 
 
-        let expected_cols = vec![
-            vec![2.0, 3.0, 4.0],
-            vec![3.0, 4.0, 5.0]
-        ]; 
-
         let expected_y_cols = vec![
             vec![1.0, 2.0, 3.0],
             vec![2.0, 3.0, 4.0],

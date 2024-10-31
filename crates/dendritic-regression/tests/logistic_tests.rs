@@ -242,7 +242,6 @@ mod logistic_tests {
         model.sgd(1000, false, batch_size);
 
         let x_train_batch = x_train.batch(batch_size).unwrap();
-        let y_train_batch = y_train.batch(batch_size).unwrap();
         let results = model.predict(x_train_batch[0].clone());
 
         let expected_predictions = vec![

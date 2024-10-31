@@ -1,6 +1,4 @@
 use crate::ndarray::NDArray;
-use std::collections::btree_map::BTreeMap;
-use itertools::Itertools;
 
 
 pub trait UnaryOps {
@@ -179,13 +177,12 @@ impl UnaryOps for NDArray<f64> {
 
         for (index, indice) in indices.iter().enumerate() {
             let axis_vals = self.axis(axis, *indice).unwrap();
-            let mut counter = 0; 
             for (idx, val) in axis_vals.values().iter().enumerate() {
                 let remainder_idx = self.rank() - 1 - axis;
                 let mut indices: Vec<usize> = vec![0; self.rank()];
                 indices[axis] = index; 
                 indices[remainder_idx] = idx; 
-                result.set(indices, *val); 
+                result.set(indices, *val).unwrap(); 
             }
         }
 

@@ -105,7 +105,7 @@ mod hierarchical_clustering_tests {
             vec![6, 2]
         );
 
-        let mut clf = HierarchicalClustering::new(
+        let clf = HierarchicalClustering::new(
             &data2, 
             euclidean
         ).unwrap();

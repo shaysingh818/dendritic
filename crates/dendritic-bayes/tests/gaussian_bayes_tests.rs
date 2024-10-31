@@ -19,7 +19,7 @@ mod gaussian_bayes_tests {
         assert_eq!(features.shape().values(), vec![14, 2]);
         assert_eq!(target.shape().values(), vec![14, 1]);
 
-        let mut clf = GaussianNB::new(
+        let clf = GaussianNB::new(
             &features,
             &target
         ).unwrap();
@@ -32,7 +32,7 @@ mod gaussian_bayes_tests {
             vec![1.0, 2.0]
         ).unwrap();
 
-        let mut clf_bad = GaussianNB::new(
+        let clf_bad = GaussianNB::new(
             &features,
             &bad
         );
@@ -57,9 +57,9 @@ mod gaussian_bayes_tests {
         assert_eq!(features.shape().values(), vec![14, 2]);
         assert_eq!(target.shape().values(), vec![14, 1]);
 
-        let mut clf = GaussianNB::new(
+        let clf = GaussianNB::new(
             &features,
-    &target
+            &target
         ).unwrap();
 
         assert_eq!(clf.features.shape().values(), vec![14, 2]); 
@@ -104,7 +104,7 @@ mod gaussian_bayes_tests {
         assert_eq!(features.shape().values(), vec![14, 2]);
         assert_eq!(target.shape().values(), vec![14, 1]);
 
-        let mut clf = GaussianNB::new(
+        let clf = GaussianNB::new(
             &features,
             &target
         ).unwrap();
@@ -186,7 +186,7 @@ mod gaussian_bayes_tests {
         assert_eq!(clf.features.shape().values(), vec![14, 2]); 
         assert_eq!(clf.outputs.shape().values(), vec![14, 1]);
 
-        let row1: NDArray<f64> = NDArray::array(
+        let _row1: NDArray<f64> = NDArray::array(
             vec![1, 2],
             vec![0.8, 59.0]
         ).unwrap();
@@ -270,7 +270,7 @@ mod gaussian_bayes_tests {
         assert_eq!(features.shape().values(), vec![14, 2]);
         assert_eq!(target.shape().values(), vec![14, 1]);
 
-        let mut clf = GaussianNB::new(
+        let clf = GaussianNB::new(
             &features,
             &target
         ).unwrap();

@@ -1,9 +1,5 @@
 use dendritic_ndarray::ndarray::NDArray;
 use dendritic_ndarray::ops::*;
-use dendritic_metrics::activations::*;
-use dendritic_metrics::loss::*;
-use dendritic_metrics::utils::*; 
-use std::fs;
 use std::collections::HashSet;
 use crate::shared::*;
 
@@ -77,7 +73,7 @@ impl NaiveBayes {
                     .collect();
 
                 idx += 1;
-                freq_table.set_idx(idx, common.len() as f64);
+                let _ = freq_table.set_idx(idx, common.len() as f64);
             }
             idx += 1;
         }
@@ -91,15 +87,10 @@ impl NaiveBayes {
         freq_table: NDArray<f64>) -> NDArray<f64> {
 
         let mut class_idx = 0;
-        let mut idx = 0;
+        let mut _idx = 0;
         let mut table_vals: Vec<f64> = Vec::new(); 
         let cols = freq_table.shape().dim(1);
-        let rows = freq_table.shape().dim(0); 
         let class_counts = class_idxs(&self.outputs);
-
-        for row in 0..freq_table.shape().dim(0) {
-            let item = freq_table.axis(0, row).unwrap();
-        }
 
 
         for col in 0..cols {
@@ -173,7 +164,6 @@ impl NaiveBayes {
         }
 
         /* calculate bayes theorem with likelihood and frequency table */
-        let target_class = class_indices[class as usize].len();
         let row_select = lh_table.axis(1, row_idx).unwrap();
         let feature_occurrence = row_select.values()[class as usize + 1];
         feature_occurrence 

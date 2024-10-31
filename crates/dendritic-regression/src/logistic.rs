@@ -1,6 +1,5 @@
 use dendritic_ndarray::ndarray::NDArray;
 use dendritic_ndarray::ops::*;
-use dendritic_metrics::activations::*;
 use dendritic_metrics::loss::*;
 use dendritic_metrics::utils::*; 
 use dendritic_autodiff::node::{Node, Value};
@@ -32,9 +31,7 @@ impl Logistic {
         if learning_rate < 0.0 || learning_rate > 1.0 {
             return Err("Learning rate must be between 1 and 0".to_string());
         }
-
     
-        let weights_shape = vec![features.shape().dim(1), y.shape().dim(1)];
         let weights = NDArray::new(vec![features.shape().dim(1), 1]).unwrap();
         let bias = NDArray::new(vec![1, 1]).unwrap();
         let inputs = Value::new(features); 

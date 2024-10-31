@@ -1,7 +1,5 @@
-use std::collections::HashMap;
 use dendritic_ndarray::ndarray::NDArray;
 use dendritic_ndarray::ops::*;
-use crate::distance::*;
 use crate::utils::*;
 
 
@@ -56,7 +54,6 @@ impl KNN {
 
         let mut row_idxs: Vec<usize> = Vec::new();
         for item in 0..self.k {
-            let dist = distances[item];
             let row = distances[item].1;
             row_idxs.push(row); 
         }
@@ -147,13 +144,10 @@ impl KNNRegressor {
 
         let mut row_idxs: Vec<usize> = Vec::new();
         for item in 0..self.k {
-            let dist = distances[item];
             let row = distances[item].1;
             row_idxs.push(row); 
         }
 
-        let mut max_cnt = 0;
-        let mut max_class = 0.0;
         let targets = self.outputs.indice_query(row_idxs).unwrap();
         targets.avg()
     }

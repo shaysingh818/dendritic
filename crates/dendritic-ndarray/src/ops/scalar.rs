@@ -1,6 +1,4 @@
 use crate::ndarray::NDArray;
-use std::collections::btree_map::BTreeMap;
-use itertools::Itertools;
 
 
 pub trait ScalarOps {

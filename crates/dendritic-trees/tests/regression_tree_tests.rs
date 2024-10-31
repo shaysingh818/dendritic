@@ -8,7 +8,6 @@ mod regression_tree_tests {
     use dendritic_trees::utils::*; 
     use dendritic_trees::decision_tree_regressor::*; 
     use dendritic_metrics::loss::*;
-    use dendritic_datasets::airfoil_noise::*;
 
 
     #[test]

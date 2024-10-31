@@ -1,6 +1,4 @@
 use crate::ndarray::NDArray;
-use std::collections::btree_map::BTreeMap;
-use itertools::Itertools;
 use std::fs::File;
 use std::io::{BufWriter, Read, Write}; 
 

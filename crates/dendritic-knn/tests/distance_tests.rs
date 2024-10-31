@@ -2,9 +2,7 @@
 #[cfg(test)]
 mod distance_tests {
 
-    use dendritic_metrics::loss::*; 
     use dendritic_ndarray::ndarray::NDArray;
-    use dendritic_ndarray::ops::*;
     use dendritic_knn::distance::*;
 
     #[test]

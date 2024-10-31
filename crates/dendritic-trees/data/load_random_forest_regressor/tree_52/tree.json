@@ -1,7 +1,7 @@
 {
   "threshold": 0.0,
   "feature_idx": 0,
-  "value": 12.4,
+  "value": 13.2,
   "mse": null,
   "information_gain": null,
   "left": null,

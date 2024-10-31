@@ -2,7 +2,6 @@
 #[cfg(test)]
 mod knn_tests {
 
-    use dendritic_metrics::loss::*; 
     use dendritic_ndarray::ndarray::NDArray;
     use dendritic_ndarray::ops::*;
     use dendritic_knn::knn::*;
@@ -64,7 +63,7 @@ mod knn_tests {
         ).unwrap();
 
         let k = 5;
-        let clf = KNN::fit(&features, &target, k, euclidean).unwrap();
+        let _clf = KNN::fit(&features, &target, k, euclidean).unwrap();
         let distances = calculate_distances(
             euclidean,
             &features,
