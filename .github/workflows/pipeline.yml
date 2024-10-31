@@ -12,11 +12,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./crates"
-      run: cargo build -p dendritic-ndarray --release --color always
+      working-directory: "./crates/dendritic-ndarray"
+      run: cargo build  --release --color always
 
     - name: Test
-      working-directory: "./crates"
+      working-directory: "./crates/dendritic-ndarray"
       run: cargo test -p dendritic-ndarray --color always
 
   metrics:
