@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 dendritic = {version = "1.1.1", path = "../../" }
-dendritic-ndarray = { version = "1.1.1", path = '../dendritic-ndarray' }
+dendritic-ndarray = { version = "1.1.0", path = '../dendritic-ndarray' }
 dendritic-metrics = { version = "1.1.0", path = '../dendritic-metrics' }
 
 [dev-dependencies]
