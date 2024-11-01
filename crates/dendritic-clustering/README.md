@@ -1,57 +1,53 @@
- # Dendritic Bayesian Statistics Crate
+ # Dendritic Clustering Crate
 
- This crate allows for common bayesian methods for regression and classification tasks.
- The bayes crate currently supports guassian and standard naive bayes.
+ This crate allows for clustering of data for unsupervised tasks.
+ The bayes crate currently supports K means clustering.
+ Code for the Hierarchical clustering module is there but does not work at the moment
 
  ## Features
- - **Guassian Bayes**: Bayesian model that uses gaussian density function for predicting likelihoods
- - **Naive Bayes**: Standard naive bayes model
+ - **K Means**: Standard K means clustering
 
-# Disclaimer
-The dendritic project is a toy machine learning library built for learning and research purposes.
-It is not advised by the maintainer to use this library as a production ready machine learning library.
-This is a project that is still very much a work in progress.
+ ## Disclaimer
+ The dendritic project is a toy machine learning library built for learning and research purposes.
+ It is not advised by the maintainer to use this library as a production ready machine learning library.
+ This is a project that is still very much a work in progress.
 
  ## Getting Started
  To get started, add this to your `Cargo.toml`:
  ```toml
  [dependencies]
- dendritic-bayes = "1.1.0"
+ dendritic-clustering = "0.1"
  ```
 
  ## Example Usage
- This is an example of using both the naive and gaussian bayes models
+ This is an example of using the K means clustering module
  ```rust
  use dendritic_ndarray::ndarray::NDArray;
  use dendritic_ndarray::ops::*;
- use dendritic_bayes::naive_bayes::*;
- use dendritic_bayes::gaussian_bayes::*;
-
+ use dendritic_clustering::k_means::*;
+ use dendritic_knn::distance::*;
+ use dendritic_datasets::iris::*; 
 
  fn main() {
+
      // Load datasets from saved ndarray
-     let x_path = "data/weather_multi_feature/inputs";
-     let y_path = "data/weather_multi_feature/outputs";
+     let data_path = "../dendritic-datasets/data/iris.parquet";
+     let (x_train, y_train) = load_iris(data_path).unwrap();
 
-     // Load saved ndarrays in memory
-     let features = NDArray::load(x_path).unwrap();
-     let target = NDArray::load(y_path).unwrap();
+     // Iterations and K value for K means cluster
+     let iterations = 5;
+     let k_value = 3; 
 
-     // Create instance of naive bayes model
-     let mut nb_clf = NaiveBayes::new(
-         &features,
-         &target
+     // Create instance of K means model
+     let mut clf = KMeans::new(
+         &x_train, 
+         k_value, 
+         iterations, 
+         euclidean
      ).unwrap();
 
-     // Create instance of guassian bayes model
-     let mut gb_clf = GaussianNB::new(
-         &features,
-         &target
-     ).unwrap();
-     
-     // Make prediction with first row of features
-     let row1 = features.axis(0, 0).unwrap();
-     let nb_pred = nb_clf.fit(row1.clone());
-     let gb_pred = gb_clf.fit(row1.clone()); // This will take in references eventually
+     // Get centroids
+     let final_centroids = clf.fit();
+     let centroids_unique = final_centroids.unique();
  }
  ```
