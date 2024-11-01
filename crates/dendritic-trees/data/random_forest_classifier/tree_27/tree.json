@@ -14,11 +14,11 @@
     "right": null
   },
   "right": {
-    "threshold": 5.79,
+    "threshold": 5.68,
     "feature_idx": 1,
     "value": null,
     "mse": null,
-    "information_gain": 0.7219280948873623,
+    "information_gain": 0.863120568566631,
     "left": {
       "threshold": 0.0,
       "feature_idx": 0,

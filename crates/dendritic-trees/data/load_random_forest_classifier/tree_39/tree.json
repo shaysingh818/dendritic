@@ -18,7 +18,7 @@
     "feature_idx": 1,
     "value": null,
     "mse": null,
-    "information_gain": 0.5435644431995964,
+    "information_gain": 0.8112781244591328,
     "left": {
       "threshold": 0.0,
       "feature_idx": 0,

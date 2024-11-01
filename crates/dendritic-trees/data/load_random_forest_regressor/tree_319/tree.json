@@ -16,7 +16,7 @@
   "right": {
     "threshold": 0.0,
     "feature_idx": 0,
-    "value": 15.333333333333334,
+    "value": 13.333333333333334,
     "mse": null,
     "information_gain": null,
     "left": null,
