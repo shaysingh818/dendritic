@@ -35,7 +35,7 @@ To install a package, add the following to your `Cargo.toml` file.
 
 ```toml
 [dependencies]
-dendritic = { version = "1.1.3", features = ["bundled"] }
+dendritic = { version = "<LATEST_VERSION>", features = ["bundled"] }
 ```
 
 ## Example IRIS Flowers Prediction
