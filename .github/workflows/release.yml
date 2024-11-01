@@ -20,7 +20,7 @@ jobs:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
 
 
-  publish-packages:
+  publish-ndarray:
     needs: [publish-project]
     runs-on: ubuntu-latest
 
@@ -34,11 +34,28 @@ jobs:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
         working-directory: crates/dendritic-ndarray
 
+  publish-metrics:
+    needs: [publish-project]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Publish Metrics Package
         run: cargo publish --token $CRATES_IO_TOKEN
         env:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
         working-directory: crates/dendritic-metrics
+
+
+  publish-preprocessing:
+    needs: [publish-project]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Publish Preprocessing Package
         run: cargo publish --token $CRATES_IO_TOKEN
@@ -46,11 +63,14 @@ jobs:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
         working-directory: crates/dendritic-preprocessing
 
-      - name: Publish Metrics Package
-        run: cargo publish --token $CRATES_IO_TOKEN
-        env:
-          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
-        working-directory: crates/dendritic-metrics
+
+  publish-datasets:
+    needs: [publish-project]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Publish Datasets Package
         run: cargo publish --token $CRATES_IO_TOKEN
@@ -58,17 +78,44 @@ jobs:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
         working-directory: crates/dendritic-datasets
 
+
+  publish-autodiff:
+    needs: [publish-project]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Publish Autodiff Package
         run: cargo publish --token $CRATES_IO_TOKEN
         env:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
         working-directory: crates/dendritic-autodiff
 
+
+  publish-knn:
+    needs: [publish-project]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+i
       - name: Publish KNN Package
         run: cargo publish --token $CRATES_IO_TOKEN
         env:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
         working-directory: crates/dendritic-knn
+
+
+  publish-bayes:
+    needs: [publish-project]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Publish Bayes Package
         run: cargo publish --token $CRATES_IO_TOKEN
@@ -76,23 +123,58 @@ jobs:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
         working-directory: crates/dendritic-bayes
 
+
+  publish-clustering:
+    needs: [publish-project]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Publish Clustering Package
         run: cargo publish --token $CRATES_IO_TOKEN
         env:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
         working-directory: crates/dendritic-clustering
 
+
+  publish-regression:
+    needs: [publish-project]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+i
       - name: Publish Regression Package
         run: cargo publish --token $CRATES_IO_TOKEN
         env:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
         working-directory: crates/dendritic-regression
 
+
+  publish-trees:
+    needs: [publish-project]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+i
       - name: Publish Trees Package
         run: cargo publish --token $CRATES_IO_TOKEN
         env:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
         working-directory: crates/dendritic-trees
+
+  publish-models:
+    needs: [publish-project]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Publish Models Package
         run: cargo publish --token $CRATES_IO_TOKEN
