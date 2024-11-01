@@ -1,0 +1,17 @@
+[package]
+name = "dendritic-trees"
+version = "1.1.1"
+edition = "2021"
+description = "Pacakge for tree based modeling"  
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dendritic = {version = "1.1.1", path = "../../" }
+dendritic-ndarray = { version = "1.1.0", path = '../dendritic-ndarray' }
+dendritic-metrics = { version = "1.1.0", path = '../dendritic-metrics' }
+dendritic-datasets = { version = "1.1.0", path = '../dendritic-datasets' }
+serde = { version = "1.0.126", features = ["derive"] }
+serde_json = "1.0.64"
+rand = "0.8.5"

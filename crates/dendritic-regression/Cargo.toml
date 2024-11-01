@@ -1,0 +1,21 @@
+[package]
+name = "dendritic-regression"
+version = {workspace = true}
+edition = {workspace = true } 
+description = "Machine Learning algorithms that are based on regression techniques"
+license = "MIT" 
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dendritic = {version = "1.1.1", path = "../../" }
+dendritic-ndarray = { version = "1.1.0", path = '../dendritic-ndarray' }
+dendritic-metrics = { version = "1.1.0", path = '../dendritic-metrics' }
+dendritic-autodiff = { version = "1.1.0", path = '../dendritic-autodiff' }
+dendritic-preprocessing = { version = "1.1.0", path = '../dendritic-preprocessing' }
+dendritic-datasets = { version = "1.1.0", path = '../dendritic-datasets' }
+
+[dev-dependencies]
+rand = "0.8"
+serde = { version = "1.0.126", features = ["derive"] }
+serde_json = "1.0.64"

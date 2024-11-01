@@ -1,0 +1,20 @@
+[package]
+name = "dendritic-bayes"
+version = {workspace = true}
+edition = {workspace = true } 
+description = "Package for doing baysian statistics"
+publish = true
+license = "MIT" 
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dendritic = {version = "1.1.1", path = "../../" }
+dendritic-ndarray = { version = "1.1.0", path = '../dendritic-ndarray' }
+dendritic-metrics = { version = "1.1.0", path = '../dendritic-metrics' }
+
+[dev-dependencies]
+rand = "0.8"
+serde = { version = "1.0.126", features = ["derive"] }
+serde_json = "1.0.64"
+

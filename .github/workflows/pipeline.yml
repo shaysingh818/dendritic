@@ -1,8 +1,6 @@
-name: Dendrite
+name: Dendritic
 
 on:
-  push:
-    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -14,12 +12,12 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./ndarray"
-      run: cargo build --color always
+      working-directory: "./crates/dendritic-ndarray"
+      run: cargo build  --release --color always
 
     - name: Test
-      working-directory: "./ndarray"
-      run: cargo test --color always
+      working-directory: "./crates/dendritic-ndarray"
+      run: cargo test --release --color always
 
   metrics:
     runs-on: ubuntu-20.04
@@ -28,12 +26,12 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./metrics"
-      run: cargo build --color always
+      working-directory: "./crates/dendritic-metrics"
+      run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./metrics"
-      run: cargo test --color always
+      working-directory: "./crates/dendritic-metrics"
+      run: cargo test --release --color always
 
   autodiff:
     runs-on: ubuntu-20.04
@@ -42,12 +40,12 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./autodiff"
-      run: cargo build --color always
+      working-directory: "./crates/dendritic-autodiff"
+      run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./autodiff"
-      run: cargo test --color always
+      working-directory: "./crates/dendritic-autodiff"
+      run: cargo test --release --color always
 
   preprocessing:
     runs-on: ubuntu-20.04
@@ -56,12 +54,12 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./preprocessing"
-      run: cargo build --color always
+      working-directory: "./crates/dendritic-preprocessing"
+      run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./preprocessing"
-      run: cargo test --color always
+      working-directory: "./crates/dendritic-preprocessing"
+      run: cargo test --release --color always
 
   datasets:
     runs-on: ubuntu-20.04
@@ -70,12 +68,12 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./datasets"
-      run: cargo build --color always
+      working-directory: "./crates/dendritic-datasets"
+      run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./datasets"
-      run: cargo test --color always
+      working-directory: "./crates/dendritic-datasets"
+      run: cargo test --release --color always
 
   trees:
     runs-on: ubuntu-20.04
@@ -84,12 +82,12 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./trees"
-      run: cargo build --color always
+      working-directory: "./crates/dendritic-trees"
+      run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./trees"
-      run: cargo test --color always
+      working-directory: "./crates/dendritic-trees"
+      run: cargo test --release --color always
 
   knn:
     runs-on: ubuntu-20.04
@@ -98,12 +96,12 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./knn"
-      run: cargo build --color always
+      working-directory: "./crates/dendritic-knn"
+      run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./knn"
-      run: cargo test --color always
+      working-directory: "./crates/dendritic-knn"
+      run: cargo test --release --color always
 
 
   regression:
@@ -113,12 +111,12 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./regression"
-      run: cargo build --color always
+      working-directory: "./crates/dendritic-regression"
+      run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./regression"
-      run: cargo test --color always
+      working-directory: "./crates/dendritic-regression"
+      run: cargo test --release --color always
 
   bayes:
     runs-on: ubuntu-20.04
@@ -127,11 +125,25 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./bayes"
-      run: cargo build --color always
+      working-directory: "./crates/dendritic-bayes"
+      run: cargo build --release --color always
 
     - name: Test
-      working-directory: "./bayes"
-      run: cargo test --color always
+      working-directory: "./crates/dendritic-bayes"
+      run: cargo test --release --color always
+
+  clustering:
+    runs-on: ubuntu-20.04
+    needs: [ndarray, metrics, autodiff, preprocessing, datasets]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      working-directory: "./crates/dendritic-clustering"
+      run: cargo build --release --color always
+
+    - name: Test
+      working-directory: "./crates/dendritic-clustering"
+      run: cargo test --release --color always
 
 

@@ -1,0 +1,101 @@
+name: Publish to Crates.io
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+
+  publish-project:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Publish NDArray Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+
+
+  publish-packages:
+    needs: [publish-project]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Publish NDArray Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-ndarray
+
+      - name: Publish Metrics Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-metrics
+
+      - name: Publish Preprocessing Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-preprocessing
+
+      - name: Publish Metrics Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-metrics
+
+      - name: Publish Datasets Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-datasets
+
+      - name: Publish Autodiff Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-autodiff
+
+      - name: Publish KNN Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-knn
+
+      - name: Publish Bayes Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-bayes
+
+      - name: Publish Clustering Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-clustering
+
+      - name: Publish Regression Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-regression
+
+      - name: Publish Trees Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-trees
+
+      - name: Publish Models Package
+        run: cargo publish --token $CRATES_IO_TOKEN
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
+        working-directory: crates/dendritic-models

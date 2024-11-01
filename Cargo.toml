@@ -1,34 +1,16 @@
-[workspace]
-
-members = [
-    "ndarray",
-    "metrics",
-    "autodiff",
-    "regression",
-    "preprocessing",
-    "models",
-    "datasets",
-    "trees",
-    "bayes", 
-    "knn"
-]
-
-
-[workspace.package]
-name = "steepgrad"
-version = "0.3.0"
+[package]
+name = "dendritic"
+version = "1.1.3"
 edition = "2021"
+description = "Machine learning library for Rust"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[workspace.dependencies]
-ndarray = { path= "./ndarray" }
-metrics = { version = "0.3.0", path= "./metrics" }
-autodiff = { version = "0.3.0", path= "./autodiff" }
-regression = { version = "0.3.0", path= "./regression" }
-preprocessing = { version = "0.3.0", path= "./preprocessing" }
-models = { version = "0.3.0", path= "./models" }
-datasets = { version = "0.3.0", path= "./datasets" }
-trees = { version = "0.3.0", path= "./trees" }
-bayes = { version = "0.3.0", path= "./bayes" }
-knn = { version = "0.3.0", path= "./knn" }
+
+[workspace]
+members = ["crates/*"]
+
+[workspace.package]
+version = "1.1.2"
+edition = "2021"
