@@ -1,11 +1,11 @@
- # Dendritic K Nearest Neighbors Crate
+ # Dendritic Metrics Crate
 
- This crate contains functionality for performing K nearest neighbors for classification and regression.
- Package also contains all distance metrics that can be used across dendritic.
+ This crate contains metrics for measuring loss, accuracy of general ML models available for dendritic.
+ Metrics contain loss and activiation functions.
 
  ## Features
- - **KNN**: KNN regressor and classifier.
- - **Distance**: Module with various distance metrics
+ - **Activations**: Activation functions for non linear data.
+ - **Loss**: Loss functions for measuring accuracy of classifiers/regressors
 
  ## Disclaimer
  The dendritic project is a toy machine learning library built for learning and research purposes.
@@ -16,32 +16,47 @@
  To get started, add this to your `Cargo.toml`:
  ```toml
  [dependencies]
- dendritic-knn = "1.1.0"
+ dendritic-metrics = "0.1"
  ```
  ## Example Usage
- This is an example of using the KNN classifier
+ This is an example of some of the loss and activation functions dendritic has to offer
  ```rust
- use dendritic_datasets::iris::*;
- use dendritic_knn::knn::*;
- use dendritic_knn::distance::*; 
-
+ use dendritic_ndarray::ndarray::NDArray;
+ use dendritic_ndarray::ops::*;
+ use dendritic_metrics::activations::*; 
+ use dendritic_metrics::loss::*; 
+ 
  fn main() {
 
-    // Load iris flowers dataset
-    let (x, y) = load_iris("../dendritic-datasets/data/iris.parquet").unwrap();
-    let (x_train, x_test) = x.split(0, 0.80).unwrap(); // split rows with 80/20 split
-    let (y_train, y_test) = y.split(0, 0.80).unwrap();
+     // Mocked Prediction values
+     let y_pred: NDArray<f64> = NDArray::array(
+         vec![10, 1],
+         vec![
+             0.0, 0.0, 1.0, 0.0, 1.0,
+             1.0, 1.0, 1.0, 1.0, 1.0
+         ]
+      ).unwrap();
 
-    let clf = KNN::fit(
-        &x_train, 
-        &y_train, 
-        4, 
-        euclidean
-    ).unwrap();
+      // Mocked true values
+      let y_true: NDArray<f64> = NDArray::array(
+         vec![10, 1],
+         vec![
+             0.19, 0.33, 0.47, 0.7, 0.74,
+             0.81, 0.86, 0.94, 0.97, 0.99
+         ]
+      ).unwrap();
 
-    let predictions = clf.predict(&x_test);
-    println!("Actual: {:?}", predictions.values());
-    println!("Prediction: {:?}", y_test.values()); 
+      // Calculate binary cross entropy for predicted and true values
+      let result = binary_cross_entropy(&y_true, &y_pred).unwrap();
+      println!("{:?}", result); 
 
+      // Input dataset to perform softmax activation
+      let input: NDArray<f64> = NDArray::array(
+         vec![3, 1],
+         vec![1.0, 1.0, 1.0]
+      ).unwrap();
+
+      let sm_result = softmax_prime(input);
+      println!("{:?}", sm_result.values()); 
  }
  ```
