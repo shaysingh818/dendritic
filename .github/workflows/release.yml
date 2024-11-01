@@ -94,19 +94,6 @@ jobs:
         working-directory: crates/dendritic-autodiff
 
 
-  publish-knn:
-    needs: [publish-project]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-i
-      - name: Publish KNN Package
-        run: cargo publish --token $CRATES_IO_TOKEN
-        env:
-          CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
-        working-directory: crates/dendritic-knn
 
 
   publish-bayes:
