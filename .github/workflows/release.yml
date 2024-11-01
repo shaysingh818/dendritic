@@ -101,7 +101,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-i
+
       - name: Publish KNN Package
         run: cargo publish --token $CRATES_IO_TOKEN
         env:
@@ -146,7 +146,7 @@ i
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-i
+
       - name: Publish Regression Package
         run: cargo publish --token $CRATES_IO_TOKEN
         env:
@@ -161,7 +161,7 @@ i
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-i
+
       - name: Publish Trees Package
         run: cargo publish --token $CRATES_IO_TOKEN
         env:
