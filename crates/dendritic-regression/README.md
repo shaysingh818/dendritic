@@ -17,12 +17,6 @@
  It is not advised by the maintainer to use this library as a production ready machine learning library.
  This is a project that is still very much a work in progress.
 
- ## Getting Started
- To get started, add this to your `Cargo.toml`:
- ```toml
- [dependencies]
- dendritic-regression = "1.1.0"
- ```
  ## Example Linear Model Usage
  This is an example of using the linear models available in the regression crate for dendritic. 
  The examples will contain use of `Linear`, `Ridge`, `Lasso` and `ElasticNet`

@@ -12,12 +12,6 @@
 //! - **Elastic Net**: One hot encoding for multi class data
 //! - **Logistic**: One hot encoding for multi class data
 //!
-//! ## Getting Started
-//! To get started, add this to your `Cargo.toml`:
-//! ```toml
-//! [dependencies]
-//! dendritic-regression = "0.1"
-//! ```
 //! ## Example Linear Model Usage
 //! This is an example of using the linear models available in the regression crate for dendritic. 
 //! The examples will contain use of `Linear`, `Ridge`, `Lasso` and `ElasticNet`

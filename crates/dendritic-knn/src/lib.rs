@@ -7,12 +7,6 @@
 //! - **KNN**: KNN regressor and classifier.
 //! - **Distance**: Module with various distance metrics
 //!
-//! ## Getting Started
-//! To get started, add this to your `Cargo.toml`:
-//! ```toml
-//! [dependencies]
-//! dendritic-knn = "0.1"
-//! ```
 //! ## Example Usage
 //! This is an example of using the KNN classifier
 //! ```rust

@@ -7,13 +7,6 @@
 //! ## Features
 //! - **K Means**: Standard K means clustering
 //!
-//! ## Getting Started
-//! To get started, add this to your `Cargo.toml`:
-//! ```toml
-//! [dependencies]
-//! dendritic-clustering = "0.1"
-//! ```
-//!
 //! ## Example Usage
 //! This is an example of using the K means clustering module
 //! ```rust

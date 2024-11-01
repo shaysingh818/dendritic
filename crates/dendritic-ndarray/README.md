@@ -14,13 +14,6 @@
  It is not advised by the maintainer to use this library as a production ready machine learning library.
  This is a project that is still very much a work in progress.
 
- ## Getting Started
- To get started, add this to your `Cargo.toml`:
- ```toml
- [dependencies]
- dendritic-ndarray = "1.1.0"
- ```
-
  ## Supported operation types
  Currently the numerical operations are only supported for `f64` types. This will change in future releases.
 

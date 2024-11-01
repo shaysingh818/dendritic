@@ -1,8 +1,8 @@
 # Dendritic
 [![Downloads](https://img.shields.io/crates/d/dendritic)](https://img.shields.io/crates/d/dendritic)
-[![Build Status](https://github.com/shaysingh818/Dendritic/actions/workflows/pipeline.yml/badge.svg)](https://github.com/shaysingh818/Dendrite/actions)
-[![dependency status](https://deps.rs/repo/github/shaysingh818/Dendritic/status.svg)](https://deps.rs/repo/github/shaysingh818/Dendrite)
-[![codecov](https://codecov.io/gh/wangfenjin/duckdb-rs/branch/main/graph/badge.svg?token=0xV88q8KU0)](https://codecov.io/gh/wangfenjin/duckdb-rs)
+[![Build Status](https://github.com/shaysingh818/Dendritic/actions/workflows/pipeline.yml/badge.svg)](https://github.com/shaysingh818/Dendritic/actions)
+[![dependency status](https://deps.rs/repo/github/shaysingh818/Dendritic/status.svg)](https://deps.rs/repo/github/shaysingh818/Dendritic)
+[![codecov](https://codecov.io/gh/shaysingh818/Dendritic/branch/main/graph/badge.svg?token=0xV88q8KU0)](https://codecov.io/gh/shaysingh818/Denritic)
 [![Latest Version](https://img.shields.io/crates/v/dendritic.svg)](https://crates.io/crates/dendritic)
 [![Docs](https://img.shields.io/badge/docs.rs-denritic-green)](https://docs.rs/dendritic)
 
@@ -35,7 +35,7 @@ To install a package, add the following to your `Cargo.toml` file.
 
 ```toml
 [dependencies]
-dendritic = { version = "1.1.3", features = ["bundled"] }
+dendritic = { version = "<LATEST_VERSION>", features = ["bundled"] }
 ```
 
 ## Example IRIS Flowers Prediction
@@ -43,11 +43,11 @@ Down below is an example of using a multi class logstic regression model on the 
 For more examples, refer to the `dendritic-models/src/main.rs` file. 
 
 ```rust
-use datasets::iris::*;
-use regression::logistic::*;
-use metrics::loss::*;
-use metrics::activations::*;
-use preprocessing::encoding::*;
+use dendritic_datasets::iris::*;
+use dendritic_regression::logistic::*;
+use dendritic_metrics::loss::*;
+use dendritic_metrics::activations::*;
+use dendritic_preprocessing::encoding::*;
 
 
 fn main() {

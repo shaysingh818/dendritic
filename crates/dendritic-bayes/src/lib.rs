@@ -7,13 +7,6 @@
 //! - **Guassian Bayes**: Bayesian model that uses gaussian density function for predicting likelihoods
 //! - **Naive Bayes**: Standard naive bayes model
 //!
-//! ## Getting Started
-//! To get started, add this to your `Cargo.toml`:
-//! ```toml
-//! [dependencies]
-//! dendritic-bayes = "0.1"
-//! ```
-//!
 //! ## Example Usage
 //! This is an example of using both the naive and gaussian bayes models
 //! ```rust

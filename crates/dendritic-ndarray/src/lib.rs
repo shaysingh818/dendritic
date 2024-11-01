@@ -11,13 +11,6 @@
 //! - **Shape**: Shape structure for representing dimension of N Dimensional value
 //! - **Ops**: Operations broken down into different categories supported by the NDArray module
 //!
-//! ## Getting Started
-//! To get started, add this to your `Cargo.toml`:
-//! ```toml
-//! [dependencies]
-//! dendritic-ndarray = "1.1.0"
-//! ```
-//!
 //! ## Supported operation types
 //! Currently the numerical operations are only supported for `f64` types. This will change in future releases.
 

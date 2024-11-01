@@ -8,12 +8,6 @@
 //! - **Random Forest**: One hot encoding for multi class data
 //! - **Bootstrap**: One hot encoding for multi class data
 //!
-//! ## Getting Started
-//! To get started, add this to your `Cargo.toml`:
-//! ```toml
-//! [dependencies]
-//! dendritic-trees = "1.1.0"
-//! ```
 //! ## Example Usage
 //! This is an example of using the decision tree classifier model provided by dendritic.
 //! The example below uses decision trees but random forest can be used with  `RandomForestClassifier` or `RandomForestRegressor`.

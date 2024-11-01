@@ -10,13 +10,6 @@
 //! - **Ops**: Operations with forward and backward pass implemented
 //! - **Regularizers**: Operations specific to weight regualarization to prevent overfitting
 //!
-//! ## Getting Started
-//! To get started, add this to your `Cargo.toml`:
-//! ```toml
-//! [dependencies]
-//! dendritic-autodiff = "0.1"
-//! ```
-//!
 //! ## Example Usage
 //! This is an example of creating the computation graph for a linear operation
 

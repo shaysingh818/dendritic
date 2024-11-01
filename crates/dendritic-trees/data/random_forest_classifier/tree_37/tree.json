@@ -3,7 +3,7 @@
   "feature_idx": 0,
   "value": null,
   "mse": null,
-  "information_gain": 0.9182958340544896,
+  "information_gain": 0.6500224216483542,
   "left": {
     "threshold": 0.0,
     "feature_idx": 0,
@@ -18,7 +18,7 @@
     "feature_idx": 1,
     "value": null,
     "mse": null,
-    "information_gain": 0.8112781244591328,
+    "information_gain": 0.7219280948873623,
     "left": {
       "threshold": 0.0,
       "feature_idx": 0,

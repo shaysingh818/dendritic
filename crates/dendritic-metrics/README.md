@@ -12,12 +12,6 @@
  It is not advised by the maintainer to use this library as a production ready machine learning library.
  This is a project that is still very much a work in progress.
 
- ## Getting Started
- To get started, add this to your `Cargo.toml`:
- ```toml
- [dependencies]
- dendritic-metrics = "0.1"
- ```
  ## Example Usage
  This is an example of some of the loss and activation functions dendritic has to offer
  ```rust
