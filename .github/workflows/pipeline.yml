@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build
-      working-directory: "./crates"
+      working-directory: "./crate/dendritic-ndarray"
       run: cargo build  --release --color always
 
     - name: Test
