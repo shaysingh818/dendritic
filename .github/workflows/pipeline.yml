@@ -16,8 +16,8 @@ jobs:
       run: cargo build  --release --color always
 
     - name: Test
-      working-directory: "./crates"
-      run: cargo test -p dendritic-ndarray --color always
+      working-directory: "./crates/dendritic-ndarray"
+      run: cargo test --release --color always
 
   metrics:
     runs-on: ubuntu-20.04
