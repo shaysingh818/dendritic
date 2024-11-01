@@ -43,11 +43,11 @@ Down below is an example of using a multi class logstic regression model on the 
 For more examples, refer to the `dendritic-models/src/main.rs` file. 
 
 ```rust
-use datasets::iris::*;
-use regression::logistic::*;
-use metrics::loss::*;
-use metrics::activations::*;
-use preprocessing::encoding::*;
+use dendritic_datasets::iris::*;
+use dendritic_regression::logistic::*;
+use dendritic_metrics::loss::*;
+use dendritic_metrics::activations::*;
+use dendritic_preprocessing::encoding::*;
 
 
 fn main() {

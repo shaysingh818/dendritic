@@ -14,14 +14,7 @@
 //! - **Customer Purchase**: Customer purchase data for multi class classification
 //! - **Boston Housing**: Boston housing data for regression tasks
 //! - **Student Performance**: Student test scores for regression tasks
-//! - **Airfoil Nooise**: Airfoil noise data for regression tasks
-//!
-//! ## Getting Started
-//! To get started, add this to your `Cargo.toml`:
-//! ```toml
-//! [dependencies]
-//! dendritic-datasets = "0.1"
-//! ```
+//! - **Airfoil Noise**: Airfoil noise data for regression tasks
 //!
 //! ## Example Usage
 //! This is an example of using any of the preloaded datasets for dendritic

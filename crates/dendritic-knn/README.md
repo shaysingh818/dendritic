@@ -12,12 +12,6 @@
  It is not advised by the maintainer to use this library as a production ready machine learning library.
  This is a project that is still very much a work in progress.
 
- ## Getting Started
- To get started, add this to your `Cargo.toml`:
- ```toml
- [dependencies]
- dendritic-knn = "1.1.0"
- ```
  ## Example Usage
  This is an example of using the KNN classifier
  ```rust

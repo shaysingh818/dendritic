@@ -7,12 +7,6 @@
 //! - **Activations**: Activation functions for non linear data.
 //! - **Loss**: Loss functions for measuring accuracy of classifiers/regressors
 //!
-//! ## Getting Started
-//! To get started, add this to your `Cargo.toml`:
-//! ```toml
-//! [dependencies]
-//! dendritic-metrics = "0.1"
-//! ```
 //! ## Example Usage
 //! This is an example of some of the loss and activation functions dendritic has to offer
 //! ```rust
