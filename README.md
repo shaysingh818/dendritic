@@ -1,8 +1,8 @@
 # Dendritic
 [![Downloads](https://img.shields.io/crates/d/dendritic)](https://img.shields.io/crates/d/dendritic)
 [![Build Status](https://github.com/shaysingh818/Dendritic/actions/workflows/pipeline.yml/badge.svg)](https://github.com/shaysingh818/Dendritic/actions)
-[![dependency status](https://deps.rs/repo/github/shaysingh818/Dendritic/status.svg)](https://deps.rs/repo/github/shaysingh818/Dendritic)
-[![codecov](https://codecov.io/gh/shaysingh818/Dendritic/branch/main/graph/badge.svg?token=0xV88q8KU0)](https://codecov.io/gh/shaysingh818/Denritic)
+[![dependency status](https://deps.rs/repo/github/shaysingh818/Dendritic/status.svg)](https://deps.rs/repo/github/shaysingh818/dendritic)
+[![codecov](https://codecov.io/gh/shaysingh818/Dendritic/branch/main/graph/badge.svg?token=0xV88q8KU0)](https://codecov.io/gh/shaysingh818/denritic)
 [![Latest Version](https://img.shields.io/crates/v/dendritic.svg)](https://crates.io/crates/dendritic)
 [![Docs](https://img.shields.io/badge/docs.rs-denritic-green)](https://docs.rs/dendritic)
 
