@@ -2,11 +2,65 @@
 #[cfg(test)]
 mod linear {
 
-    use dendritic_ndarray::ndarray::NDArray;
-    use dendritic_ndarray::ops::*;
-    use dendritic_metrics::loss::*;
-    use dendritic_regression::linear::*;
+    use ndarray::prelude::*; 
+    use ndarray::{arr2}; 
+    use dendritic_regression::linear_new::*;
 
+    #[test]
+    fn test_linear_model() {
+
+        let X = arr2(&[
+            [1.0, 2.0, 3.0],
+            [2.0, 3.0, 4.0],
+            [3.0, 4.0, 5.0],
+            [4.0, 5.0, 6.0],
+            [5.0, 6.0, 7.0]
+        ]);
+
+        let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
+
+        let linear_model = LinearRegression::new(&X, &y).unwrap();
+        assert_eq!(linear_model.X.shape(), &[5, 3]); 
+        assert_eq!(linear_model.y.shape(), &[5, 1]); 
+        assert_eq!(linear_model.coefficients.shape(), &[3, 1]); 
+
+        let X_bad = arr2(&[
+            [1.0, 2.0],
+            [1.0, 2.0]
+        ]);
+
+        let y_bad = arr2(&[[1.0], [2.0], [3.0]]);
+
+        let bad_model = LinearRegression::new(&X_bad, &y_bad);
+        assert_eq!(
+            bad_model.unwrap_err(),
+            "Rows of X and y must be equal: 2 != 3"
+        );
+ 
+    }
+
+
+    #[test]
+    fn test_linear_model_fit() -> Result<(), Box<dyn std::error::Error>> {
+
+        let X = arr2(&[
+            [1.0, 2.0, 3.0],
+            [2.0, 3.0, 4.0],
+            [3.0, 4.0, 5.0],
+            [4.0, 5.0, 6.0],
+            [5.0, 6.0, 7.0]
+        ]);
+
+        let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
+
+        let mut linear_model = LinearRegression::new(&X, &y).unwrap();
+        linear_model.fit()?;
+
+        Ok(())
+ 
+    }
+
+    /*
     #[test]
     fn test_linear_model() {
 
@@ -152,7 +206,7 @@ mod linear {
 
         Ok(())
 
-    } 
+    } */
 
 
 }

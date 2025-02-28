@@ -51,4 +51,5 @@
 //! This is a project that is still very much a work in progress.
 pub mod node;
 pub mod ops;
-pub mod regularizers; 
+pub mod regularizers;
+pub mod value; 

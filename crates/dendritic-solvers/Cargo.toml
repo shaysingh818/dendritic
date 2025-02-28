@@ -1,0 +1,13 @@
+[package]
+name = "dendritic-solvers"
+version = { workspace = true }
+edition = { workspace = true }
+description = "Solvers package for various optimization purposes"
+license = "MIT"
+
+[dependencies]
+ndarray = "0.16.1"
+dendritic = {version = "1.5.0", path = "../../" }
+dendritic-ndarray = { version = "1.5.0", path = '../dendritic-ndarray' }
+dendritic-metrics = { version = "1.5.0", path = '../dendritic-metrics' }
+ndarray-linalg = "0.17.0"

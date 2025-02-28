@@ -115,6 +115,7 @@
 //! This is a project that is still very much a work in progress.
 pub mod logistic;
 pub mod linear;
+pub mod linear_new; 
 pub mod ridge;
 pub mod lasso;
 pub mod elastic_net;
