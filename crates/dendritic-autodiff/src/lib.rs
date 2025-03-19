@@ -52,4 +52,6 @@
 pub mod node;
 pub mod ops;
 pub mod regularizers;
-pub mod value; 
+pub mod value;
+pub mod tensor;
+pub mod graph; 

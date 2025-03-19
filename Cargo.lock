@@ -695,6 +695,7 @@ dependencies = [
  "dendritic",
  "dendritic-metrics",
  "dendritic-ndarray",
+ "ndarray",
  "rand",
  "serde",
  "serde_json",

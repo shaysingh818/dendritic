@@ -1,62 +1,78 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::ops::{Add, Sub}; 
+use std::fmt::Debug; 
+use std::cmp::PartialEq; 
+
 
 /// Value node for computation graph
 #[derive(Debug, Clone, Default)]
-pub struct Value<T> {
+pub struct Tensor<T> {
     pub value: Rc<RefCell<T>>,
-    pub forward_derivative: Rc<RefCell<T>>,
-    pub central_derivative: Rc<RefCell<T>>,
-    pub backward_derivative: Rc<RefCell<T>>,
     pub gradient: Rc<RefCell<T>>,
 }
 
+impl<T: Clone> Tensor<T> {
 
-impl<T: Clone> Value<T> {
-
-    /// Create new instance of value for comptuation graph
-    pub fn new(value: &T) -> Value<T> {
+    /// Create new instance of value (leafs/terminal nodes in graph)
+    pub fn new(value: &T) -> Tensor<T> {
         
-        Value {
-            value: Rc::new(RefCell::new(value)),
-            gradient: Rc::new(RefCell::new(value)),
-            forward_derivative: Rc::new(RefCell::new(value)),
-            central_derivative: Rc::new(RefCell::new(value)),
-            gradient: Rc::new(RefCell::new(value)),
+        Tensor {
+            value: Rc::new(RefCell::new(value.clone())),
+            gradient: Rc::new(RefCell::new(value.clone()))
+        }
+    }
+
+    /// Create new instance of value with gradient
+    pub fn full(value: &T, gradient: &T) -> Tensor<T> {
+        
+        Tensor {
+            value: Rc::new(RefCell::new(value.clone())),
+            gradient: Rc::new(RefCell::new(gradient.clone()))
         }
     }
 
     /// Get value associated with structure
-    pub fn value(&self) -> &T {
-        self.value.borrow()
-    }
-
-    /// Returns forward derivative of value
-    pub fn forward(&self) -> &T {
-        self.forward_derivative.borrow()
-    }
-
-    /// Returns central derivative of value
-    pub fn central(&self) -> &T {
-        self.central_derivative.borrow()
-    }
-
-    /// Returns backward derivative of value
-    pub fn backward(&self) -> &T {
-        self.backward_derivative.borrow()
+    pub fn value(&self) -> T {
+        self.value.borrow().clone()
     }
 
     /// Get gradient of value
-    pub fn gradient(&self) -> T {
+    pub fn grad(&self) -> T {
         self.gradient.borrow().clone()
     }
 
     /// Set value associated with structure
-    pub fn set_value(&mut self, value: &T) {
-        self.value.replace(value);
+    pub fn set_value(&self, val: &T) {
+        self.value.replace(val.clone());
     }
 
-    /// Set gradient of value in computation graph
-    pub fn set_gradient(&mut self, value: &T) {
-        self.gradient.replace(value);
+    /// Set gradient of value
+    pub fn set_grad(&self, grad: &T) {
+        self.gradient.replace(grad.clone());
     }
+}
+
+
+#[macro_export]
+macro_rules! tensor {
+
+    ($val:expr) => {
+        Tensor::new(&$val)
+    };
+
+    ($val:expr, $grad:expr) => {
+        Tensor::full(&$val, &$grad)
+    };
 
 }
+
+
+
+
+
+
+
+
+
+
