@@ -1,7 +1,5 @@
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::fmt::Debug; 
-use std::cmp::PartialEq; 
+
 
 /// Value node for computation graph
 #[derive(Debug, Clone, Default)]
@@ -12,7 +10,7 @@ pub struct Tensor<T> {
 
 impl<T: Clone> Tensor<T> {
 
-    /// Create new instance of value (leafs/terminal nodes in graph)
+    /// Create new instance of tensor value
     pub fn new(value: &T) -> Tensor<T> {
         
         Tensor {

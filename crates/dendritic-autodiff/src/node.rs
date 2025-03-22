@@ -1,82 +1,64 @@
-use dendritic_ndarray::ndarray::NDArray;
-use std::rc::Rc; 
-use std::cell::{RefCell}; 
+use crate::tensor::Tensor; 
+use std::fmt; 
 
+pub trait Operation<T> {
 
-/// Methods for each value in computation graph
-pub trait Node {
-    fn forward(&mut self); 
-    fn backward(&mut self, upstream_gradient: NDArray<f64>); 
-    fn value(&self) -> NDArray<f64>;
-    fn grad(&self) -> NDArray<f64>;
-    fn set_grad(&mut self, upstream_gradient: NDArray<f64>);
+    fn forward(&self, inputs: &mut Vec<Tensor<T>>) -> T;
+
+    fn backward(&self, inputs: &mut Vec<Tensor<T>>); 
 }
 
 
-/// Value node for computation graph
-#[derive(Debug, Clone, Default)]
-pub struct Value<T> {
-    pub value: Rc<RefCell<T>>,
-    pub gradient: Rc<RefCell<T>>,
+impl<T> fmt::Debug for Box<dyn Operation<T>> {
+
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Operation trait") 
+    }
+
 }
 
-impl<T: Clone> Value<T> {
+/// Base node structure that captures an operation
+#[derive(Debug)]
+pub struct Node<T> {
+    pub inputs: Vec<Tensor<T>>,
+    pub output: Tensor<T>,
+    pub operation: Box<dyn Operation<T>>
+}
 
-    /// Create new instance of value for comptuation graph
-    pub fn new(value: &T) -> Value<T> {
-        
-        Value {
-            value: Rc::new(RefCell::new(value.clone())),
-            gradient: Rc::new(RefCell::new(value.clone()))
+
+impl<T: Clone> Node<T> {
+
+    pub fn binary(
+        lhs: T, 
+        rhs: T,
+        op: Box<dyn Operation<T>>) -> Self {
+
+        Node {
+            inputs: vec![
+                Tensor::new(&lhs),
+                Tensor::new(&rhs)
+            ],
+            output: Tensor::new(&rhs),
+            operation: op
         }
     }
 
-    /// Get value associated with structure
-    pub fn val(&self) -> T {
-        self.value.borrow().clone()
+    pub fn inputs(&self) -> &Vec<Tensor<T>> {
+        &self.inputs
     }
 
-    /// Get gradient of value
-    pub fn grad(&self) -> T {
-        self.gradient.borrow().clone()
+    pub fn output(&self) -> &Tensor<T> {
+        &self.output
     }
 
-    /// Set value associated with structure
-    pub fn set_val(&mut self, val: &T) {
-        self.value.replace(val.clone());
+    pub fn forward(&mut self) {
+        let output = self.operation.forward(&mut self.inputs);
+        self.output = Tensor::new(&output); 
     }
 
-    /// Set gradient of value in computation graph
-    pub fn set_grad(&mut self, value: &T) {
-        self.gradient.replace(value.clone());
+    pub fn backward(&mut self) {
+        self.operation.backward(&mut self.inputs);
     }
 
 }
 
-
-impl Node for Value<NDArray<f64>> {
-
-    /// Forward operation for a value
-    fn forward(&mut self) {} 
-
-    /// Set gradient from upstream for value
-    fn set_grad(&mut self, upstream_gradient: NDArray<f64>) {
-        self.gradient.replace(upstream_gradient);
-    } 
-
-    /// Set gradient from upstream in backward pass
-    fn backward(&mut self, upstream_gradient: NDArray<f64>) {
-        self.gradient.replace(upstream_gradient);        
-    } 
-
-    /// Retrieve value from node in computation graph
-    fn value(&self) -> NDArray<f64> { 
-        self.value.borrow().clone()
-    }
-
-    /// Retrieve gradient from node in computation graph
-    fn grad(&self) -> NDArray<f64> { 
-        self.gradient.borrow().clone()
-    }
-
-}

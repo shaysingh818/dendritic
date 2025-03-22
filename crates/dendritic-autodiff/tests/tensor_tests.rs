@@ -2,7 +2,7 @@
 #[cfg(test)]
 mod value_test {
 
-    use dendritic_autodiff::{tensor, tensor::{Tensor}}; 
+    use dendritic_autodiff::tensor::Tensor;
     use ndarray::prelude::*; 
     use ndarray::{arr2};
 

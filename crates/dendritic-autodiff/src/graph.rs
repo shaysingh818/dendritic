@@ -1,35 +1,47 @@
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::fmt::Debug;
 use std::fmt; 
-use std::cmp::PartialEq; 
-use crate::tensor::Tensor; 
+use std::any::type_name;
+use crate::tensor::Tensor;
+use crate::node::Node; 
 
+
+pub fn log_type<T>(value: T) {
+    println!("Type of value is: {}", type_name::<T>());
+}
+
+
+/*
+pub trait Operation<T> {
+
+    fn forward(&self, inputs: &mut Vec<Tensor<T>>) -> T;
+
+    fn backward(&self, inputs: &mut Vec<Tensor<T>>); 
+}
+
+
+impl<T> fmt::Debug for Box<dyn Operation<T>> {
+
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Operation trait") 
+    }
+
+}
 
 /// Base node structure that captures an operation
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Node<T> {
     pub inputs: Vec<Tensor<T>>,
     pub output: Tensor<T>,
-    pub forward: fn(node: &mut Node<T>),
-    pub backward: fn(node: &Node<T>),
+    pub operation: Box<dyn Operation<T>>
 }
 
-
-#[derive(Clone)]
-pub struct Node2<T> {
-    pub inputs: Vec<Tensor<T>>,
-    pub output: Tensor<T>,
-    pub operation: Box<dyn Operation2<T>>
-}
 
 impl<T: Clone> Node<T> {
 
     pub fn binary(
         lhs: T, 
         rhs: T,
-        forward: fn(node: &mut Node<T>),
-        backward: fn(node: &Node<T>)) -> Self {
+        op: Box<dyn Operation<T>>) -> Self {
 
         Node {
             inputs: vec![
@@ -37,9 +49,7 @@ impl<T: Clone> Node<T> {
                 Tensor::new(&rhs)
             ],
             output: Tensor::new(&rhs),
-            forward: forward,
-            backward: backward
-
+            operation: op
         }
     }
 
@@ -52,47 +62,57 @@ impl<T: Clone> Node<T> {
     }
 
     pub fn forward(&mut self) {
-        (self.forward)(self)
+        let output = self.operation.forward(&mut self.inputs);
+        self.output = Tensor::new(&output); 
     }
 
     pub fn backward(&mut self) {
-        (self.backward)(self)
+        self.operation.backward(&mut self.inputs);
     }
 
 }
 
+#[derive(Debug, Clone)]
+pub struct Add;
 
-impl<T: Clone> Node2<T> {
+impl Operation<f64> for Add {
 
-    pub fn new(lhs: T, rhs: T, op: Box<dyn Operation2<T>>) -> Self {
-
-        Node2 {
-            inputs: vec![
-                Tensor::new(&lhs),
-                Tensor::new(&rhs)
-            ],
-            output: Tensor::new(&rhs),
-            operation: op
-        }
+    fn forward(&self, inputs: &mut Vec<Tensor<f64>>) -> f64 {
+        let lhs = inputs[0].value; 
+        let rhs = inputs[1].value;
+        lhs + rhs
     }
 
-    pub fn forward(&mut self) {
-        self.operation.forward(self)
+    fn backward(&self, inputs: &mut Vec<Tensor<f64>>) {
+        //println!("Backward addition"); 
     }
-
-    /*
-    pub fn backward(&mut self) {
-        self.operation.backward(self)
-    } */
 
 }
 
+#[derive(Debug, Clone)]
+pub struct Sub; 
+
+impl Operation<f64> for Sub {
+
+    fn forward(&self, inputs: &mut Vec<Tensor<f64>>) -> f64 {
+        let lhs = inputs[0].value; 
+        let rhs = inputs[1].value;
+        lhs - rhs
+    }
+
+
+    fn backward(&self, node: &mut Vec<Tensor<f64>>) {
+        //println!("Backward subtraction"); 
+    }
+
+}
+
+*/
 
 /// Computation Graph Structure (genrically defined)
-#[derive(Debug, Clone)]
 pub struct Dendrite<T> {
     pub nodes: Vec<Node<T>>,
-    pub current_node: usize,
+    pub current_node_idx: usize,
     pub reference_count: usize,
 }
 
@@ -102,7 +122,7 @@ impl<T: Clone> Dendrite<T> {
 
         Dendrite {
             nodes: vec![],
-            current_node: 0,
+            current_node_idx: 0,
             reference_count: 0
         }
     }
@@ -112,36 +132,27 @@ impl<T: Clone> Dendrite<T> {
     }
 
     pub fn current_node_idx(&self) -> usize {
-        self.current_node
+        self.current_node_idx
     }
 
     pub fn current_node(&self) -> &Node<T> {
-        &self.nodes[self.current_node]
+        &self.nodes[self.current_node_idx]
     }
 
     pub fn nodes(&self) -> &Vec<Node<T>> {
         &self.nodes
     }
 
+    pub fn forward(&mut self) {
+        for mut node in &mut self.nodes {
+            node.forward();
+        }
+    }
+
 }
 
 
-pub trait Operation<T> {
-
-    fn forward(node: &mut Node<T>);
-
-    fn backward(node: &Node<T>); 
-}
-
-
-pub trait Operation2<T> {
-
-    fn forward(&self, node: &mut Node2<T>);
-
-    fn backward(&self, node: &Node2<T>); 
-}
-
-
+/*
 /// Binary operations for types of f64
 pub trait BinaryOperation {
 
@@ -166,8 +177,7 @@ impl BinaryOperation for Dendrite<f64> {
         let node = Node::binary(
             lhs, 
             rhs,
-            Add::forward,
-            Add::backward
+            Box::new(Add)
         );
 
         self.nodes.push(node);
@@ -178,9 +188,8 @@ impl BinaryOperation for Dendrite<f64> {
 
         let node = Node::binary(
             lhs, 
-            rhs, 
-            Sub::forward, 
-            Sub::backward
+            rhs,
+            Box::new(Sub)
         );
 
         self.nodes.push(node);
@@ -192,12 +201,11 @@ impl UnaryOperation for Dendrite<f64> {
 
     fn u_add(&mut self, rhs: f64) -> &mut Dendrite<f64> {
 
-        let lhs = self.nodes[self.current_node].output.clone();
+        let lhs = self.nodes[self.current_node_idx].output.clone();
         let node = Node::binary(
             lhs.value, 
             rhs,
-            Add::forward,
-            Add::backward
+            Box::new(Add)
         );
 
         self.nodes.push(node);
@@ -205,64 +213,6 @@ impl UnaryOperation for Dendrite<f64> {
         
     }
 
-}
+} */ 
 
 
-#[derive(Debug, Clone)]
-pub struct Add;
-
-#[derive(Debug, Clone)]
-pub struct Add2;
-
-
-impl Operation2<f64> for Add2 {
-
-    fn forward(&self, mut node: &mut Node2<f64>) {
-        //println!("Forward addition");
-        let lhs = &node.inputs[0].value; 
-        let rhs = &node.inputs[1].value;
-        let output = *lhs + *rhs;
-        node.output = Tensor::new(&output); 
-    }
-
-    fn backward(&self, node: &Node2<f64>) {
-        //println!("Backward addition"); 
-    }
-
-}
-
-impl Operation<f64> for Add {
-
-    fn forward(mut node: &mut Node<f64>) {
-        //println!("Forward addition");
-        let lhs = &node.inputs[0].value; 
-        let rhs = &node.inputs[1].value;
-        let output = *lhs + *rhs;
-        node.output = Tensor::new(&output); 
-    }
-
-    fn backward(node: &Node<f64>) {
-        //println!("Backward addition"); 
-    }
-
-}
-
-#[derive(Debug, Clone)]
-pub struct Sub; 
-
-impl Operation<f64> for Sub {
-
-    fn forward(mut node: &mut Node<f64>) {
-        //println!("Forward subtraction");
-        let lhs = &node.inputs[0].value; 
-        let rhs = &node.inputs[1].value;
-        let output = *lhs - *rhs;
-        node.output = Tensor::new(&output); 
-    }
-
-
-    fn backward(node: &Node<f64>) {
-        //println!("Backward subtraction"); 
-    }
-
-}
