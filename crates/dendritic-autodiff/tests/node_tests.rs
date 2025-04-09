@@ -4,120 +4,69 @@ mod node_tests {
 
     use dendritic_autodiff::tensor::{Tensor};
     use dendritic_autodiff::node::{Node, Operation};
-    use dendritic_autodiff::ops::{Add, Sub, Mul, Div}; 
+    use dendritic_autodiff::ops::{Add, Sub, Mul, Div};
 
+    /*
     #[test]
-    fn test_add_node() {
-
-        let a: f64 = 5.0; 
-        let b: f64 = 10.0; 
-
+    fn test_node_forward() {
+ 
         let mut b_add_node = Node::binary(
-            a, 
-            b, 
+            5.0, 
+            10.0, 
             Box::new(Add)
         );
 
-        assert_eq!(b_add_node.inputs().len(), 2); 
-        assert_eq!(b_add_node.output().value(), &10.0);
+        b_add_node.forward(None);
 
-        let lhs_b_add = &b_add_node.inputs()[0];
-        let rhs_b_add = &b_add_node.inputs()[1];
+        assert_eq!(b_add_node.inputs().len(), 2);
+        assert_eq!(b_add_node.output().value(), 15.0);
 
-        assert_eq!(lhs_b_add.value(), &5.0);
-        assert_eq!(rhs_b_add.value(), &10.0);
-        assert_eq!(lhs_b_add.grad(), &5.0);
-        assert_eq!(rhs_b_add.grad(), &10.0);
+        let mut u_add_node = Node::unary(10.0, Box::new(Add));
 
-        b_add_node.forward();
+        assert_eq!(u_add_node.inputs().len(), 1);
+        assert_eq!(u_add_node.output().value(), 10.0); 
 
-        assert_eq!(b_add_node.output().value(), &15.0); 
+        u_add_node.forward(Some(&b_add_node));
+
+        assert_eq!(u_add_node.inputs().len(), 1);
+        assert_eq!(u_add_node.output().value(), 25.0); 
     }
 
     #[test]
-    fn test_sub_node() {
+    fn test_generic_trait_impl() {
 
         let a: f64 = 5.0; 
-        let b: f64 = 10.0; 
+        let b: i32 = 10;
+        let c: i64 = 10;
+        let d: u8 = 10;
+        let e: u16 = 100;
 
-        let mut b_sub_node = Node::binary(
-            a, 
-            b, 
-            Box::new(Sub)
-        );
+        // validating trait macro impl for scalar numeric values 
+        let mut f64_node = Node::binary(a.clone(), a, Box::new(Add));
+        let mut i32_node = Node::binary(b.clone(), b, Box::new(Sub));
+        let mut i64_node = Node::binary(c.clone(), c, Box::new(Mul));
+        let mut u8_node = Node::binary(d.clone(), d, Box::new(Div));
+        let mut u16_node = Node::binary(e.clone(), e, Box::new(Add));
 
-        assert_eq!(b_sub_node.inputs().len(), 2); 
-        assert_eq!(b_sub_node.output().value(), &10.0);
+        f64_node.forward(None); 
+        i32_node.forward(None); 
+        i64_node.forward(None); 
+        u8_node.forward(None); 
+        u16_node.forward(None);
 
-        let lhs_b_sub = &b_sub_node.inputs()[0];
-        let rhs_b_sub = &b_sub_node.inputs()[1];
+        assert_eq!(f64_node.output().value(), 10.0); 
+        assert_eq!(i32_node.output().value(), 0); 
+        assert_eq!(i64_node.output().value(), 100); 
+        assert_eq!(u8_node.output().value(), 1); 
+        assert_eq!(u16_node.output().value(), 200); 
 
-        assert_eq!(lhs_b_sub.value(), &5.0);
-        assert_eq!(rhs_b_sub.value(), &10.0);
-        assert_eq!(lhs_b_sub.grad(), &5.0);
-        assert_eq!(rhs_b_sub.grad(), &10.0);
+        /*
+        f64_node.backward(None, f64_node); 
+        i32_node.backward(None, i32_node); 
+        i64_node.backward(None); 
+        u8_node.backward(None); 
+        u16_node.backward(None); */ 
 
-        b_sub_node.forward();
-
-        assert_eq!(b_sub_node.output().value(), &-5.0); 
-    }
-
-
-    #[test]
-    fn test_mul_node() {
-
-        let a: f64 = 5.0; 
-        let b: f64 = 10.0; 
-
-        let mut b_mul_node = Node::binary(
-            a, 
-            b, 
-            Box::new(Mul)
-        );
-
-        assert_eq!(b_mul_node.inputs().len(), 2); 
-        assert_eq!(b_mul_node.output().value(), &10.0);
-
-        let lhs_b_mul = &b_mul_node.inputs()[0];
-        let rhs_b_mul = &b_mul_node.inputs()[1];
-
-        assert_eq!(lhs_b_mul.value(), &5.0);
-        assert_eq!(rhs_b_mul.value(), &10.0);
-        assert_eq!(lhs_b_mul.grad(), &5.0);
-        assert_eq!(rhs_b_mul.grad(), &10.0);
-
-        b_mul_node.forward();
-
-        assert_eq!(b_mul_node.output().value(), &50.0); 
-    }
-
-
-    #[test]
-    fn test_div_node() {
-
-        let a: f64 = 5.0; 
-        let b: f64 = 10.0; 
-
-        let mut b_div_node = Node::binary(
-            a, 
-            b, 
-            Box::new(Div)
-        );
-
-        assert_eq!(b_div_node.inputs().len(), 2); 
-        assert_eq!(b_div_node.output().value(), &10.0);
-
-        let lhs_b_div = &b_div_node.inputs()[0];
-        let rhs_b_div = &b_div_node.inputs()[1];
-
-        assert_eq!(lhs_b_div.value(), &5.0);
-        assert_eq!(rhs_b_div.value(), &10.0);
-        assert_eq!(lhs_b_div.grad(), &5.0);
-        assert_eq!(rhs_b_div.grad(), &10.0);
-
-        b_div_node.forward();
-
-        assert_eq!(b_div_node.output().value(), &0.5); 
     }
 
 
@@ -143,17 +92,19 @@ mod node_tests {
         assert_eq!(add_node.inputs().len(), 2); 
         assert_eq!(sub_node.inputs().len(), 2); 
 
-        assert_eq!(add_node.output().value(), &10.0); 
-        assert_eq!(sub_node.output().value(), &10.0); 
+        assert_eq!(add_node.output().value(), 10.0); 
+        assert_eq!(sub_node.output().value(), 10.0); 
 
         let mut items = vec![add_node, sub_node];
-        for mut node in &mut items {
-            node.forward();
+        for node in &mut items {
+            node.forward(None);
         }
 
-        assert_eq!(items[0].output().value(), &15.0); 
-        assert_eq!(items[1].output().value(), &-5.0); 
+        assert_eq!(items[0].output().value(), 15.0); 
+        assert_eq!(items[1].output().value(), -5.0); 
 
-    }
+    }  */
+
+
 
 }

@@ -1,14 +1,17 @@
 
 //! # Dendritic Autodifferentiation Crate
 //!
-//! This crate allows for autodifferentiation to be performed during backpropogation of some ML algorithms.
-//! The autodiff library currently supports operations for weight regularization, dot product and elementwise operations.
-//! This crate serves as the base depedencies for most of the algorithms in the regression package
+//! This is a crate focused on automatic differentation & working with derivatives in multiple dimensions.
+//! The autodiff library currently supports operations for simple arithmetic and applying common activation functions. 
+//! This crate aims to have a simple framework for creating differentiable functions that minimize
+//! or maximize another function that measures loss.
 //!
 //! ## Features
-//! - **Node**: Node structure for holding shared methods across all values in a computation graph.
-//! - **Ops**: Operations with forward and backward pass implemented
-//! - **Regularizers**: Operations specific to weight regualarization to prevent overfitting
+//! - **Tensor Values**: This crate supports creating values in multiple dimensions. This achieved
+//! using the `ndarray` crate for rust. 
+//! - **Nodes**: Contains structure for storing nodes (operations). Nodes contain shared routines
+//! that can be extended for different types of operations.
+//! - **Graph**: General graph utility that stores the relationships of operations.
 //!
 //! ## Example Usage
 //! This is an example of creating the computation graph for a linear operation
@@ -22,4 +25,5 @@ pub mod ops;
 pub mod tensor;
 pub mod graph;
 pub mod binary; 
-pub mod unary; 
+pub mod unary;
+pub mod error; 

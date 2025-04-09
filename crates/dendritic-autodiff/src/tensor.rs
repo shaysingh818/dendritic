@@ -1,5 +1,5 @@
 use std::fmt::Debug; 
-
+use crate::node::{Node}; 
 
 /// Value node for computation graph
 #[derive(Debug, Clone, Default)]
@@ -20,13 +20,13 @@ impl<T: Clone> Tensor<T> {
     }
 
     /// Get value associated with structure
-    pub fn value(&self) -> &T {
-        &self.value
+    pub fn value(&self) -> T {
+        self.value.clone()
     }
 
     /// Get gradient of value
-    pub fn grad(&self) -> &T {
-        &self.gradient
+    pub fn grad(&self) -> T {
+        self.gradient.clone()
     }
     /// Set value associated with structure
     pub fn set_value(&mut self, val: T) {
@@ -38,4 +38,17 @@ impl<T: Clone> Tensor<T> {
         self.gradient = grad;
     }
 }
+
+impl<T: Clone> Node<T> for Tensor<T> {
+
+    fn forward(&mut self) -> T {
+        self.value.clone()
+    }
+
+    fn backward(&mut self) {
+        println!("Doing nothing"); 
+    }
+
+}
+
 
