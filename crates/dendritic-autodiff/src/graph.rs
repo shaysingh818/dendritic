@@ -49,6 +49,11 @@ impl<T: Clone> Dendrite<T> {
         self.current_node_idx 
     }
 
+    /// Get path of nodes traversed in most recent forward pass
+    pub fn path(&self) -> Vec<usize> {
+        self.path.clone() 
+    }
+
     /// Get all node references in graph
     pub fn nodes(&self) -> &Vec<RefCell<Box<dyn Node<T>>>> {
         &self.nodes
@@ -95,6 +100,35 @@ impl<T: Clone> Dendrite<T> {
         self
     }
 
+    /// Create unary node with one inputs for operation
+    pub fn unary(
+        &mut self,
+        rhs: Box<dyn Node<T>>,
+        op: Box<dyn Node<T>>) -> &mut Dendrite<T> {
+
+        /*
+        let lhs_idx = self.add_node(lhs); 
+        let rhs_idx = self.add_node(rhs); 
+        let op_idx = self.add_node(op); 
+
+        if let Some(set) = self.adj_list.get_mut(&op_idx) {
+            set.insert(lhs_idx);
+            set.insert(rhs_idx); 
+        } else {
+            panic!("Error adding neighbors to add operation"); 
+        }
+
+        if let Some(set) = self.adj_list.get_mut(&lhs_idx) {
+            set.insert(op_idx); 
+        }
+
+        if let Some(set) = self.adj_list.get_mut(&rhs_idx) {
+            set.insert(op_idx); 
+        } */
+
+        self
+    }
+
 
     /*
     /// Get node index of most recently computed node
@@ -107,10 +141,6 @@ impl<T: Clone> Dendrite<T> {
         self.next_node_idx 
     }
 
-    /// Get path of nodes traversed in most recent forward pass
-    pub fn path(&self) -> Vec<usize> {
-        self.path.clone() 
-    }
 
     /// Borrow mutable reference of a node on the graph with specific index
     pub fn node(&self, index: usize) -> &RefCell<Node<T>> {

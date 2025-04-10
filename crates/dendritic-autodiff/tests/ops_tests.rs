@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod operations_test {
 
-    use dendritic_autodiff::node::{Node, Operation};
-    use dendritic_autodiff::ops::{Add, Sub, Div, Mul};
+    use dendritic_autodiff::node::{Node};
+    //use dendritic_autodiff::ops::{Add, Sub, Div, Mul};
     use ndarray::prelude::*; 
     use ndarray::{arr2};
 

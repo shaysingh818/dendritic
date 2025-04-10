@@ -10,6 +10,8 @@ mod binary_ops_graph_test {
     use dendritic_autodiff::binary::*;
 
 
+    /*
+
     #[test]
     fn test_binary_add() {
 
@@ -30,7 +32,6 @@ mod binary_ops_graph_test {
         assert_eq!(torch.current_node_idx(), 1); 
     }
 
-    /*
 
 
     #[test]

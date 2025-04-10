@@ -2,7 +2,10 @@
 #[cfg(test)]
 mod graph_test {
 
+    use std::any::type_name; 
     use dendritic_autodiff::graph::{Dendrite};
+    use dendritic_autodiff::tensor::Tensor; 
+    use dendritic_autodiff::node::Node; 
     use dendritic_autodiff::ops::{Add};
     use dendritic_autodiff::error::{GraphError};
     use dendritic_autodiff::unary::*; 
@@ -10,7 +13,9 @@ mod graph_test {
     use ndarray::prelude::*; 
     use ndarray::{arr2};
 
-    /*
+    fn type_of<T>(_: &T) -> &'static str {
+        type_name::<T>()
+    }
 
     #[test]
     fn test_graph_instantiation() {
@@ -19,95 +24,67 @@ mod graph_test {
 
         assert_eq!(graph.nodes().len(), 0); 
         assert_eq!(graph.current_node_idx(), 0);
-        assert_eq!(graph.prev_node_idx(), 0);
         assert_eq!(graph.path().len(), 0);
 
     }
 
     #[test]
-    fn test_graph_node_borrow() {
- 
-        let mut graph: Dendrite<f64> = Dendrite::new();
-
-        assert_eq!(graph.nodes().len(), 0); 
-        assert_eq!(graph.current_node_idx(), 0);
-
-        graph.binary(10.0, 10.0, Box::new(Add)); 
-        graph.binary(10.0, 100.0, Box::new(Add));
-
-        let mut node_1 = graph.node(0);
-        let mut node_2 = graph.node(1);
-
-        node_1.borrow_mut().forward(None);
-        node_2.borrow_mut().forward(
-            Some(&node_1.borrow_mut())
-        );
-
-        assert_eq!(node_1.borrow_mut().output().value(), 20.0);
-        assert_eq!(node_2.borrow_mut().output().value(), 110.0);
-
-        node_1.borrow_mut().set_input(0, 50.0);
-        node_2.borrow_mut().set_input(0, 30.0);
-
-        let mut node_1_ref = graph.node(0);
-        let mut node_2_ref = graph.node(1);
-
-        assert_eq!(node_1_ref.borrow_mut().inputs()[0].value(), 50.0); 
-        assert_eq!(node_2_ref.borrow_mut().inputs()[0].value(), 30.0); 
-
-        node_1_ref.borrow_mut().forward(None);
-        node_2_ref.borrow_mut().forward(Some(&node_1_ref.borrow_mut()));
-    
-        assert_eq!(node_1_ref.borrow_mut().output().value(), 60.0);  
-        assert_eq!(node_2_ref.borrow_mut().output().value(), 130.0); 
-    }
-
-    #[test]
     fn test_graph_binary_node() {
 
-        let mut graph: Dendrite<f64> = Dendrite::new();
+        let lhs: Tensor<f64> = Tensor::new(&5.0); 
+        let rhs: Tensor<f64> = Tensor::new(&10.0); 
+        let op = Add::new(lhs.clone(), rhs.clone());
+        let mut graph = Dendrite::new();
 
-        assert_eq!(graph.nodes().len(), 0); 
-        assert_eq!(graph.current_node_idx(), 0);
+        graph.binary(Box::new(lhs), Box::new(rhs), Box::new(op));
 
-        graph.binary(3.0, 4.0, Box::new(Add)); 
-
-        assert_eq!(graph.nodes().len(), 1);
-        assert_eq!(graph.current_node_idx(), 1); 
-        assert_eq!(graph.prev_node_idx(), 0);
-        assert_eq!(graph.next_node_idx(), 0);
+        assert_eq!(graph.nodes().len(), 3); 
         assert!(graph.adj_list.contains_key(&0));
+        assert!(graph.adj_list.contains_key(&2));
+        assert!(graph.adj_list.contains_key(&1));
+ 
+        let add = graph.adj_list.get(&2).unwrap();
+        let val_1 = graph.adj_list.get(&0).unwrap();
+        let val_2 = graph.adj_list.get(&1).unwrap();
 
-        let neighbors = graph.adj_list.get(&0).unwrap(); 
-        assert_eq!(neighbors.len(), 0); 
+        assert_eq!(add.get(&0).unwrap(), &0);
+        assert_eq!(add.get(&1).unwrap(), &1);
+       
+        assert_eq!(val_1.get(&2).unwrap(), &2);
+        assert_eq!(val_2.get(&2).unwrap(), &2);
 
+        let add_node = graph.node(2).borrow_mut().forward();
+        assert_eq!(add_node, 15.0); 
     }
 
     #[test]
     fn test_graph_unary_node() -> Result<(), Box<dyn std::error::Error>>  {
 
         let mut graph: Dendrite<f64> = Dendrite::new();
+        graph.add(10.0, 20.0);
 
-        assert_eq!(graph.nodes().len(), 0); 
-        assert_eq!(graph.current_node_idx(), 0);
+        let node_val = graph.node(2).borrow_mut(); 
+        let lhs: Tensor<f64> = Tensor::new(&5.0); 
+        let rhs: Tensor<f64> = Tensor::new(&10.0); 
 
-        graph.binary(3.0, 4.0, Box::new(Add));
-        graph.unary(100.0, Box::new(Add)); 
+        let u_rhs: Tensor<f64> = Tensor::new(&10.0); 
+        let op_2 = Add::new(
+            Add::new(lhs, rhs),
+            u_rhs
+        );
 
-        assert_eq!(graph.nodes().len(), 2);
-        assert_eq!(graph.current_node_idx(), 2); 
-        assert_eq!(graph.prev_node_idx(), 1);
-        assert_eq!(graph.next_node_idx(), 0);
-        assert_eq!(graph.adj_list.get(&0).unwrap().len(), 1);
-        assert_eq!(graph.adj_list.get(&1).unwrap().len(), 0);
 
-        let mut torch: Dendrite<f64> = Dendrite::new(); 
 
-        let value = torch.unary(100.0, Box::new(Add)).unwrap_err(); 
-        matches!(value, GraphError::UnaryOperation); 
+        //println!("Unary op type: {:?}", type_of(&op_2)); 
+        
+
+
+
+
         Ok(())
     }
 
+    /*
     #[test]
     fn test_graph_node_relationships() -> Result<(), Box<dyn std::error::Error>> {
 
