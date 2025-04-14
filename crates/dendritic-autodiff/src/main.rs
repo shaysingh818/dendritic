@@ -1,39 +1,33 @@
-use dendritic_autodiff::node::{Node};
-use dendritic_autodiff::ops::{Add};
-use dendritic_autodiff::binary::*;
+use dendritic_autodiff::node::{Node, Operation};
+use dendritic_autodiff::ops::{Add, Sub, Mul, Div};
 use dendritic_autodiff::tensor::{Tensor}; 
 use dendritic_autodiff::graph::{Dendrite}; 
-use std::cell::RefCell; 
+use dendritic_autodiff::binary::*;
+use dendritic_autodiff::unary::*;
 
 fn main() {
 
-    println!("Testing funcs");
+    let a = 3.0;
+    let b = 1.0;
+    let c = -2.0; 
 
+    // Shared parameter example expression: (a+b) * (b+1)
     let mut torch = Dendrite::new();
-    torch.add(10.0, 13.0);
+    torch.add(a, b.clone());
+    torch.add(b.clone(), 1.0); 
 
-    println!("Number of nodes: {:?}", torch.nodes().len());
+    // None shared parameter example
+    let mut graph = Dendrite::new(); 
+    graph.mul(2.0, b.clone()); 
+    graph.u_add(a.clone());
+    graph.u_mul(c); 
 
-    let a: Tensor<f64> = Tensor::new(&10.0); 
-    let b: Tensor<f64> = Tensor::new(&11.0); 
-    let op = Add::new(a.clone(), b.clone());
+    graph.forward();
 
-    let node_0 = torch.node(0); 
-    let node_1 = torch.node(1); 
+    println!("{:?}", graph.adj_list);
 
-    node_0.borrow_mut().forward(); 
-    node_1.borrow_mut().forward(); 
-
-    println!("{:?}", torch.adj_list); 
-
-    /*
-    let node_0 = torch.node(0); 
-    node_0.forward(); */ 
-
-
-
-
-
+    let output = graph.curr_node().borrow_mut().output();
+    println!("{:?}", output); 
 
 
 }

@@ -1,28 +1,7 @@
 use crate::tensor::Tensor; 
 use std::fmt;
-use std::cell::{RefCell, RefMut}; 
 
 
-/// Base operation trait for allowing shared behavior for operations
-pub trait Node<T> {
-
-    /// method for defining forward pass behavior of operation
-    fn forward(&mut self) -> T;
-
-    /// method for defining backward pass behavior of operation
-    fn backward(&mut self);
-}
-
-
-impl<T> fmt::Debug for Box<dyn Node<T>> {
-
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Node trait") 
-    }
-
-}
-
-/*
 /// Base operation trait for allowing shared behavior for operations
 pub trait Operation<T> {
 
@@ -30,14 +9,13 @@ pub trait Operation<T> {
     fn forward(
         &self, 
         inputs: Vec<Tensor<T>>, 
-        prev: T) -> T;
+        prev: Tensor<T>) -> T;
 
     /// method for defining backward pass behavior of operation
     fn backward(
         &self, 
         inputs: &mut Vec<Tensor<T>>, 
-        prev: &mut Node<T>,
-        upstream_grad: T); 
+        prev: &mut Tensor<T>); 
 }
 
 
@@ -96,8 +74,8 @@ impl<T: Clone> Node<T> {
     }
 
     /// Retrieve output from computed inputs
-    pub fn output(&self) -> &Tensor<T> {
-        &self.output
+    pub fn output(&self) -> Tensor<T> {
+        self.output.clone()
     }
 
     /// Retrieves mutable reference of output tensor in node
@@ -110,19 +88,29 @@ impl<T: Clone> Node<T> {
         self.output.clone()
     }
 
+    /// Set value for specific index of input array
+    pub fn set_input(&mut self, index: usize, value: T) {
+        self.inputs[index].set_value(value); 
+    }
+
+    /// Set output of value attribute for node
+    pub fn set_output(&mut self, value: T) {
+        self.output.set_value(value); 
+    }
+
     /// Forward node that takes in optional reference to previous node
     pub fn forward(&mut self, input: Option<&Node<T>>) {
 
         if let Some(prev_node) = input {
             let output = self.operation.forward(
                 self.inputs.clone(), 
-                prev_node.output().value()
+                prev_node.output()
             );
             self.output = Tensor::new(&output); 
         } else {
             let output = self.operation.forward(
                 self.inputs.clone(), 
-                self.inputs[0].value()
+                self.inputs[0].clone()
             );
             self.output = Tensor::new(&output); 
         }
@@ -130,41 +118,15 @@ impl<T: Clone> Node<T> {
     }
 
     /// Perform backward pass for individual node instance
-    pub fn backward(
-        &mut self,
-        prev: &mut Node<T>,
-        upstream: Option<T>) {
-
-        
-        if let Some(upstream_grad) = upstream {
-            self.operation.backward(
-                &mut self.inputs, 
-                prev,
-                upstream_grad
-            );
-        } else {
-            let temp_upstream = self.inputs[0].clone();
-            self.operation.backward(
-                &mut self.inputs,
-                prev,
-                temp_upstream.value()
-            ); 
-        }
+    pub fn backward(&mut self, prev: &mut Node<T>) {
+        self.operation.backward(
+            &mut self.inputs, 
+            &mut prev.output()
+        );
 
     }
 
-    /// Set value for specific index of input array
-    pub fn set_input(&mut self, index: usize, value: T) {
-        self.inputs[index].set_value(value); 
-    }
-
-    /// Set output of value attribute for node
-    pub fn set_output(&mut self, index: usize, value: T) {
-        self.output.set_value(value); 
-    }
-
-
-} */
+}
 
 
 

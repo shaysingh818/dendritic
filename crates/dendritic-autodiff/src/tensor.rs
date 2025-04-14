@@ -1,5 +1,4 @@
 use std::fmt::Debug; 
-use crate::node::{Node}; 
 
 /// Value node for computation graph
 #[derive(Debug, Clone, Default)]
@@ -38,17 +37,3 @@ impl<T: Clone> Tensor<T> {
         self.gradient = grad;
     }
 }
-
-impl<T: Clone> Node<T> for Tensor<T> {
-
-    fn forward(&mut self) -> T {
-        self.value.clone()
-    }
-
-    fn backward(&mut self) {
-        println!("Doing nothing"); 
-    }
-
-}
-
-

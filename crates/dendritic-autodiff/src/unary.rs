@@ -1,8 +1,6 @@
 use crate::graph::Dendrite;
-use crate::node::Node;
-//use crate::ops::{Add, Sub, Mul, Div}; 
+use crate::ops::{Add, Sub, Mul, Div}; 
 
-/*
 /// Unary operations for scalar values
 pub trait UnaryOperation<T> {
 
@@ -51,5 +49,4 @@ scalar_unary_ops!(i64);
 scalar_unary_ops!(u8);
 scalar_unary_ops!(u16); 
 scalar_unary_ops!(usize);
-*/
 

@@ -1,64 +1,191 @@
 use std::fmt::Debug;
-use std::cell::{RefCell, RefMut}; 
 use crate::tensor::Tensor;
-use crate::node::{Node};
+use crate::node::{Node, Operation};
 //use ndarray::{arr2, Array2};
 
 
 /// Structure for capturing binary and unary operations
 #[derive(Debug)]
-pub struct Add<LHS, RHS, T> {
-    pub lhs: RefCell<LHS>,
-    pub rhs: RefCell<RHS>,
-    pub output: RefCell<T>,
-    pub gradient: RefCell<T>
-}
+pub struct Add; 
 
-impl<RHS, LHS, T: Clone + Default> Add<RHS, LHS, T>
-where
-    RHS: Node<T>,
-    LHS: Node<T>
-{
+#[derive(Debug)]
+pub struct Sub; 
 
-    pub fn new(rhs: RHS, lhs: LHS) -> Add<LHS, RHS, T> {
+#[derive(Debug)]
+pub struct Mul; 
 
-       Add {
-            lhs: RefCell::new(lhs),
-            rhs: RefCell::new(rhs),
-            output: RefCell::new(T::default()),
-            gradient: RefCell::new(T::default())
-       }
-    }
-
-    pub fn rhs(&self) -> RefMut<dyn Node<T>> {
-        self.rhs.borrow_mut()
-    }
-
-    pub fn lhs(&self) -> RefMut<dyn Node<T>> {
-        self.lhs.borrow_mut()
-    }
-
-}
+#[derive(Debug)]
+pub struct Div; 
 
 macro_rules! scalar_add_op {
 
     ($t:ident) => {
 
-        impl<RHS, LHS> Node<$t> for Add<RHS, LHS, $t> 
-        where
-            RHS: Node<$t>,
-            LHS: Node<$t>
-        {
+        impl Operation<$t> for Add {
             
-            fn forward(&mut self) -> $t {
-                let result = self.lhs().forward() + self.rhs().forward();
-                self.output = RefCell::new(result.clone());
-                result
+            fn forward(
+                &self, 
+                inputs: Vec<Tensor<$t>>, 
+                prev: Tensor<$t>) -> $t {
+                
+                match inputs.len() {
+                    2 => { // binary 
+                        inputs[0].value() + inputs[1].value()
+                    },
+                    1 => { // unary
+                        inputs[0].value() + prev.value()
+                    },
+                    _ => {
+                        panic!("Unknown amount of inputs for add"); 
+                    }
+                }
             }
 
-            fn backward(&mut self) {
-                let result = self.lhs().forward() + self.rhs().forward();
-                self.gradient = RefCell::new(result); 
+            fn backward(
+                &self,
+                inputs: &mut Vec<Tensor<$t>>,
+                prev: &mut Tensor<$t>) {
+
+                for input in inputs {
+                    input.set_grad(1.0 as $t);
+                }
+            }
+
+        }
+
+        impl Operation<$t> for Sub {
+            
+            fn forward(
+                &self, 
+                inputs: Vec<Tensor<$t>>, 
+                prev: Tensor<$t>) -> $t {
+                
+                match inputs.len() {
+                    2 => { // binary 
+                        inputs[0].value() - inputs[1].value()
+                    },
+                    1 => { // unary
+                        inputs[0].value() - prev.value() 
+                    },
+                    _ => {
+                        panic!("Unknown amount of inputs for add"); 
+                    }
+                }
+            }
+
+            fn backward(
+                &self,
+                inputs: &mut Vec<Tensor<$t>>,
+                prev: &mut Tensor<$t>) {
+
+                for input in inputs {
+                    input.set_grad(1.0 as $t);
+                }
+            }
+
+        }
+
+
+        impl Operation<$t> for Mul {
+            
+            fn forward(
+                &self, 
+                inputs: Vec<Tensor<$t>>, 
+                prev: Tensor<$t>) -> $t {
+                
+                match inputs.len() {
+                    2 => { // binary 
+                        inputs[0].value() * inputs[1].value()
+                    },
+                    1 => { // unary
+                        inputs[0].value() * prev.value() 
+                    },
+                    _ => {
+                        panic!("Unknown amount of inputs for add"); 
+                    }
+                }
+            }
+
+            fn backward(
+                &self,
+                inputs: &mut Vec<Tensor<$t>>,
+                prev: &mut Tensor<$t>) {
+
+                match inputs.len() {
+                    2 => { // binary 
+                    
+                        let mut lhs = inputs[0].clone(); 
+                        let mut rhs = inputs[1].clone(); 
+
+                        inputs[0].set_grad(lhs.value());
+                        inputs[1].set_grad(rhs.value());
+                    },
+                    1 => { // unary
+                        let mut lhs = prev.clone(); 
+                        let mut rhs = inputs[0].clone();
+
+                        inputs[0].set_grad(lhs.value());
+                        prev.set_grad(rhs.value()); 
+
+                    },
+                    _ => {
+                        panic!("Unknown amount of inputs for add"); 
+                    }
+                }
+
+            }
+
+        }
+
+
+        impl Operation<$t> for Div {
+            
+            fn forward(
+                &self, 
+                inputs: Vec<Tensor<$t>>, 
+                prev: Tensor<$t>) -> $t {
+                
+                match inputs.len() {
+                    2 => { // binary 
+                        inputs[0].value() / inputs[1].value()
+                    },
+                    1 => { // unary
+                        inputs[0].value() / prev.value() 
+                    },
+                    _ => {
+                        panic!("Unknown amount of inputs for add"); 
+                    }
+                }
+            }
+
+            fn backward(
+                &self,
+                inputs: &mut Vec<Tensor<$t>>,
+                prev: &mut Tensor<$t>) {
+
+                match inputs.len() {
+                    2 => { // binary 
+                    
+                        let mut lhs = inputs[0].clone(); 
+                        let mut rhs = inputs[1].clone(); 
+
+                        inputs[0].set_grad(lhs.value());
+                        inputs[1].set_grad(rhs.value());
+                    },
+                    1 => { // unary
+                        let mut lhs = prev.clone(); 
+                        let mut rhs = inputs[0].clone();
+
+                        inputs[0].set_grad(lhs.value());
+                        prev.set_grad(rhs.value()); 
+
+                    },
+                    _ => {
+                        panic!("Unknown amount of inputs for add"); 
+                    }
+                }
+
+
             }
 
         }
@@ -69,212 +196,11 @@ macro_rules! scalar_add_op {
 scalar_add_op!(i32); 
 scalar_add_op!(i64); 
 scalar_add_op!(f32); 
-scalar_add_op!(f64); 
+scalar_add_op!(f64);
+scalar_add_op!(u8);
+scalar_add_op!(u16);
 scalar_add_op!(usize);
 
-
-/// Structure for capturing subtraction operation
-#[derive(Debug)]
-pub struct Sub<LHS, RHS, T> {
-    pub lhs: RefCell<LHS>,
-    pub rhs: RefCell<RHS>,
-    pub output: RefCell<T>,
-    pub gradient: RefCell<T>
-}
-
-impl<RHS, LHS, T: Clone + Default> Sub<RHS, LHS, T>
-where
-    RHS: Node<T>,
-    LHS: Node<T>
-{
-
-    pub fn new(rhs: RHS, lhs: LHS) -> Sub<LHS, RHS, T> {
-
-       Sub {
-            lhs: RefCell::new(lhs),
-            rhs: RefCell::new(rhs),
-            output: RefCell::new(T::default()),
-            gradient: RefCell::new(T::default())
-       }
-    }
-
-    pub fn rhs(&self) -> RefMut<dyn Node<T>> {
-        self.rhs.borrow_mut()
-    }
-
-    pub fn lhs(&self) -> RefMut<dyn Node<T>> {
-        self.lhs.borrow_mut()
-    }
-
-}
-
-macro_rules! scalar_subtraction_op {
-
-    ($t:ident) => {
-
-        impl<RHS, LHS> Node<$t> for Sub<RHS, LHS, $t> 
-        where
-            RHS: Node<$t>,
-            LHS: Node<$t>
-        {
-            
-            fn forward(&mut self) -> $t {
-                let result = self.lhs().forward() - self.rhs().forward();
-                self.output = RefCell::new(result.clone());
-                result
-            }
-
-            fn backward(&mut self) {
-                let result = self.lhs().forward() - self.rhs().forward();
-                self.gradient = RefCell::new(result); 
-            }
-
-        }
-
-    }
-}
-
-scalar_subtraction_op!(i32); 
-scalar_subtraction_op!(i64); 
-scalar_subtraction_op!(f32); 
-scalar_subtraction_op!(f64); 
-scalar_subtraction_op!(usize);
-
-
-/// Structure for capturing subtraction operation
-#[derive(Debug)]
-pub struct Mul<LHS, RHS, T> {
-    pub lhs: RefCell<LHS>,
-    pub rhs: RefCell<RHS>,
-    pub output: RefCell<T>,
-    pub gradient: RefCell<T>
-}
-
-impl<RHS, LHS, T: Clone + Default> Mul<RHS, LHS, T>
-where
-    RHS: Node<T>,
-    LHS: Node<T>
-{
-
-    pub fn new(rhs: RHS, lhs: LHS) -> Mul<LHS, RHS, T> {
-
-       Mul {
-            lhs: RefCell::new(lhs),
-            rhs: RefCell::new(rhs),
-            output: RefCell::new(T::default()),
-            gradient: RefCell::new(T::default())
-       }
-    }
-
-    pub fn rhs(&self) -> RefMut<dyn Node<T>> {
-        self.rhs.borrow_mut()
-    }
-
-    pub fn lhs(&self) -> RefMut<dyn Node<T>> {
-        self.lhs.borrow_mut()
-    }
-
-}
-
-macro_rules! scalar_multiplication_op {
-
-    ($t:ident) => {
-
-        impl<RHS, LHS> Node<$t> for Mul<RHS, LHS, $t> 
-        where
-            RHS: Node<$t>,
-            LHS: Node<$t>
-        {
-            
-            fn forward(&mut self) -> $t {
-                let result = self.lhs().forward() * self.rhs().forward();
-                self.output = RefCell::new(result.clone());
-                result
-            }
-
-            fn backward(&mut self) {
-                let result = self.lhs().forward() * self.rhs().forward();
-                self.gradient = RefCell::new(result); 
-            }
-
-        }
-
-    }
-}
-
-scalar_multiplication_op!(i32); 
-scalar_multiplication_op!(i64); 
-scalar_multiplication_op!(f32); 
-scalar_multiplication_op!(f64); 
-scalar_multiplication_op!(usize); 
-
-
-/// Structure for capturing subtraction operation
-#[derive(Debug)]
-pub struct Div<LHS, RHS, T> {
-    pub lhs: RefCell<LHS>,
-    pub rhs: RefCell<RHS>,
-    pub output: RefCell<T>,
-    pub gradient: RefCell<T>
-}
-
-impl<RHS, LHS, T: Clone + Default> Div<RHS, LHS, T>
-where
-    RHS: Node<T>,
-    LHS: Node<T>
-{
-
-    pub fn new(rhs: RHS, lhs: LHS) -> Div<LHS, RHS, T> {
-
-       Div {
-            lhs: RefCell::new(lhs),
-            rhs: RefCell::new(rhs),
-            output: RefCell::new(T::default()),
-            gradient: RefCell::new(T::default())
-       }
-    }
-
-    pub fn rhs(&self) -> RefMut<dyn Node<T>> {
-        self.rhs.borrow_mut()
-    }
-
-    pub fn lhs(&self) -> RefMut<dyn Node<T>> {
-        self.lhs.borrow_mut()
-    }
-
-}
-
-macro_rules! scalar_division_op {
-
-    ($t:ident) => {
-
-        impl<RHS, LHS> Node<$t> for Div<RHS, LHS, $t> 
-        where
-            RHS: Node<$t>,
-            LHS: Node<$t>
-        {
-            
-            fn forward(&mut self) -> $t {
-                let result = self.lhs().forward() / self.rhs().forward();
-                self.output = RefCell::new(result.clone());
-                result
-            }
-
-            fn backward(&mut self) {
-                let result = self.lhs().forward() / self.rhs().forward();
-                self.gradient = RefCell::new(result); 
-            }
-
-        }
-
-    }
-}
-
-scalar_division_op!(i32); 
-scalar_division_op!(i64); 
-scalar_division_op!(f32); 
-scalar_division_op!(f64); 
-scalar_division_op!(usize); 
 
 /*
 
