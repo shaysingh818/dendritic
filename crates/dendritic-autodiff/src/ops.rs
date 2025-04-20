@@ -1,7 +1,46 @@
+use std::fmt; 
 use std::fmt::Debug;
 use crate::tensor::Tensor;
-use crate::node::{Node, Operation};
+use crate::node::Node; 
+use crate::graph::Dendrite; 
 //use ndarray::{arr2, Array2};
+
+
+/// Base operation trait for allowing shared behavior for operations
+#[derive(Clone, Debug)]
+pub struct Operation<T> {
+
+    /// method for defining forward pass behavior of operation
+    pub forward: fn(nodes: &Vec<Node<T>>, input_idx: Vec<usize>) -> T,
+
+    /// method for defining backward pass behavior of operation
+    pub backward: fn(nodes: Vec<Node<T>>), 
+}
+
+
+
+impl Operation<f64> {
+
+    pub fn add() -> Self {
+
+        pub fn forward(nodes: &Vec<Node<f64>>, inputs: Vec<usize>) -> f64 {
+            println!("Doing add forward pass");
+            nodes[inputs[0]].output() + nodes[inputs[1]].output()
+        }
+
+        pub fn backward(nodes: Vec<Node<f64>>) {
+            println!("Nothing for now"); 
+        }
+
+        Operation {
+            forward: forward,
+            backward: backward, 
+        }
+    }
+
+
+}
+
 
 
 /// Structure for capturing binary and unary operations
@@ -15,8 +54,32 @@ pub struct Sub;
 pub struct Mul; 
 
 #[derive(Debug)]
-pub struct Div; 
+pub struct Div;
 
+/*
+impl Operation<f64> for Add {
+
+    fn forward(&self, graph: Dendrite<f64>, input_idx: Vec<usize>) -> f64 {
+        if input_idx.len() != 2 {
+            panic!("Add operation must have 2 inputs"); 
+        }
+
+        let lhs = graph.node(input_idx[0]); 
+        let rhs = graph.node(input_idx[1]); 
+        lhs.output() + rhs.output()
+    }
+
+    fn backward(&self, graph: Dendrite<f64>) {
+        println!("Doing nothing"); 
+    }
+
+
+} */ 
+
+
+
+
+/*
 macro_rules! scalar_add_op {
 
     ($t:ident) => {
@@ -44,7 +107,7 @@ macro_rules! scalar_add_op {
             fn backward(
                 &self,
                 inputs: &mut Vec<Tensor<$t>>,
-                prev: &mut Tensor<$t>) {
+                prev: &mut Node<$t>) {
 
                 for input in inputs {
                     input.set_grad(1.0 as $t);
@@ -76,7 +139,7 @@ macro_rules! scalar_add_op {
             fn backward(
                 &self,
                 inputs: &mut Vec<Tensor<$t>>,
-                prev: &mut Tensor<$t>) {
+                prev: &mut Node<$t>) {
 
                 for input in inputs {
                     input.set_grad(1.0 as $t);
@@ -109,7 +172,7 @@ macro_rules! scalar_add_op {
             fn backward(
                 &self,
                 inputs: &mut Vec<Tensor<$t>>,
-                prev: &mut Tensor<$t>) {
+                prev: &mut Node<$t>) {
 
                 match inputs.len() {
                     2 => { // binary 
@@ -117,15 +180,16 @@ macro_rules! scalar_add_op {
                         let mut lhs = inputs[0].clone(); 
                         let mut rhs = inputs[1].clone(); 
 
-                        inputs[0].set_grad(lhs.value());
-                        inputs[1].set_grad(rhs.value());
+                        inputs[0].set_grad(rhs.value());
+                        inputs[1].set_grad(lhs.value());
+                        println!("BINARY MUL"); 
                     },
                     1 => { // unary
-                        let mut lhs = prev.clone(); 
+                        let mut lhs = prev.output().clone(); 
                         let mut rhs = inputs[0].clone();
 
                         inputs[0].set_grad(lhs.value());
-                        prev.set_grad(rhs.value()); 
+                        prev.set_grad_output(rhs.value()); 
 
                     },
                     _ => {
@@ -161,7 +225,7 @@ macro_rules! scalar_add_op {
             fn backward(
                 &self,
                 inputs: &mut Vec<Tensor<$t>>,
-                prev: &mut Tensor<$t>) {
+                prev: &mut Node<$t>) {
 
                 match inputs.len() {
                     2 => { // binary 
@@ -173,11 +237,11 @@ macro_rules! scalar_add_op {
                         inputs[1].set_grad(rhs.value());
                     },
                     1 => { // unary
-                        let mut lhs = prev.clone(); 
+                        let mut lhs = prev.output().clone(); 
                         let mut rhs = inputs[0].clone();
 
                         inputs[0].set_grad(lhs.value());
-                        prev.set_grad(rhs.value()); 
+                        prev.output().set_grad(rhs.value()); 
 
                     },
                     _ => {
@@ -193,6 +257,7 @@ macro_rules! scalar_add_op {
     }
 }
 
+
 scalar_add_op!(i32); 
 scalar_add_op!(i64); 
 scalar_add_op!(f32); 
@@ -200,7 +265,7 @@ scalar_add_op!(f64);
 scalar_add_op!(u8);
 scalar_add_op!(u16);
 scalar_add_op!(usize);
-
+*/
 
 /*
 

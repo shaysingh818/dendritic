@@ -1,61 +1,101 @@
 use crate::tensor::Tensor; 
+use crate::ops::Operation; 
 use std::fmt;
 
+// value trait that gets implemented for tensors and operations
 
-/// Base operation trait for allowing shared behavior for operations
-pub trait Operation<T> {
-
-    /// method for defining forward pass behavior of operation
-    fn forward(
-        &self, 
-        inputs: Vec<Tensor<T>>, 
-        prev: Tensor<T>) -> T;
-
-    /// method for defining backward pass behavior of operation
-    fn backward(
-        &self, 
-        inputs: &mut Vec<Tensor<T>>, 
-        prev: &mut Tensor<T>); 
-}
+// operation trait that works with value traits
 
 
-impl<T> fmt::Debug for Box<dyn Operation<T>> {
-
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Operation trait") 
-    }
-
-}
 
 /// Node structure that stores operations in a computation graph.
 /// Nodes store the inputs and the outputs of the computed inputs. 
 /// Nodes also store a trait object that contains shared behavior for all operations.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Node<T> {
-    pub inputs: Vec<Tensor<T>>,
-    pub output: Tensor<T>,
-    pub operation: Box<dyn Operation<T>>
+    pub inputs: Vec<usize>,
+    pub upstream: Vec<usize>,
+    pub value: Tensor<T>,
+    pub operation: Operation<T>
 }
 
+impl<T: Clone + Default> Node<T> {
 
-impl<T: Clone> Node<T> {
+    /// Method to add input to operation
+    pub fn inputs(&mut self) -> Vec<usize> {
+        self.inputs.clone()
+    }
+
+    /// Method to add input to operation
+    pub fn upstream(&self) -> Vec<usize> {
+        self.upstream.clone()
+    }
+
+    /// Method to add input to operation
+    pub fn add_input(&mut self, idx: usize) {
+        self.inputs.push(idx)
+    }
+
+    /// Method to add input to operation
+    pub fn add_upstream(&mut self, idx: usize) {
+        self.upstream.push(idx)
+    }
+
+    pub fn output(&self) -> T {
+        self.value.value.clone()
+    }
+
+    pub fn set_output(&mut self, val: T) {
+        self.value = Tensor::new(&val);
+    }
+
+    pub fn forward(
+        &self, 
+        nodes: &Vec<Node<T>>, 
+        inputs: Vec<usize>) -> T {
+        (self.operation.forward)(nodes, inputs)
+    }
+
+}
+
+impl Node<f64> {
 
     /// Construct binary node with 2 inputs
-    pub fn binary(
-        lhs: T, 
-        rhs: T,
-        op: Box<dyn Operation<T>>) -> Self {
+    pub fn new() -> Self {
 
         Node {
-            inputs: vec![
-                Tensor::new(&lhs),
-                Tensor::new(&rhs)
-            ],
-            output: Tensor::new(&rhs),
-            operation: op
+            inputs: vec![],
+            upstream: vec![],
+            value: Tensor::default(),
+            operation: Operation::add(),
         }
     }
 
+    /// Construct binary node with 2 inputs
+    pub fn val(value: f64) -> Self {
+
+        Node {
+            inputs: vec![],
+            upstream: vec![],
+            value: Tensor::new(&value),
+            operation: Operation::add(),
+        }
+    }
+
+    /// Construct binary node with 2 inputs
+    pub fn binary(lhs: usize, rhs: usize, op: Operation<f64>) -> Self {
+
+        Node {
+            inputs: vec![lhs, rhs],
+            upstream: vec![],
+            value: Tensor::default(),
+            operation: op,
+        }
+    }
+
+
+
+    /*
     /// Construct unary node with 1 inputs
     pub fn unary(
         rhs: T,
@@ -98,6 +138,11 @@ impl<T: Clone> Node<T> {
         self.output.set_value(value); 
     }
 
+    /// Set output of value attribute for node
+    pub fn set_grad_output(&mut self, value: T) {
+        self.output.set_grad(value); 
+    }
+
     /// Forward node that takes in optional reference to previous node
     pub fn forward(&mut self, input: Option<&Node<T>>) {
 
@@ -118,15 +163,19 @@ impl<T: Clone> Node<T> {
     }
 
     /// Perform backward pass for individual node instance
-    pub fn backward(&mut self, prev: &mut Node<T>) {
-        self.operation.backward(
-            &mut self.inputs, 
-            &mut prev.output()
-        );
-
+    pub fn backward(&mut self, prev_node: &mut Node<T>) {
+        self.operation.backward(&mut self.inputs, prev_node);
     }
+    */
 
 }
+
+
+
+
+
+
+
 
 
 

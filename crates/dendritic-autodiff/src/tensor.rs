@@ -7,7 +7,17 @@ pub struct Tensor<T> {
     pub gradient: T,
 }
 
-impl<T: Clone> Tensor<T> {
+impl<T: Clone + Default> Tensor<T> {
+
+
+    /// Create new instance of tensor value
+    pub fn default() -> Tensor<T> {
+        
+        Tensor {
+            value: T::default(),
+            gradient: T::default()
+        }
+    }
 
     /// Create new instance of tensor value
     pub fn new(value: &T) -> Tensor<T> {
@@ -37,3 +47,4 @@ impl<T: Clone> Tensor<T> {
         self.gradient = grad;
     }
 }
+

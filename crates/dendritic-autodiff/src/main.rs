@@ -1,5 +1,7 @@
-use dendritic_autodiff::node::{Node, Operation};
-use dendritic_autodiff::ops::{Add, Sub, Mul, Div};
+use std::cell::{RefCell}; 
+use std::borrow::Borrow; 
+use dendritic_autodiff::ops::{Add, Operation};
+use dendritic_autodiff::node::{Node};
 use dendritic_autodiff::tensor::{Tensor}; 
 use dendritic_autodiff::graph::{Dendrite}; 
 use dendritic_autodiff::binary::*;
@@ -7,27 +9,34 @@ use dendritic_autodiff::unary::*;
 
 fn main() {
 
-    let a = 3.0;
-    let b = 1.0;
-    let c = -2.0; 
+    // forward expression (with shared inputs)
+    //
+    
+    let mut graph: Dendrite<f64> = Dendrite::new(); 
+    graph.add_node(Node::val(5.0)); 
+    graph.add_node(Node::val(10.0));
+    graph.add_node(Node::binary(0, 1, Operation::add()));
+    graph.add_node(Node::val(20.0));
+    graph.add_node(Node::binary(2, 3, Operation::add()));
 
-    // Shared parameter example expression: (a+b) * (b+1)
-    let mut torch = Dendrite::new();
-    torch.add(a, b.clone());
-    torch.add(b.clone(), 1.0); 
 
-    // None shared parameter example
-    let mut graph = Dendrite::new(); 
-    graph.mul(2.0, b.clone()); 
-    graph.u_add(a.clone());
-    graph.u_mul(c); 
+    graph.forward_node(2);
+    graph.forward_node(4);
 
-    graph.forward();
+    println!("{:?}", graph.node(2).output()); 
+    println!("{:?}", graph.node(4).output()); 
+    /*
+    let val = nodes[2].forward(&nodes, nodes[2].inputs.clone()); 
+    println!("{:?}", val);
+    nodes[2].set_output(val); 
 
-    println!("{:?}", graph.adj_list);
+    let val_2 = nodes[4].forward(&nodes, nodes[4].inputs.clone()); 
+    println!("{:?}", val_2); 
+    */
 
-    let output = graph.curr_node().borrow_mut().output();
-    println!("{:?}", output); 
 
+    // Full backward pass with gradients updated
+    
+    // Expression structure stored in graph structure (vector of nodes)
 
 }

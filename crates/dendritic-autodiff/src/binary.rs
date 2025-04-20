@@ -1,6 +1,7 @@
 use crate::graph::Dendrite;
-use crate::ops::{Add, Sub, Mul, Div}; 
+//use crate::ops::{Add, Sub, Mul, Div}; 
 
+/*
 /// Shared trait for constructing scalar binary operations.
 /// Function calls take in 2 required inputs of the same type
 pub trait BinaryOperation<T> {
@@ -50,4 +51,4 @@ scalar_binary_ops!(f64);
 scalar_binary_ops!(u8);
 scalar_binary_ops!(u16);
 scalar_binary_ops!(usize); 
-
+*/
