@@ -26,4 +26,14 @@ pub mod tensor;
 pub mod graph;
 pub mod binary; 
 pub mod unary;
-pub mod error; 
+pub mod error;
+
+
+use chrono::Local; 
+
+pub fn debug_log(msg: &str) {
+    #[cfg(debug_assertions)]
+    {
+        println!("[{:?}]: {}", Local::now(), msg);
+    }
+}

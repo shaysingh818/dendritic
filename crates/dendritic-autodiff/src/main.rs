@@ -1,6 +1,4 @@
-use std::cell::{RefCell}; 
-use std::borrow::Borrow; 
-use dendritic_autodiff::ops::{Add, Operation};
+use dendritic_autodiff::ops::{Operation};
 use dendritic_autodiff::node::{Node};
 use dendritic_autodiff::tensor::{Tensor}; 
 use dendritic_autodiff::graph::{Dendrite}; 
@@ -11,32 +9,36 @@ fn main() {
 
     // forward expression (with shared inputs)
     //
+    let a = Some(3.0);
+    let b = Some(1.0);
+    let c = Some(-2.0); 
     
-    let mut graph: Dendrite<f64> = Dendrite::new(); 
-    graph.add_node(Node::val(5.0)); 
-    graph.add_node(Node::val(10.0));
-    graph.add_node(Node::binary(0, 1, Operation::add()));
-    graph.add_node(Node::val(20.0));
-    graph.add_node(Node::binary(2, 3, Operation::add()));
+    let mut graph: Dendrite<f64> = Dendrite::new();
+    graph.binary(Some(2.0), b, Operation::mul());
+    graph.unary(a.unwrap(), Operation::add()); 
+    graph.unary(c.unwrap(), Operation::mul()); 
+
+    //graph.forward(0); 
+
+    //graph.backward(6); 
+
+    let mut graph2: Dendrite<f64> = Dendrite::new(); 
+    graph2.binary(a, b, Operation::add()); 
+    graph2.binary(b, Some(1.0), Operation::add());
+    graph2.binary(None, None, Operation::mul());
+
+    graph2.forward(0); 
+
+    println!("{:?}", graph2.node(4)); 
+    println!("{:?}", graph2.node(5)); 
+    println!("{:?}", graph2.node(6)); 
+
+    //graph2.forward(1);
+    //graph2.backward(2);
 
 
-    graph.forward_node(2);
-    graph.forward_node(4);
-
-    println!("{:?}", graph.node(2).output()); 
-    println!("{:?}", graph.node(4).output()); 
-    /*
-    let val = nodes[2].forward(&nodes, nodes[2].inputs.clone()); 
-    println!("{:?}", val);
-    nodes[2].set_output(val); 
-
-    let val_2 = nodes[4].forward(&nodes, nodes[4].inputs.clone()); 
-    println!("{:?}", val_2); 
-    */
 
 
-    // Full backward pass with gradients updated
-    
-    // Expression structure stored in graph structure (vector of nodes)
+
 
 }

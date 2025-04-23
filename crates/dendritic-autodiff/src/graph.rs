@@ -1,6 +1,8 @@
+use std::fmt::Debug; 
 use std::collections::{HashMap, HashSet}; 
 use std::cell::{RefCell}; 
 use crate::node::{Node};
+use crate::ops::Operation; 
 use crate::error::{GraphError};
 
 /// A dendrite is an instance of expression stored in a computation graph.
@@ -16,9 +18,12 @@ pub struct Dendrite<T> {
 
     /// Temporary list to store path traversals in graph
     pub path: Vec<usize>,
+
+    /// Current node index on computation
+    pub curr_node_idx: i64,
 }
 
-impl<T: Clone+ Default> Dendrite<T> {
+impl<T: Clone + Default + Debug> Dendrite<T> {
 
     /// Create new instance of computation graph structure
     pub fn new() -> Self {
@@ -26,6 +31,7 @@ impl<T: Clone+ Default> Dendrite<T> {
         Dendrite {
             nodes: vec![],
             path: vec![],
+            curr_node_idx: -1,
         }
     }
 
@@ -39,154 +45,133 @@ impl<T: Clone+ Default> Dendrite<T> {
         self.nodes[idx].clone()
     }
 
-    pub fn add_node(&mut self, node: Node<T>) {
-        self.nodes.push(node);
+    pub fn curr_node(&self) -> Node<T> {
+        self.nodes[self.curr_node_idx as usize].clone()
     }
 
-    pub fn forward_node(&mut self, idx: usize) {
-        let inputs = self.nodes[idx].inputs.clone(); 
-        let output = self.nodes[idx].forward(&self.nodes, inputs);
-        self.nodes[idx].set_output(output); 
-    }
-
-    /*
-    /// Borrow mutable reference of a node on the graph with specific index
-    pub fn node(&self, index: usize) -> &dyn NodeTrait<T> {
-        &*self.nodes[index]
-    }
-
-    /// Get successors (neighbors) of a specific node index
-    pub fn successors(&self, index: usize) -> HashSet<usize> {
-        self.adj_list.get(&index).unwrap().clone()
-    }
-
-    /// Create binary node with two inputs for operation
     pub fn binary(
-        &mut self,
-        lhs: T,
-        rhs: T,
-        op: Box<dyn Operation<T>>) -> &mut Dendrite<T> {
+        &mut self, 
+        lhs: Option<T>, 
+        rhs: Option<T>, 
+        op: Operation<T>) -> &mut Dendrite<T> {
 
-        let node = Node::binary(lhs, rhs, op);
+        match lhs {
+            Some(input) => self.add_node(Node::val(input)),
+            None => {
 
-        self.adj_list.insert(
-            self.current_node_idx(),
-            HashSet::new()
+            }
+        }
+
+        match rhs {
+            Some(input) => self.add_node(Node::val(input)),
+            None => {
+
+            }
+        }
+            
+
+        //self.add_node(Node::val(lhs)); 
+        //self.add_node(Node::val(rhs)); 
+        self.add_node(
+            Node::binary(
+                (self.curr_node_idx - 1) as usize, 
+                self.curr_node_idx as usize, 
+                op
+            )
         );
 
-        self.nodes.push(RefCell::new(node));
-        self.prev_node_idx = self.current_node_idx();
-        self.current_node_idx += 1;
+        self.add_upstream_node(
+            (self.curr_node_idx - 2) as usize, 
+            vec![self.curr_node_idx as usize]
+        );
+
+        self.add_upstream_node(
+            (self.curr_node_idx - 1) as usize, 
+            vec![self.curr_node_idx as usize]
+        );
         self
     }
 
-    /// Create unary node with one inputs for operation
-    pub fn unary(
-        &mut self,
-        rhs: T,
-        op: Box<dyn Operation<T>>) -> Result<&mut Dendrite<T>, GraphError> {
+    pub fn unary(&mut self, rhs: T, op: Operation<T>) -> &mut Dendrite<T> {
 
-        let node = Node::unary(rhs, op);
-
-        self.adj_list.insert(
-            self.current_node_idx(),
-            HashSet::new()
+        self.add_node(Node::val(rhs)); 
+        self.add_node(
+            Node::binary(
+                (self.curr_node_idx - 1) as usize, 
+                self.curr_node_idx as usize, 
+                op
+            )
         );
-        self.nodes.push(RefCell::new(node));
 
+        self.add_upstream_node(
+            (self.curr_node_idx - 2) as usize, 
+            vec![self.curr_node_idx as usize]
+        );
 
-        if let Some(set) = self.adj_list.get_mut(&self.prev_node_idx) {
-            set.insert(self.current_node_idx); 
-        } else {
-            // we shouldn't get to this error if the first one is thrown
-            return Err(GraphError::NodeRelation);
-        }
-
-        self.prev_node_idx = self.current_node_idx();
-        self.current_node_idx += 1;
-        Ok(self)
+        self.add_upstream_node(
+            (self.curr_node_idx - 1) as usize, 
+            vec![self.curr_node_idx as usize]
+        ); 
+        self
     }
 
-    /// recursive solution for forward pass
-    pub fn forward_nodes(
-        &mut self, 
-        node_idx: usize, 
-        prev_node_idx: Option<usize>) {
+    pub fn add_node(&mut self, node: Node<T>) {
+        self.nodes.push(node);
+        self.curr_node_idx += 1;
+    }
 
-        let node = self.node(node_idx);
-        if prev_node_idx.is_some() {
-            let prev_node = self.node(prev_node_idx.unwrap());
-            node.borrow_mut().forward(Some(&prev_node.borrow_mut()));
-        } else {
-            node.borrow_mut().forward(None); 
-        }
+    pub fn add_upstream_node(
+        &mut self,
+        node_idx: usize,
+        upstream_vals: Vec<usize>) {
 
-        self.path.push(node_idx); 
-
-        if node_idx == self.nodes.len() - 1 {
-            return;
-        }
-
-        for item in self.successors(node_idx) {
-            self.forward_nodes(item, Some(node_idx));
+        let mut node = &mut self.nodes[node_idx];
+        for upstream in upstream_vals {
+            node.add_upstream(upstream); 
         }
     }
 
-    /// recursive solution for forward pass
-    pub fn backward_nodes(&mut self, node_idx: usize) {
+    pub fn forward_node(&mut self, idx: usize) {
+        let inputs = self.nodes[idx].inputs(); 
+        let output = self.nodes[idx].forward(&self.nodes, inputs, idx);
+        self.nodes[idx].set_output(output); 
+    }
+
+    pub fn backward_node(&mut self, idx: usize) {
+        let inputs = self.nodes[idx].inputs.clone();
+        let node_call = self.nodes[idx].clone(); 
+        node_call.backward(&mut self.nodes, inputs, idx);
+    }
+
+    pub fn backward(&mut self, node_idx: usize) {
 
         if node_idx == 0 {
             return; 
         }
 
-        let curr_node = self.node(node_idx);
+        self.backward_node(node_idx); 
 
-        for item in self.successors(node_idx) {
-            let neighbor = self.node(item);
-            curr_node.borrow_mut().backward(&mut neighbor.borrow_mut()); 
+        let inputs = self.nodes[node_idx].inputs();
+        for item in inputs {
+            self.backward(item);
+        }
+    }
+
+
+    pub fn forward(&mut self, node_idx: usize) {
+ 
+        if node_idx > self.nodes.len() - 1 {
+            return; 
         }
 
-        for item in self.successors(node_idx) {
-            self.backward_nodes(item);
+        self.forward_node(node_idx); 
+
+        let upstream = self.nodes[node_idx].upstream();  
+        for item in upstream {
+            self.forward(item);
         }
 
     }
-
-    /// Forward all nodes in the graph
-    pub fn forward(&mut self) {
-        self.forward_nodes(0, None); 
-    }
-
-    /// Backward pass for all nodes in the graph 
-    pub fn backward(&mut self) {
-        let node_idx: usize = self.current_node_idx - 1;
-        self.backward_nodes(node_idx); 
-    }
-
-    /*
-
-
-
-    /// Pass loss backward to graph to update gradients
-    pub fn backward_nodes(
-        &mut self,
-        node_idx: usize,
-        prev_node_idx: Option<usize>,
-        upstream: Tensor<T>) {
-
-        // fetch the node before the current node
-        
-        // stop recursion if node before current node is 0
-        
-
-
-    }
-
-    /// Forward all nodes in the graph
-    pub fn forward(&mut self) {
-        self.forward_nodes(0, None); 
-    } */
-    */
 
 }
 

@@ -1,9 +1,20 @@
 use std::fmt; 
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use crate::tensor::Tensor;
 use crate::node::Node; 
 use crate::graph::Dendrite; 
+use chrono::Local; 
 //use ndarray::{arr2, Array2};
+
+
+pub fn debug_log(msg: &str) {
+    #[cfg(debug_assertions)]
+    {
+        let now = Local::now(); 
+        let log_time = now.format("%Y-%m-%d %H:%M:%S").to_string();
+        println!("[{}]: {}", log_time, msg);
+    }
+}
 
 
 /// Base operation trait for allowing shared behavior for operations
@@ -11,25 +22,105 @@ use crate::graph::Dendrite;
 pub struct Operation<T> {
 
     /// method for defining forward pass behavior of operation
-    pub forward: fn(nodes: &Vec<Node<T>>, input_idx: Vec<usize>) -> T,
+    pub forward: fn(
+        nodes: &Vec<Node<T>>, 
+        inputs: Vec<usize>, 
+        curr_node_idx: usize) -> T,
 
     /// method for defining backward pass behavior of operation
-    pub backward: fn(nodes: Vec<Node<T>>), 
+    pub backward: fn(
+        nodes: &mut Vec<Node<T>>, 
+        inputs: Vec<usize>, 
+        curr_node_idx: usize), 
 }
 
+
+impl<T: Clone + Default> Operation<T> {
+
+    pub fn default() -> Self {
+
+        pub fn forward<T>(
+            nodes: &Vec<Node<T>>, 
+            inputs: Vec<usize>,
+            curr_node_idx: usize) -> T where 
+                T: Clone + Default {
+
+            
+            if inputs.len() != 0 {
+                panic!("Cannot assign value operation, value has inputs");
+            }
+            nodes[curr_node_idx].output()
+        }
+
+        pub fn backward<T>(
+            nodes: &mut Vec<Node<T>>, 
+            inputs: Vec<usize>,
+            curr_node_idx: usize) {
+
+
+            if inputs.len() != 0 {
+                panic!("Cannot assign value operation, value has inputs");
+            }
+        }
+
+        Operation {
+            forward: forward,
+            backward: backward, 
+        }
+
+    }
+
+}
 
 
 impl Operation<f64> {
 
     pub fn add() -> Self {
 
-        pub fn forward(nodes: &Vec<Node<f64>>, inputs: Vec<usize>) -> f64 {
-            println!("Doing add forward pass");
+        pub fn forward(
+            nodes: &Vec<Node<f64>>, 
+            inputs: Vec<usize>, 
+            curr_node_idx: usize) -> f64 {
+
+            debug_log(
+                &format!(
+                    "Performing forward pass add on node index: {}",
+                    curr_node_idx
+                ) 
+            ); 
+
+            debug_log(
+                &format!(
+                    "Forward add upstream values: {:?}",
+                    nodes[curr_node_idx].upstream()
+                ) 
+            );
+
+            debug_log(
+                &format!(
+                    "Forward add input values: {:?}",
+                    inputs
+                ) 
+            ); 
+
             nodes[inputs[0]].output() + nodes[inputs[1]].output()
         }
 
-        pub fn backward(nodes: Vec<Node<f64>>) {
-            println!("Nothing for now"); 
+        pub fn backward(
+            nodes: &mut Vec<Node<f64>>, 
+            inputs: Vec<usize>, 
+            curr_node_idx: usize) {
+
+            debug_log(
+                &format!(
+                    "Performing backward pass addition: {}",
+                    nodes[curr_node_idx].output()
+                ) 
+            ); 
+
+            for (idx, input) in inputs.iter().enumerate() {
+                nodes[inputs[idx]].set_grad_output(1.0);
+            }
         }
 
         Operation {
@@ -39,233 +130,98 @@ impl Operation<f64> {
     }
 
 
+    pub fn sub() -> Self {
+
+        pub fn forward(
+            nodes: &Vec<Node<f64>>, 
+            inputs: Vec<usize>, 
+            curr_node_idx: usize) -> f64 {
+
+            debug_log(
+                &format!(
+                    "Performing forward pass subtraction: {}",
+                    nodes[curr_node_idx].output()
+                ) 
+            ); 
+
+            nodes[inputs[0]].output() - nodes[inputs[1]].output()
+        }
+
+        pub fn backward(
+            nodes: &mut Vec<Node<f64>>, 
+            inputs: Vec<usize>, 
+            curr_node_idx: usize) {
+
+            debug_log(
+                &format!(
+                    "Performing backward pass subtraction: {}",
+                    nodes[curr_node_idx].output()
+                ) 
+            ); 
+
+            for (idx, input) in inputs.iter().enumerate() {
+                nodes[inputs[idx]].set_grad_output(1.0);
+            }
+        }
+
+        Operation {
+            forward: forward,
+            backward: backward, 
+        }
+    }
+
+
+    // goes here
+    pub fn mul() -> Self {
+
+        pub fn forward(
+            nodes: &Vec<Node<f64>>, 
+            inputs: Vec<usize>, 
+            curr_node_idx: usize) -> f64 {
+
+            debug_log(
+                &format!(
+                    "Performing forward pass multiplication, current output: {}",
+                    nodes[curr_node_idx].output()
+                ) 
+            ); 
+
+            nodes[inputs[0]].output() * nodes[inputs[1]].output()
+        }
+
+        pub fn backward(
+            nodes: &mut Vec<Node<f64>>, 
+            inputs: Vec<usize>, 
+            curr_node_idx: usize) {
+
+            if inputs.len() != 2 {
+                panic!("Backward pass multiplication requires 2 inputs");
+            }
+
+            debug_log(
+                &format!(
+                    "Performing backward pass multiplication: {}",
+                    nodes[curr_node_idx].output()
+                ) 
+            ); 
+
+            let lhs = nodes[inputs[0]].output(); 
+            let rhs = nodes[inputs[1]].output(); 
+
+            nodes[inputs[0]].set_grad_output(rhs); 
+            nodes[inputs[1]].set_grad_output(lhs);
+        }
+
+        Operation {
+            forward: forward,
+            backward: backward, 
+        }
+    }
+
 }
 
 
 
-/// Structure for capturing binary and unary operations
-#[derive(Debug)]
-pub struct Add; 
-
-#[derive(Debug)]
-pub struct Sub; 
-
-#[derive(Debug)]
-pub struct Mul; 
-
-#[derive(Debug)]
-pub struct Div;
-
-/*
-impl Operation<f64> for Add {
-
-    fn forward(&self, graph: Dendrite<f64>, input_idx: Vec<usize>) -> f64 {
-        if input_idx.len() != 2 {
-            panic!("Add operation must have 2 inputs"); 
-        }
-
-        let lhs = graph.node(input_idx[0]); 
-        let rhs = graph.node(input_idx[1]); 
-        lhs.output() + rhs.output()
-    }
-
-    fn backward(&self, graph: Dendrite<f64>) {
-        println!("Doing nothing"); 
-    }
-
-
-} */ 
-
-
-
-
-/*
-macro_rules! scalar_add_op {
-
-    ($t:ident) => {
-
-        impl Operation<$t> for Add {
-            
-            fn forward(
-                &self, 
-                inputs: Vec<Tensor<$t>>, 
-                prev: Tensor<$t>) -> $t {
-                
-                match inputs.len() {
-                    2 => { // binary 
-                        inputs[0].value() + inputs[1].value()
-                    },
-                    1 => { // unary
-                        inputs[0].value() + prev.value()
-                    },
-                    _ => {
-                        panic!("Unknown amount of inputs for add"); 
-                    }
-                }
-            }
-
-            fn backward(
-                &self,
-                inputs: &mut Vec<Tensor<$t>>,
-                prev: &mut Node<$t>) {
-
-                for input in inputs {
-                    input.set_grad(1.0 as $t);
-                }
-            }
-
-        }
-
-        impl Operation<$t> for Sub {
-            
-            fn forward(
-                &self, 
-                inputs: Vec<Tensor<$t>>, 
-                prev: Tensor<$t>) -> $t {
-                
-                match inputs.len() {
-                    2 => { // binary 
-                        inputs[0].value() - inputs[1].value()
-                    },
-                    1 => { // unary
-                        inputs[0].value() - prev.value() 
-                    },
-                    _ => {
-                        panic!("Unknown amount of inputs for add"); 
-                    }
-                }
-            }
-
-            fn backward(
-                &self,
-                inputs: &mut Vec<Tensor<$t>>,
-                prev: &mut Node<$t>) {
-
-                for input in inputs {
-                    input.set_grad(1.0 as $t);
-                }
-            }
-
-        }
-
-
-        impl Operation<$t> for Mul {
-            
-            fn forward(
-                &self, 
-                inputs: Vec<Tensor<$t>>, 
-                prev: Tensor<$t>) -> $t {
-                
-                match inputs.len() {
-                    2 => { // binary 
-                        inputs[0].value() * inputs[1].value()
-                    },
-                    1 => { // unary
-                        inputs[0].value() * prev.value() 
-                    },
-                    _ => {
-                        panic!("Unknown amount of inputs for add"); 
-                    }
-                }
-            }
-
-            fn backward(
-                &self,
-                inputs: &mut Vec<Tensor<$t>>,
-                prev: &mut Node<$t>) {
-
-                match inputs.len() {
-                    2 => { // binary 
-                    
-                        let mut lhs = inputs[0].clone(); 
-                        let mut rhs = inputs[1].clone(); 
-
-                        inputs[0].set_grad(rhs.value());
-                        inputs[1].set_grad(lhs.value());
-                        println!("BINARY MUL"); 
-                    },
-                    1 => { // unary
-                        let mut lhs = prev.output().clone(); 
-                        let mut rhs = inputs[0].clone();
-
-                        inputs[0].set_grad(lhs.value());
-                        prev.set_grad_output(rhs.value()); 
-
-                    },
-                    _ => {
-                        panic!("Unknown amount of inputs for add"); 
-                    }
-                }
-
-            }
-
-        }
-
-
-        impl Operation<$t> for Div {
-            
-            fn forward(
-                &self, 
-                inputs: Vec<Tensor<$t>>, 
-                prev: Tensor<$t>) -> $t {
-                
-                match inputs.len() {
-                    2 => { // binary 
-                        inputs[0].value() / inputs[1].value()
-                    },
-                    1 => { // unary
-                        inputs[0].value() / prev.value() 
-                    },
-                    _ => {
-                        panic!("Unknown amount of inputs for add"); 
-                    }
-                }
-            }
-
-            fn backward(
-                &self,
-                inputs: &mut Vec<Tensor<$t>>,
-                prev: &mut Node<$t>) {
-
-                match inputs.len() {
-                    2 => { // binary 
-                    
-                        let mut lhs = inputs[0].clone(); 
-                        let mut rhs = inputs[1].clone(); 
-
-                        inputs[0].set_grad(lhs.value());
-                        inputs[1].set_grad(rhs.value());
-                    },
-                    1 => { // unary
-                        let mut lhs = prev.output().clone(); 
-                        let mut rhs = inputs[0].clone();
-
-                        inputs[0].set_grad(lhs.value());
-                        prev.output().set_grad(rhs.value()); 
-
-                    },
-                    _ => {
-                        panic!("Unknown amount of inputs for add"); 
-                    }
-                }
-
-
-            }
-
-        }
-
-    }
-}
-
-
-scalar_add_op!(i32); 
-scalar_add_op!(i64); 
-scalar_add_op!(f32); 
-scalar_add_op!(f64);
-scalar_add_op!(u8);
-scalar_add_op!(u16);
-scalar_add_op!(usize);
-*/
 
 /*
 

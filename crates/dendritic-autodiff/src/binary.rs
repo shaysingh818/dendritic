@@ -1,7 +1,6 @@
 use crate::graph::Dendrite;
-//use crate::ops::{Add, Sub, Mul, Div}; 
+use crate::ops::{Operation}; 
 
-/*
 /// Shared trait for constructing scalar binary operations.
 /// Function calls take in 2 required inputs of the same type
 pub trait BinaryOperation<T> {
@@ -23,19 +22,19 @@ macro_rules! scalar_binary_ops {
         impl BinaryOperation<$t> for Dendrite<$t> {
 
             fn add(&mut self, lhs: $t, rhs: $t) -> &mut Dendrite<$t> {
-                self.binary(lhs, rhs, Box::new(Add)) 
+                self.binary(Some(lhs), Some(rhs), Operation::add()) 
             }
 
             fn sub(&mut self, lhs: $t, rhs: $t) -> &mut Dendrite<$t> {
-                self.binary(lhs, rhs, Box::new(Sub)) 
+                self.binary(Some(lhs), Some(rhs), Operation::add()) 
             }
 
             fn mul(&mut self, lhs: $t, rhs: $t) -> &mut Dendrite<$t> {
-                self.binary(lhs, rhs, Box::new(Mul)) 
+                self.binary(Some(lhs), Some(rhs), Operation::mul()) 
             }
 
             fn div(&mut self, lhs: $t, rhs: $t) -> &mut Dendrite<$t> {
-                self.binary(lhs, rhs, Box::new(Div)) 
+                self.binary(Some(lhs), Some(rhs), Operation::add()) 
             } 
         }
 
@@ -44,11 +43,11 @@ macro_rules! scalar_binary_ops {
 }
 
 
-scalar_binary_ops!(i32); 
-scalar_binary_ops!(i64); 
-scalar_binary_ops!(f32); 
+//scalar_binary_ops!(i32); 
+//scalar_binary_ops!(i64); 
+//scalar_binary_ops!(f32); 
 scalar_binary_ops!(f64);
-scalar_binary_ops!(u8);
-scalar_binary_ops!(u16);
-scalar_binary_ops!(usize); 
-*/
+//scalar_binary_ops!(u8);
+//scalar_binary_ops!(u16);
+//scalar_binary_ops!(usize); 
+
