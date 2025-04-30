@@ -6,7 +6,7 @@ use crate::graph::Dendrite;
 use chrono::Local; 
 //use ndarray::{arr2, Array2};
 
-
+/// General purpose logging function
 pub fn debug_log(msg: &str) {
     #[cfg(debug_assertions)]
     {
@@ -22,16 +22,11 @@ pub fn debug_log(msg: &str) {
 pub struct Operation<T> {
 
     /// method for defining forward pass behavior of operation
-    pub forward: fn(
-        nodes: &Vec<Node<T>>, 
-        inputs: Vec<usize>, 
-        curr_node_idx: usize) -> T,
+    pub forward: fn(nodes: &Vec<Node<T>>, curr_node_idx: usize) -> T,
 
     /// method for defining backward pass behavior of operation
-    pub backward: fn(
-        nodes: &mut Vec<Node<T>>, 
-        inputs: Vec<usize>, 
-        curr_node_idx: usize), 
+    pub backward: fn(nodes: &mut Vec<Node<T>>, curr_node_idx: usize), 
+
 }
 
 
@@ -41,26 +36,20 @@ impl<T: Clone + Default> Operation<T> {
 
         pub fn forward<T>(
             nodes: &Vec<Node<T>>, 
-            inputs: Vec<usize>,
-            curr_node_idx: usize) -> T where 
-                T: Clone + Default {
-
-            
-            if inputs.len() != 0 {
-                panic!("Cannot assign value operation, value has inputs");
-            }
+            curr_node_idx: usize) -> T where T: Clone + Default {
+ 
             nodes[curr_node_idx].output()
         }
 
-        pub fn backward<T>(
-            nodes: &mut Vec<Node<T>>, 
-            inputs: Vec<usize>,
-            curr_node_idx: usize) {
+        pub fn backward<T>(nodes: &mut Vec<Node<T>>, curr_node_idx: usize) {
 
+            debug_log(
+                &format!(
+                    "Backward on raw value idx: {}",
+                    curr_node_idx
+                ) 
+            ); 
 
-            if inputs.len() != 0 {
-                panic!("Cannot assign value operation, value has inputs");
-            }
         }
 
         Operation {
@@ -77,11 +66,7 @@ impl Operation<f64> {
 
     pub fn add() -> Self {
 
-        pub fn forward(
-            nodes: &Vec<Node<f64>>, 
-            inputs: Vec<usize>, 
-            curr_node_idx: usize) -> f64 {
-
+        pub fn forward(nodes: &Vec<Node<f64>>, curr_node_idx: usize) -> f64 {
             debug_log(
                 &format!(
                     "Performing forward pass add on node index: {}",
@@ -96,31 +81,31 @@ impl Operation<f64> {
                 ) 
             );
 
-            debug_log(
-                &format!(
-                    "Forward add input values: {:?}",
-                    inputs
-                ) 
-            ); 
-
-            nodes[inputs[0]].output() + nodes[inputs[1]].output()
+            let node_inputs = nodes[curr_node_idx].inputs();
+            nodes[node_inputs[0]].output() + nodes[node_inputs[1]].output()
         }
 
-        pub fn backward(
-            nodes: &mut Vec<Node<f64>>, 
-            inputs: Vec<usize>, 
-            curr_node_idx: usize) {
+        pub fn backward(nodes: &mut Vec<Node<f64>>, curr_node_idx: usize) {
 
             debug_log(
                 &format!(
-                    "Performing backward pass addition: {}",
-                    nodes[curr_node_idx].output()
+                    "Performing backward addition on node index: {}",
+                    curr_node_idx
                 ) 
             ); 
 
-            for (idx, input) in inputs.iter().enumerate() {
-                nodes[inputs[idx]].set_grad_output(1.0);
+            let node_inputs = nodes[curr_node_idx].inputs();
+            for (idx, input) in node_inputs.iter().enumerate() {
+                nodes[node_inputs[idx]].set_grad_output(1.0);
             }
+
+            debug_log(
+                &format!(
+                    "Updated gradients for node input indexes: {:?}",
+                    node_inputs
+                ) 
+            ); 
+
         }
 
         Operation {
@@ -132,10 +117,7 @@ impl Operation<f64> {
 
     pub fn sub() -> Self {
 
-        pub fn forward(
-            nodes: &Vec<Node<f64>>, 
-            inputs: Vec<usize>, 
-            curr_node_idx: usize) -> f64 {
+        pub fn forward(nodes: &Vec<Node<f64>>, curr_node_idx: usize) -> f64 {
 
             debug_log(
                 &format!(
@@ -144,13 +126,11 @@ impl Operation<f64> {
                 ) 
             ); 
 
-            nodes[inputs[0]].output() - nodes[inputs[1]].output()
+            let node_inputs = nodes[curr_node_idx].inputs();
+            nodes[node_inputs[0]].output() - nodes[node_inputs[1]].output()
         }
 
-        pub fn backward(
-            nodes: &mut Vec<Node<f64>>, 
-            inputs: Vec<usize>, 
-            curr_node_idx: usize) {
+        pub fn backward(nodes: &mut Vec<Node<f64>>, curr_node_idx: usize) {
 
             debug_log(
                 &format!(
@@ -159,8 +139,9 @@ impl Operation<f64> {
                 ) 
             ); 
 
-            for (idx, input) in inputs.iter().enumerate() {
-                nodes[inputs[idx]].set_grad_output(1.0);
+            let node_inputs = nodes[curr_node_idx].inputs();
+            for (idx, input) in node_inputs.iter().enumerate() {
+                nodes[node_inputs[idx]].set_grad_output(1.0);
             }
         }
 
@@ -174,10 +155,7 @@ impl Operation<f64> {
     // goes here
     pub fn mul() -> Self {
 
-        pub fn forward(
-            nodes: &Vec<Node<f64>>, 
-            inputs: Vec<usize>, 
-            curr_node_idx: usize) -> f64 {
+        pub fn forward(nodes: &Vec<Node<f64>>, curr_node_idx: usize) -> f64 {
 
             debug_log(
                 &format!(
@@ -186,30 +164,25 @@ impl Operation<f64> {
                 ) 
             ); 
 
-            nodes[inputs[0]].output() * nodes[inputs[1]].output()
+            let node_inputs = nodes[curr_node_idx].inputs();
+            nodes[node_inputs[0]].output() * nodes[node_inputs[1]].output()
         }
 
-        pub fn backward(
-            nodes: &mut Vec<Node<f64>>, 
-            inputs: Vec<usize>, 
-            curr_node_idx: usize) {
-
-            if inputs.len() != 2 {
-                panic!("Backward pass multiplication requires 2 inputs");
-            }
+        pub fn backward(nodes: &mut Vec<Node<f64>>, curr_node_idx: usize) {
 
             debug_log(
                 &format!(
                     "Performing backward pass multiplication: {}",
                     nodes[curr_node_idx].output()
                 ) 
-            ); 
+            );
 
-            let lhs = nodes[inputs[0]].output(); 
-            let rhs = nodes[inputs[1]].output(); 
+            let node_inputs = nodes[curr_node_idx].inputs();
+            let lhs = nodes[node_inputs[0]].output(); 
+            let rhs = nodes[node_inputs[1]].output(); 
 
-            nodes[inputs[0]].set_grad_output(rhs); 
-            nodes[inputs[1]].set_grad_output(lhs);
+            nodes[node_inputs[0]].set_grad_output(rhs); 
+            nodes[node_inputs[1]].set_grad_output(lhs);
         }
 
         Operation {
@@ -221,6 +194,45 @@ impl Operation<f64> {
 }
 
 
+impl Operation<Array2<f64>> {
+
+    pub fn add() -> Self {
+
+        pub fn forward(
+            nodes: &Vec<Node<Array2<f64>>>, 
+            curr_node_idx: usize) -> f64 {
+
+            debug_log(
+                &format!(
+                    "Performing forward pass addition ndarray: {}",
+                    curr_node_idx
+                ) 
+            );
+
+            let inputs = nodes[curr_node_idx].inputs();
+            nodes[inputs[0]].output() + nodes[inputs[1]].output()
+        }
+
+
+        pub fn backward(
+            nodes: &mut Vec<Node<Array2<f64>>>, 
+            curr_node_idx: usize) {
+
+            debug_log(
+                &format!(
+                    "Performing backward pass addition ndarray: {}",
+                    curr_node_idx
+                ) 
+            );
+
+            let node_upstream = nodes[curr_node_idx].upstream();
+            let node_inputs = nodes[curr_node_idx].inputs();
+    
+        }
+
+    }
+
+}
 
 
 /*

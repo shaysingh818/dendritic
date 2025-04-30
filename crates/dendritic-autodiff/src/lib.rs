@@ -24,8 +24,6 @@ pub mod node;
 pub mod ops;
 pub mod tensor;
 pub mod graph;
-pub mod binary; 
-pub mod unary;
 pub mod error;
 
 

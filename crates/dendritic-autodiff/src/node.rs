@@ -17,7 +17,7 @@ pub struct Node<T> {
 impl<T: Clone + Default> Node<T> {
 
     /// Method to add input to operation
-    pub fn inputs(&mut self) -> Vec<usize> {
+    pub fn inputs(&self) -> Vec<usize> {
         self.inputs.clone()
     }
 
@@ -41,6 +41,11 @@ impl<T: Clone + Default> Node<T> {
         self.value.value.clone()
     }
 
+    /// Get output value of node structure
+    pub fn grad(&self) -> T {
+        self.value.grad().clone()
+    }
+
     /// Set output attribute of node structure
     pub fn set_output(&mut self, val: T) {
         self.value = Tensor::new(&val);
@@ -49,6 +54,16 @@ impl<T: Clone + Default> Node<T> {
     /// Set gradient attribute of output tensor value
     pub fn set_grad_output(&mut self, val: T) {
         self.value.set_grad(val); 
+    }
+
+    /// Perform forward pass on current node
+    pub fn forward(&self, nodes: &Vec<Node<T>>, curr_node_idx: usize) -> T {
+        (self.operation.forward)(nodes, curr_node_idx)
+    }
+
+    /// Peform backward pass on current node
+    pub fn backward(&self, nodes: &mut Vec<Node<T>>, curr_node_idx: usize) {
+        (self.operation.backward)(nodes, curr_node_idx)
     }
 
     /// Create value with no inputs (but contain upstream dependencies)
@@ -73,42 +88,7 @@ impl<T: Clone + Default> Node<T> {
         }
     }
 
-    /// Perform forward pass on current node
-    pub fn forward(
-        &self, 
-        nodes: &Vec<Node<T>>, 
-        inputs: Vec<usize>,
-        curr_node_idx: usize) -> T {
-        (self.operation.forward)(nodes, inputs, curr_node_idx)
-    }
-
-    /// Peform backward pass on current node
-    pub fn backward(
-        &self, 
-        nodes: &mut Vec<Node<T>>, 
-        inputs: Vec<usize>,
-        curr_node_idx: usize) {
-        (self.operation.backward)(nodes, inputs, curr_node_idx)
-    }
-
 }
-
-
-impl Node<f64> {
-
-    /// Construct binary node with 2 inputs
-    pub fn new() -> Self {
-
-        Node {
-            inputs: vec![],
-            upstream: vec![],
-            value: Tensor::default(),
-            operation: Operation::default(),
-        }
-    }
-
-}
-
 
 
 

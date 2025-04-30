@@ -3,15 +3,17 @@
 mod graph_test {
 
     use std::any::type_name; 
-    use dendritic_autodiff::graph::{Dendrite};
     use dendritic_autodiff::tensor::Tensor; 
     use dendritic_autodiff::node::Node; 
-    use dendritic_autodiff::ops::{Add};
     use dendritic_autodiff::error::{GraphError};
-    use dendritic_autodiff::unary::*; 
-    use dendritic_autodiff::binary::*; 
+    use dendritic_autodiff::ops::Operation; 
     use ndarray::prelude::*; 
     use ndarray::{arr2};
+    use dendritic_autodiff::graph::{
+        Dendrite, 
+        UnaryOperation, 
+        BinaryOperation
+    };
 
     fn type_of<T>(_: &T) -> &'static str {
         type_name::<T>()
@@ -23,165 +25,210 @@ mod graph_test {
         let graph: Dendrite<f64> = Dendrite::new();
 
         assert_eq!(graph.nodes().len(), 0); 
-        assert_eq!(graph.current_node_idx(), 0);
+        assert_eq!(graph.curr_node_idx(), -1);
         assert_eq!(graph.path().len(), 0);
-
+        assert_eq!(graph.variables().len(), 0); 
+        assert_eq!(graph.operations().len(), 0); 
     }
 
     #[test]
     fn test_graph_binary_node() {
 
-        let lhs: Tensor<f64> = Tensor::new(&5.0); 
-        let rhs: Tensor<f64> = Tensor::new(&10.0); 
-        let op = Add::new(lhs.clone(), rhs.clone());
-        let mut graph = Dendrite::new();
+        let a = Some(5.0); 
+        let b = Some(10.0); 
 
-        graph.binary(Box::new(lhs), Box::new(rhs), Box::new(op));
+        let mut graph = Dendrite::new(); 
+        graph.binary(a, b, Operation::add());
 
         assert_eq!(graph.nodes().len(), 3); 
-        assert!(graph.adj_list.contains_key(&0));
-        assert!(graph.adj_list.contains_key(&2));
-        assert!(graph.adj_list.contains_key(&1));
- 
-        let add = graph.adj_list.get(&2).unwrap();
-        let val_1 = graph.adj_list.get(&0).unwrap();
-        let val_2 = graph.adj_list.get(&1).unwrap();
+        assert_eq!(graph.curr_node_idx(), 2);
 
-        assert_eq!(add.get(&0).unwrap(), &0);
-        assert_eq!(add.get(&1).unwrap(), &1);
-       
-        assert_eq!(val_1.get(&2).unwrap(), &2);
-        assert_eq!(val_2.get(&2).unwrap(), &2);
+        let a_val = graph.node(0); 
+        let b_val = graph.node(1); 
+        let add_node = graph.node(2);
 
-        let add_node = graph.node(2).borrow_mut().forward();
-        assert_eq!(add_node, 15.0); 
+        assert_eq!(a_val.upstream(), vec![2]); 
+        assert_eq!(b_val.upstream(), vec![2]); 
+        assert_eq!(a_val.inputs().len(), 0); 
+        assert_eq!(b_val.inputs().len(), 0);
+
+        assert_eq!(a_val.output(), 5.0); 
+        assert_eq!(b_val.output(), 10.0);
+
+        assert_eq!(add_node.upstream().len(), 0); 
+        assert_eq!(add_node.inputs().len(), 2); 
+        assert_eq!(add_node.inputs(), vec![0, 1]);
+        assert_eq!(add_node.output(), 0.0); 
     }
 
     #[test]
     fn test_graph_unary_node() -> Result<(), Box<dyn std::error::Error>>  {
 
-        let mut graph: Dendrite<f64> = Dendrite::new();
-        graph.add(10.0, 20.0);
+        let a = Some(5.0); 
+        let b = Some(10.0);
+        let c = 100.0; 
 
-        let node_val = graph.node(2).borrow_mut(); 
-        let lhs: Tensor<f64> = Tensor::new(&5.0); 
-        let rhs: Tensor<f64> = Tensor::new(&10.0); 
+        let mut graph = Dendrite::new(); 
+        graph.binary(a, b, Operation::add());
+        graph.unary(c, Operation::add()); 
 
-        let u_rhs: Tensor<f64> = Tensor::new(&10.0); 
-        let op_2 = Add::new(
-            Add::new(lhs, rhs),
-            u_rhs
-        );
+        assert_eq!(graph.nodes().len(), 5); 
+        assert_eq!(graph.curr_node_idx(), 4); 
 
+        let a_val = graph.node(0); 
+        let b_val = graph.node(1); 
+        let add = graph.node(2); 
+        let c_val = graph.node(3); 
+        let add_2 = graph.node(4);
 
+        assert_eq!(a_val.upstream(), vec![2]); 
+        assert_eq!(b_val.upstream(), vec![2]); 
+        assert_eq!(a_val.inputs().len(), 0); 
+        assert_eq!(b_val.inputs().len(), 0);
+        assert_eq!(a_val.output(), 5.0); 
+        assert_eq!(b_val.output(), 10.0);
 
-        //println!("Unary op type: {:?}", type_of(&op_2)); 
+        assert_eq!(add.upstream().len(), 1);
+        assert_eq!(add.upstream(), vec![4]); 
+        assert_eq!(add.inputs().len(), 2); 
+        assert_eq!(add.inputs(), vec![0, 1]);
+        assert_eq!(add.output(), 0.0);
+
+        assert_eq!(c_val.inputs().len(), 0); 
+        assert_eq!(c_val.upstream().len(), 1); 
+        assert_eq!(c_val.upstream(), vec![4]); 
+        assert_eq!(c_val.output(), 100.0);
+
+        assert_eq!(add_2.inputs().len(), 2); 
+        assert_eq!(add_2.inputs(), vec![2, 3]); 
+        assert_eq!(add_2.upstream().len(), 0); 
+        assert_eq!(add_2.output(), 0.0); 
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_graph_operation_relationships() {
+
+        let mut graph = Dendrite::new();
+        graph.add(5.0, 10.0); 
+        graph.u_add(100.0);
+        graph.u_mul(20.0);
+        graph.u_sub(10.0); 
+
+        assert_eq!(graph.nodes().len(), 9);
+        assert_eq!(graph.path().len(), 0);
+        assert_eq!(graph.curr_node_idx(), 8);
+
+        let val1 = graph.node(0);
+        assert_eq!(val1.upstream(), vec![2]); 
+        assert_eq!(val1.inputs().len(), 0); 
+
+        let val2 = graph.node(1);
+        assert_eq!(val2.upstream(), vec![2]); 
+        assert_eq!(val2.inputs().len(), 0); 
+
+        let add_node = graph.node(2);
+        assert_eq!(add_node.upstream(), vec![4]); 
+        assert_eq!(add_node.inputs().len(), 2); 
+        assert_eq!(add_node.inputs(), vec![0, 1]); 
+
+        let val3 = graph.node(3);
+        assert_eq!(val3.upstream(), vec![4]); 
+        assert_eq!(val3.inputs().len(), 0); 
+
+        let u_add_node = graph.node(4);
+        assert_eq!(u_add_node.upstream(), vec![6]); 
+        assert_eq!(u_add_node.inputs().len(), 2);
+        assert_eq!(u_add_node.inputs(), vec![2, 3]);
+
+        let val4 = graph.node(5);
+        assert_eq!(val4.upstream(), vec![6]); 
+        assert_eq!(val4.inputs().len(), 0);
+
+        let u_mul_node = graph.node(6);
+        assert_eq!(u_mul_node.upstream(), vec![8]); 
+        assert_eq!(u_mul_node.inputs().len(), 2);
+        assert_eq!(u_mul_node.inputs(), vec![4, 5]);
         
+        let val5 = graph.node(7);
+        assert_eq!(val5.upstream(), vec![8]); 
+        assert_eq!(val5.inputs().len(), 0);
 
+        let u_sub_node = graph.node(8);
+        assert_eq!(u_sub_node.upstream().len(), 0); 
+        assert_eq!(u_sub_node.inputs().len(), 2);
+        assert_eq!(u_sub_node.inputs(), vec![6, 7]);
 
-
-
-        Ok(())
     }
 
-    /*
     #[test]
-    fn test_graph_node_relationships() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_graph_forward_evaluate_scalar() {
 
-        let b: f64 = 1.0;
-        let w: f64 = 10.0;
-        let x: f64 = 20.0; 
-
-        let mut graph: Dendrite<f64> = Dendrite::new();
-
-        graph.mul(x, w); 
-        graph.u_add(b); 
-        graph.u_mul(w.clone()); 
-        graph.u_add(b.clone());
-
-        // validate nodes created in graph
-        let expected_keys: Vec<usize> = vec![0, 1, 2, 3];
-        for key in expected_keys {
-            assert!(graph.adj_list.contains_key(&key));
-        } 
-
-        // validate relationships in graph
-        let mul = graph.adj_list.get(&0).unwrap();
-        let u_add = graph.adj_list.get(&1).unwrap();
-        let u_mul = graph.adj_list.get(&2).unwrap();
-        let u_add_2 = graph.adj_list.get(&3).unwrap();
-
-
-        assert_eq!(mul.get(&1).unwrap(), &1);
-        assert_eq!(u_add.get(&2).unwrap(), &2);
-        assert_eq!(u_mul.get(&3).unwrap(), &3);
-        assert_eq!(u_mul.get(&4), None);
-
-        Ok(())
-    }
-
-
-    #[test]
-    fn test_graph_forward() -> Result<(), Box<dyn std::error::Error>>  {
-
-        let b: f64 = 1.0;
-        let w: f64 = 10.0;
-        let x: f64 = 20.0; 
-
-        let mut graph: Dendrite<f64> = Dendrite::new();
-
-        graph.mul(x, w); 
-        graph.u_add(b); 
-        graph.u_mul(w.clone()); 
-        graph.u_add(b.clone());
-
-        let node_0 = graph.node(0); 
-        let node_1 = graph.node(1); 
-        let node_2 = graph.node(2); 
-        let node_3 = graph.node(3);
-
-        assert_eq!(node_0.borrow_mut().output().value(), 10.0); 
-        assert_eq!(node_1.borrow_mut().output().value(), 1.0);
-        assert_eq!(node_2.borrow_mut().output().value(), 10.0); 
-        assert_eq!(node_3.borrow_mut().output().value(), 1.0);
-        assert_eq!(graph.path(), vec![]); 
+        let mut graph = Dendrite::new();
+        graph.add(5.0, 10.0); 
+        graph.u_add(100.0);
+        graph.u_mul(20.0);
+        graph.u_sub(10.0); 
 
         graph.forward(); 
 
-        let mul = graph.node(0); 
-        let u_add = graph.node(1); 
-        let u_mul = graph.node(2); 
-        let u_add_2 = graph.node(3);
+        assert_eq!(graph.path().len(), 4);
+        assert_eq!(
+            graph.path(),
+            vec![2, 4, 6, 8]
+        );
 
-        assert_eq!(mul.borrow_mut().output().value(), 200.0); 
-        assert_eq!(u_add.borrow_mut().output().value(), 201.0); 
-        assert_eq!(u_mul.borrow_mut().output().value(), 2010.0); 
-        assert_eq!(u_add_2.borrow_mut().output().value(), 2011.0); 
-        assert_eq!(graph.path(), vec![0, 1, 2, 3]); 
+        let expected_outputs = vec![15.0, 115.0, 2300.0, 2290.0];
 
-        Ok(())
-
+        for (idx, node) in graph.path().iter().enumerate() {
+            let node_output = graph.node(*node);
+            assert_eq!(node_output.output(), expected_outputs[idx]); 
+        }
     }
 
     #[test]
-    fn test_graph_backward() -> Result<(), Box<dyn std::error::Error>>  {
-        
-        let b: f64 = 1.0;
-        let w: f64 = 10.0;
-        let x: f64 = 20.0; 
+    fn test_graph_backward_evaluate_scalar() {
 
-        let mut graph: Dendrite<f64> = Dendrite::new();
+        let mut graph = Dendrite::new();
+        graph.add(5.0, 10.0); 
+        graph.u_add(100.0);
+        graph.u_mul(20.0);
+        graph.u_sub(10.0); 
 
-        graph.mul(x, w); 
-        graph.u_add(b); 
-        graph.u_mul(w.clone()); 
-        graph.u_add(b.clone());
+        graph.forward(); 
 
-        graph.forward();
+        let output_node = graph.curr_node(); 
+
+        graph.backward(output_node.output());
+
+        assert_eq!(graph.path().len(), 4);
+        assert_eq!(
+            graph.path(),
+            vec![2, 4, 6, 8]
+        );
+
+        let mut path = graph.path().clone(); 
+        path.reverse();
+
+        let vars = graph.variables(); 
+        let ops = graph.operations();
+
+        let expected_var_grads = vec![1.0, 1.0, 1.0, 115.0, 1.0];
+        let expected_op_grads = vec![1.0, 20.0, 1.0, 2290.0];
+
+        for (idx, var) in vars.iter().enumerate() {
+            let node = graph.node(*var); 
+            assert_eq!(node.grad(), expected_var_grads[idx]); 
+        }
+
+        for (idx, op) in ops.iter().enumerate() {
+            let node = graph.node(*op); 
+            assert_eq!(node.grad(), expected_op_grads[idx]); 
+        }
+
+    }
 
 
-
-        Ok(())
-    } */
 
 }
