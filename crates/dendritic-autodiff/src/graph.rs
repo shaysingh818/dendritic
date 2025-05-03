@@ -2,8 +2,8 @@ use std::fmt::Debug;
 use std::collections::{HashMap, HashSet}; 
 use std::cell::{RefCell}; 
 use crate::node::{Node};
-use crate::ops::{Operation, debug_log}; 
 use crate::error::{GraphError};
+use crate::ops::*; 
 
 /// A dendrite is an instance of expression stored in a computation graph.
 /// A dendrite stores an adjacency list of nodes (operations) in the
@@ -11,7 +11,7 @@ use crate::error::{GraphError};
 /// of nodes can be used, the array of nodes is stored as smart pointers
 /// that allow for interior mutability. 
 #[derive(Debug)]
-pub struct Dendrite<T> {
+pub struct ComputationGraph<T> {
 
     /// references to node operations in the graph
     pub nodes: Vec<Node<T>>,
@@ -29,12 +29,12 @@ pub struct Dendrite<T> {
     pub operations: Vec<usize>
 }
 
-impl<T: Clone + Default + Debug> Dendrite<T> {
+impl<T: Clone + Default + Debug> ComputationGraph<T> {
 
     /// Create new instance of computation graph structure
     pub fn new() -> Self {
 
-        Dendrite {
+        ComputationGraph {
             nodes: vec![],
             path: vec![],
             curr_node_idx: -1,
@@ -154,7 +154,7 @@ impl<T: Clone + Default + Debug> Dendrite<T> {
         &mut self, 
         lhs: Option<T>, 
         rhs: Option<T>, 
-        op: Operation<T>) -> &mut Dendrite<T> {
+        op: Operation<T>) -> &mut ComputationGraph<T> {
 
         match lhs {
             Some(ref input) => {
@@ -243,7 +243,7 @@ impl<T: Clone + Default + Debug> Dendrite<T> {
     }
 
     /// Create unary node relationship with only one input value provided
-    pub fn unary(&mut self, rhs: T, op: Operation<T>) -> &mut Dendrite<T> {
+    pub fn unary(&mut self, rhs: T, op: Operation<T>) -> &mut ComputationGraph<T> {
 
         self.add_node(Node::val(rhs));
         self.variables.push(self.curr_node_idx as usize); 
@@ -276,11 +276,11 @@ impl<T: Clone + Default + Debug> Dendrite<T> {
 /// Shared trait for constructing scalar binary operations.
 pub trait BinaryOperation<T> {
 
-    fn add(&mut self, lhs: T, rhs: T) -> &mut Dendrite<T>; 
+    fn add(&mut self, lhs: T, rhs: T) -> &mut ComputationGraph<T>; 
 
-    fn sub(&mut self, lhs: T, rhs: T) -> &mut Dendrite<T>; 
+    fn sub(&mut self, lhs: T, rhs: T) -> &mut ComputationGraph<T>; 
 
-    fn mul(&mut self, lhs: T, rhs: T) -> &mut Dendrite<T>; 
+    fn mul(&mut self, lhs: T, rhs: T) -> &mut ComputationGraph<T>; 
 
 }
 
@@ -288,17 +288,17 @@ macro_rules! scalar_binary_methods {
 
     ($t:ident) => {
 
-        impl BinaryOperation<$t> for Dendrite<$t> {
+        impl BinaryOperation<$t> for ComputationGraph<$t> {
 
-            fn add(&mut self, lhs: $t, rhs: $t) -> &mut Dendrite<$t> {
+            fn add(&mut self, lhs: $t, rhs: $t) -> &mut ComputationGraph<$t> {
                 self.binary(Some(lhs), Some(rhs), Operation::add()) 
             }
 
-            fn sub(&mut self, lhs: $t, rhs: $t) -> &mut Dendrite<$t> {
+            fn sub(&mut self, lhs: $t, rhs: $t) -> &mut ComputationGraph<$t> {
                 self.binary(Some(lhs), Some(rhs), Operation::sub()) 
             }
 
-            fn mul(&mut self, lhs: $t, rhs: $t) -> &mut Dendrite<$t> {
+            fn mul(&mut self, lhs: $t, rhs: $t) -> &mut ComputationGraph<$t> {
                 self.binary(Some(lhs), Some(rhs), Operation::mul()) 
             }
 
@@ -313,11 +313,11 @@ scalar_binary_methods!(f64);
 /// Unary operations for scalar values
 pub trait UnaryOperation<T> {
 
-    fn u_add(&mut self, rhs: T) -> &mut Dendrite<T>;
+    fn u_add(&mut self, rhs: T) -> &mut ComputationGraph<T>;
 
-    fn u_sub(&mut self, rhs: T) -> &mut Dendrite<T>; 
+    fn u_sub(&mut self, rhs: T) -> &mut ComputationGraph<T>; 
 
-    fn u_mul(&mut self, rhs: T) -> &mut Dendrite<T>; 
+    fn u_mul(&mut self, rhs: T) -> &mut ComputationGraph<T>; 
 
 }
 
@@ -325,17 +325,17 @@ macro_rules! scalar_unary_methods {
 
     ($t:ident) => {
 
-        impl UnaryOperation<$t> for Dendrite<$t> {
+        impl UnaryOperation<$t> for ComputationGraph<$t> {
 
-            fn u_add(&mut self, rhs: $t) -> &mut Dendrite<$t> {
+            fn u_add(&mut self, rhs: $t) -> &mut ComputationGraph<$t> {
                 self.unary(rhs, Operation::add())  
             }
 
-            fn u_sub(&mut self, rhs: $t) -> &mut Dendrite<$t> {
+            fn u_sub(&mut self, rhs: $t) -> &mut ComputationGraph<$t> {
                 self.unary(rhs, Operation::sub()) 
             }
 
-            fn u_mul(&mut self, rhs: $t) -> &mut Dendrite<$t> {
+            fn u_mul(&mut self, rhs: $t) -> &mut ComputationGraph<$t> {
                 self.unary(rhs, Operation::mul())
             }
 

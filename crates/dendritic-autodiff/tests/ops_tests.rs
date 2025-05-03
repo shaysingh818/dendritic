@@ -2,8 +2,8 @@
 mod operations_test {
 
     use dendritic_autodiff::node::{Node};
-    use dendritic_autodiff::ops::{Operation};
-    use dendritic_autodiff::graph::{Dendrite};
+    use dendritic_autodiff::graph::{ComputationGraph};
+    use dendritic_autodiff::ops::*;
     use ndarray::prelude::*; 
     use ndarray::{arr2};
 

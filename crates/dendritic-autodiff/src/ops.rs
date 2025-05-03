@@ -2,9 +2,28 @@ use std::fmt;
 use std::fmt::{Debug, Display};
 use crate::tensor::Tensor;
 use crate::node::Node; 
-use crate::graph::Dendrite; 
+use crate::graph::ComputationGraph; 
 use chrono::Local; 
-//use ndarray::{arr2, Array2};
+use ndarray::{arr2, Array2};
+
+pub trait ArithmeticOperation<T> {
+
+    fn add() -> Operation<T>;
+
+    fn sub() -> Operation<T>;
+
+    fn mul() -> Operation<T>; 
+
+}
+
+pub trait OperationTrait<T> {
+
+    fn forward(nodes: &Vec<Node<T>>, curr_node_idx: usize) -> T;
+ 
+    fn backward(nodes: &mut Vec<Node<T>>, curr_node_idx: usize);
+
+}
+
 
 /// General purpose logging function
 pub fn debug_log(msg: &str) {
@@ -62,9 +81,9 @@ impl<T: Clone + Default> Operation<T> {
 }
 
 
-impl Operation<f64> {
+impl ArithmeticOperation<f64> for Operation<f64> {
 
-    pub fn add() -> Self {
+    fn add() -> Self {
 
         pub fn forward(nodes: &Vec<Node<f64>>, curr_node_idx: usize) -> f64 {
             debug_log(
@@ -115,7 +134,7 @@ impl Operation<f64> {
     }
 
 
-    pub fn sub() -> Self {
+    fn sub() -> Self {
 
         pub fn forward(nodes: &Vec<Node<f64>>, curr_node_idx: usize) -> f64 {
 
@@ -153,7 +172,7 @@ impl Operation<f64> {
 
 
     // goes here
-    pub fn mul() -> Self {
+    fn mul() -> Self {
 
         pub fn forward(nodes: &Vec<Node<f64>>, curr_node_idx: usize) -> f64 {
 
@@ -194,13 +213,13 @@ impl Operation<f64> {
 }
 
 
-impl Operation<Array2<f64>> {
+impl ArithmeticOperation<Array2<f64>> for Operation<Array2<f64>> {
 
-    pub fn add() -> Self {
+    fn add() -> Self {
 
         pub fn forward(
             nodes: &Vec<Node<Array2<f64>>>, 
-            curr_node_idx: usize) -> f64 {
+            curr_node_idx: usize) -> Array2<f64> {
 
             debug_log(
                 &format!(
@@ -230,9 +249,98 @@ impl Operation<Array2<f64>> {
     
         }
 
+        Operation {
+            forward: forward,
+            backward: backward, 
+        }
+
     }
 
-}
+
+    fn sub() -> Self {
+
+        pub fn forward(
+            nodes: &Vec<Node<Array2<f64>>>, 
+            curr_node_idx: usize) -> Array2<f64> {
+
+            debug_log(
+                &format!(
+                    "Performing forward pass addition ndarray: {}",
+                    curr_node_idx
+                ) 
+            );
+
+            let inputs = nodes[curr_node_idx].inputs();
+            nodes[inputs[0]].output() - nodes[inputs[1]].output()
+        }
+
+
+        pub fn backward(
+            nodes: &mut Vec<Node<Array2<f64>>>, 
+            curr_node_idx: usize) {
+
+            debug_log(
+                &format!(
+                    "Performing backward pass addition ndarray: {}",
+                    curr_node_idx
+                ) 
+            );
+
+            let node_upstream = nodes[curr_node_idx].upstream();
+            let node_inputs = nodes[curr_node_idx].inputs();
+    
+        }
+
+        Operation {
+            forward: forward,
+            backward: backward, 
+        }
+
+    }
+
+
+    fn mul() -> Self {
+
+        pub fn forward(
+            nodes: &Vec<Node<Array2<f64>>>, 
+            curr_node_idx: usize) -> Array2<f64> {
+
+            debug_log(
+                &format!(
+                    "Performing forward pass addition ndarray: {}",
+                    curr_node_idx
+                ) 
+            );
+
+            let inputs = nodes[curr_node_idx].inputs();
+            nodes[inputs[0]].output() * nodes[inputs[1]].output()
+        }
+
+
+        pub fn backward(
+            nodes: &mut Vec<Node<Array2<f64>>>, 
+            curr_node_idx: usize) {
+
+            debug_log(
+                &format!(
+                    "Performing backward pass addition ndarray: {}",
+                    curr_node_idx
+                ) 
+            );
+
+            let node_upstream = nodes[curr_node_idx].upstream();
+            let node_inputs = nodes[curr_node_idx].inputs();
+    
+        }
+
+        Operation {
+            forward: forward,
+            backward: backward, 
+        }
+
+    }
+
+} 
 
 
 /*

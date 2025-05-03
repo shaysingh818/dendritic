@@ -4,7 +4,7 @@ mod node_tests {
 
     use dendritic_autodiff::tensor::{Tensor};
     use dendritic_autodiff::node::{Node};
-    use dendritic_autodiff::ops::{Operation};
+    use dendritic_autodiff::ops::*;
     
 
     #[test]
@@ -15,7 +15,11 @@ mod node_tests {
         assert_eq!(node_val.upstream().len(), 0); 
         assert_eq!(node_val.output(), 10.0);
 
-        let mut binary_node_val = Node::binary(0, 1, Operation::add());
+        let mut binary_node_val: Node<f64> = Node::binary(
+            0, 1, 
+            Operation::add()
+        );
+
         assert_eq!(binary_node_val.inputs().len(), 2); 
         assert_eq!(binary_node_val.inputs(), vec![0, 1]);
         assert_eq!(binary_node_val.upstream().len(), 0);

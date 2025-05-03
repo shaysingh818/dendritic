@@ -1,7 +1,7 @@
-use dendritic_autodiff::ops::{Operation};
 use dendritic_autodiff::node::{Node};
 use dendritic_autodiff::tensor::{Tensor}; 
-use dendritic_autodiff::graph::{Dendrite}; 
+use dendritic_autodiff::graph::{ComputationGraph}; 
+use dendritic_autodiff::ops::*;
 
 fn main() {
 
@@ -12,7 +12,7 @@ fn main() {
     let c = Some(-2.0); 
     
     /*
-    let mut graph: Dendrite<f64> = Dendrite::new();
+    let mut graph: ComputationGraph<f64> = ComputationGraph::new();
     graph.binary(Some(2.0), b, Operation::mul());
     graph.unary(a.unwrap(), Operation::add()); 
     graph.unary(c.unwrap(), Operation::mul()); 
@@ -21,7 +21,7 @@ fn main() {
 
     //graph.backward(6); 
 
-    let mut graph2: Dendrite<f64> = Dendrite::new(); 
+    let mut graph2: ComputationGraph<f64> = ComputationGraph::new(); 
     graph2.binary(a, b, Operation::add()); 
     graph2.binary(b, Some(1.0), Operation::add());
     graph2.binary(None, None, Operation::mul());

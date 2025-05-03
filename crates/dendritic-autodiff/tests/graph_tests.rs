@@ -6,11 +6,11 @@ mod graph_test {
     use dendritic_autodiff::tensor::Tensor; 
     use dendritic_autodiff::node::Node; 
     use dendritic_autodiff::error::{GraphError};
-    use dendritic_autodiff::ops::Operation; 
+    use dendritic_autodiff::ops::*; 
     use ndarray::prelude::*; 
     use ndarray::{arr2};
     use dendritic_autodiff::graph::{
-        Dendrite, 
+        ComputationGraph, 
         UnaryOperation, 
         BinaryOperation
     };
@@ -22,7 +22,7 @@ mod graph_test {
     #[test]
     fn test_graph_instantiation() {
 
-        let graph: Dendrite<f64> = Dendrite::new();
+        let graph: ComputationGraph<f64> = ComputationGraph::new();
 
         assert_eq!(graph.nodes().len(), 0); 
         assert_eq!(graph.curr_node_idx(), -1);
@@ -37,7 +37,7 @@ mod graph_test {
         let a = Some(5.0); 
         let b = Some(10.0); 
 
-        let mut graph = Dendrite::new(); 
+        let mut graph = ComputationGraph::new(); 
         graph.binary(a, b, Operation::add());
 
         assert_eq!(graph.nodes().len(), 3); 
@@ -68,7 +68,7 @@ mod graph_test {
         let b = Some(10.0);
         let c = 100.0; 
 
-        let mut graph = Dendrite::new(); 
+        let mut graph = ComputationGraph::new(); 
         graph.binary(a, b, Operation::add());
         graph.unary(c, Operation::add()); 
 
@@ -110,7 +110,7 @@ mod graph_test {
     #[test]
     fn test_graph_operation_relationships() {
 
-        let mut graph = Dendrite::new();
+        let mut graph = ComputationGraph::new();
         graph.add(5.0, 10.0); 
         graph.u_add(100.0);
         graph.u_mul(20.0);
@@ -165,7 +165,7 @@ mod graph_test {
     #[test]
     fn test_graph_forward_evaluate_scalar() {
 
-        let mut graph = Dendrite::new();
+        let mut graph = ComputationGraph::new();
         graph.add(5.0, 10.0); 
         graph.u_add(100.0);
         graph.u_mul(20.0);
@@ -190,7 +190,7 @@ mod graph_test {
     #[test]
     fn test_graph_backward_evaluate_scalar() {
 
-        let mut graph = Dendrite::new();
+        let mut graph = ComputationGraph::new();
         graph.add(5.0, 10.0); 
         graph.u_add(100.0);
         graph.u_mul(20.0);
