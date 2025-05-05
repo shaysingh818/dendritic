@@ -10,7 +10,7 @@ use crate::ops::*;
 /// computation graph. Since nodes are not clonable and only references
 /// of nodes can be used, the array of nodes is stored as smart pointers
 /// that allow for interior mutability. 
-#[derive(Debug)]
+
 pub struct ComputationGraph<T> {
 
     /// references to node operations in the graph

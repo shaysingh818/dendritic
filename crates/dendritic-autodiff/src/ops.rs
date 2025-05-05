@@ -1,28 +1,11 @@
 use std::fmt; 
 use std::fmt::{Debug, Display};
 use crate::tensor::Tensor;
-use crate::node::Node; 
+use crate::node::{Node, Node2}; 
 use crate::graph::ComputationGraph; 
 use chrono::Local; 
 use ndarray::{arr2, Array2};
 
-pub trait ArithmeticOperation<T> {
-
-    fn add() -> Operation<T>;
-
-    fn sub() -> Operation<T>;
-
-    fn mul() -> Operation<T>; 
-
-}
-
-pub trait OperationTrait<T> {
-
-    fn forward(nodes: &Vec<Node<T>>, curr_node_idx: usize) -> T;
- 
-    fn backward(nodes: &mut Vec<Node<T>>, curr_node_idx: usize);
-
-}
 
 
 /// General purpose logging function
@@ -47,6 +30,145 @@ pub struct Operation<T> {
     pub backward: fn(nodes: &mut Vec<Node<T>>, curr_node_idx: usize), 
 
 }
+
+
+pub trait OperationTrait<T>: OperationClone<T> + Debug {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node2<T>>, 
+        curr_node_idx: usize) -> T;
+ 
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node2<T>>, 
+        curr_node_idx: usize);
+
+}
+
+
+pub trait OperationClone<T> {
+    fn clone_box(&self) -> Box<dyn OperationTrait<T>>;
+}
+
+impl<T, U> OperationClone<T> for U
+where
+    U: 'static + OperationTrait<T> + Clone,
+{
+    fn clone_box(&self) -> Box<dyn OperationTrait<T>> {
+        Box::new(self.clone())
+    }
+}
+
+
+impl<T> Clone for Box<dyn OperationTrait<T>> {
+    fn clone(&self) -> Box<dyn OperationTrait<T>> {
+        self.clone_box()
+    }
+} 
+
+
+/*
+impl<T: Clone> Debug for Box<dyn OperationTrait<T>> {
+
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "This is an operation trait") 
+    }
+
+} */
+
+
+#[derive(Clone, Debug)]
+pub struct DefaultValue; 
+
+
+impl<T> OperationTrait<T> for DefaultValue 
+where 
+    T: Clone + Default, 
+{
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node2<T>>, 
+        curr_node_idx: usize) -> T {
+
+        nodes[curr_node_idx].output()
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node2<T>>, 
+        curr_node_idx: usize) {
+
+
+        debug_log(
+            &format!(
+                "Backward on raw value idx: {}",
+                curr_node_idx
+            ) 
+        ); 
+
+    }
+}
+
+
+#[derive(Clone, Debug)]
+pub struct Add; 
+
+
+impl OperationTrait<f64> for Add {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node2<f64>>, 
+        curr_node_idx: usize) -> f64 {
+
+        debug_log(
+            &format!(
+                "Performing forward pass add on node index: {}",
+                curr_node_idx
+            ) 
+        ); 
+
+        debug_log(
+            &format!(
+                "Forward add upstream values: {:?}",
+                nodes[curr_node_idx].upstream()
+            ) 
+        );
+
+        let inputs = nodes[curr_node_idx].inputs();
+        nodes[inputs[0]].output() + nodes[inputs[1]].output()
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node2<f64>>, 
+        curr_node_idx: usize) {
+
+
+        debug_log(
+            &format!(
+                "Performing backward addition on node index: {}",
+                curr_node_idx
+            ) 
+        ); 
+
+        let node_inputs = nodes[curr_node_idx].inputs();
+        for (idx, input) in node_inputs.iter().enumerate() {
+            nodes[node_inputs[idx]].set_grad_output(1.0);
+        }
+
+        debug_log(
+            &format!(
+                "Updated gradients for node input indexes: {:?}",
+                node_inputs
+            ) 
+        ); 
+
+    }
+}
+
 
 
 impl<T: Clone + Default> Operation<T> {
@@ -81,9 +203,9 @@ impl<T: Clone + Default> Operation<T> {
 }
 
 
-impl ArithmeticOperation<f64> for Operation<f64> {
+impl Operation<f64> {
 
-    fn add() -> Self {
+    pub fn add() -> Self {
 
         pub fn forward(nodes: &Vec<Node<f64>>, curr_node_idx: usize) -> f64 {
             debug_log(
@@ -134,7 +256,7 @@ impl ArithmeticOperation<f64> for Operation<f64> {
     }
 
 
-    fn sub() -> Self {
+    pub fn sub() -> Self {
 
         pub fn forward(nodes: &Vec<Node<f64>>, curr_node_idx: usize) -> f64 {
 
@@ -172,7 +294,7 @@ impl ArithmeticOperation<f64> for Operation<f64> {
 
 
     // goes here
-    fn mul() -> Self {
+    pub fn mul() -> Self {
 
         pub fn forward(nodes: &Vec<Node<f64>>, curr_node_idx: usize) -> f64 {
 
@@ -212,8 +334,8 @@ impl ArithmeticOperation<f64> for Operation<f64> {
 
 }
 
-
-impl ArithmeticOperation<Array2<f64>> for Operation<Array2<f64>> {
+/*
+impl Operation<Array2<f64>> {
 
     fn add() -> Self {
 
@@ -340,8 +462,7 @@ impl ArithmeticOperation<Array2<f64>> for Operation<Array2<f64>> {
 
     }
 
-} 
-
+}  */ 
 
 /*
 
@@ -437,3 +558,57 @@ impl Operation<Array2<f64>> for Mul {
     }
  
 } */
+
+
+/*
+pub trait OperationTrait<T>: OperationClone<T> {
+
+    fn forward(&self, nodes: &Vec<Node2<T>>, curr_node_idx: usize) -> T;
+ 
+    fn backward(&self, nodes: &mut Vec<Node2<T>>, curr_node_idx: usize);
+
+}
+
+
+pub trait OperationClone<T> {
+    fn clone_box(&self) -> Box<dyn OperationTrait<T>>;
+}
+
+impl<T, U> OperationClone<T> for U
+where
+    U: 'static + OperationTrait<T> + Clone,
+{
+    fn clone_box(&self) -> Box<dyn OperationTrait<T>> {
+        Box::new(self.clone())
+    }
+}
+
+
+impl<T> Clone for Box<dyn OperationTrait<T>> {
+    fn clone(&self) -> Box<dyn OperationTrait<T>> {
+        self.clone_box()
+    }
+}
+
+
+#[derive(Clone)]
+pub struct ValueNode; 
+
+impl OperationTrait<f64> for ValueNode {
+
+
+    fn forward(&self, nodes: &Vec<Node2<f64>>, curr_node_idx: usize) -> f64 {
+        nodes[curr_node_idx].value.value()
+    }
+ 
+    fn backward(&self, nodes: &mut Vec<Node2<f64>>, curr_node_idx: usize) {
+        debug_log(
+            &format!(
+                "Backward on raw value idx: {}",
+                curr_node_idx
+            ) 
+        ); 
+    }
+
+}
+*/
