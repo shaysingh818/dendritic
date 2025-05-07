@@ -3,6 +3,7 @@ use std::collections::{HashMap, HashSet};
 use std::cell::{RefCell}; 
 use crate::node::{Node};
 use crate::error::{GraphError};
+use ndarray::Array2;
 use crate::ops::*; 
 
 /// A dendrite is an instance of expression stored in a computation graph.
@@ -105,7 +106,7 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
 
     /// Call backward operation on current node index
     pub fn backward_node(&mut self, idx: usize) {
-        let node_call = self.nodes[idx].clone(); 
+        let mut node_call = self.nodes[idx].clone(); 
         node_call.backward(&mut self.nodes, idx);
     }
 
@@ -123,14 +124,14 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
     }
 
     /// Perform backward pass on all nodes in the graph
-    pub fn backward(&mut self, error: T) {
+    pub fn backward(&mut self) {
 
         if self.path.len() <= 0 {
             panic!("Forward pass path has not been completed yet"); 
         }
 
         let mut path_clone = self.path.clone(); 
-        path_clone.reverse(); 
+        path_clone.reverse();
 
         for node_idx in path_clone {
             self.backward_node(node_idx); 
@@ -154,7 +155,7 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
         &mut self, 
         lhs: Option<T>, 
         rhs: Option<T>, 
-        op: Operation<T>) -> &mut ComputationGraph<T> {
+        op: Box<dyn Operation<T>>) -> &mut ComputationGraph<T> {
 
         match lhs {
             Some(ref input) => {
@@ -243,7 +244,10 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
     }
 
     /// Create unary node relationship with only one input value provided
-    pub fn unary(&mut self, rhs: T, op: Operation<T>) -> &mut ComputationGraph<T> {
+    pub fn unary(
+        &mut self, 
+        rhs: T, 
+        op: Box<dyn Operation<T>>) -> &mut ComputationGraph<T> {
 
         self.add_node(Node::val(rhs));
         self.variables.push(self.curr_node_idx as usize); 
@@ -286,20 +290,20 @@ pub trait BinaryOperation<T> {
 
 macro_rules! scalar_binary_methods {
 
-    ($t:ident) => {
+    ($t:ty) => {
 
         impl BinaryOperation<$t> for ComputationGraph<$t> {
 
             fn add(&mut self, lhs: $t, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.binary(Some(lhs), Some(rhs), Operation::add()) 
+                self.binary(Some(lhs), Some(rhs), Box::new(Add)) 
             }
 
             fn sub(&mut self, lhs: $t, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.binary(Some(lhs), Some(rhs), Operation::sub()) 
+                self.binary(Some(lhs), Some(rhs), Box::new(Sub)) 
             }
 
             fn mul(&mut self, lhs: $t, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.binary(Some(lhs), Some(rhs), Operation::mul()) 
+                self.binary(Some(lhs), Some(rhs), Box::new(Mul)) 
             }
 
         }
@@ -308,7 +312,7 @@ macro_rules! scalar_binary_methods {
 
 //scalar_binary_ops!(f32); 
 scalar_binary_methods!(f64);
-
+scalar_binary_methods!(Array2<f64>);
 
 /// Unary operations for scalar values
 pub trait UnaryOperation<T> {
@@ -317,26 +321,32 @@ pub trait UnaryOperation<T> {
 
     fn u_sub(&mut self, rhs: T) -> &mut ComputationGraph<T>; 
 
-    fn u_mul(&mut self, rhs: T) -> &mut ComputationGraph<T>; 
+    fn u_mul(&mut self, rhs: T) -> &mut ComputationGraph<T>;
+
+    fn mse(&mut self, rhs: T) -> &mut ComputationGraph<T>; 
 
 }
 
 macro_rules! scalar_unary_methods {
 
-    ($t:ident) => {
+    ($t:ty) => {
 
         impl UnaryOperation<$t> for ComputationGraph<$t> {
 
             fn u_add(&mut self, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.unary(rhs, Operation::add())  
+                self.unary(rhs, Box::new(Add))  
             }
 
             fn u_sub(&mut self, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.unary(rhs, Operation::sub()) 
+                self.unary(rhs, Box::new(Sub)) 
             }
 
             fn u_mul(&mut self, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.unary(rhs, Operation::mul())
+                self.unary(rhs, Box::new(Mul))
+            }
+
+            fn mse(&mut self, rhs: $t) -> &mut ComputationGraph<$t> {
+                self.unary(rhs, Box::new(MSE))
             }
 
         }
@@ -346,3 +356,4 @@ macro_rules! scalar_unary_methods {
 
 //scalar_unary_methods!(f32); 
 scalar_unary_methods!(f64);
+scalar_unary_methods!(Array2<f64>);

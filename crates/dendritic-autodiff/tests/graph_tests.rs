@@ -38,7 +38,7 @@ mod graph_test {
         let b = Some(10.0); 
 
         let mut graph = ComputationGraph::new(); 
-        graph.binary(a, b, Operation::add());
+        graph.binary(a, b, Box::new(Add));
 
         assert_eq!(graph.nodes().len(), 3); 
         assert_eq!(graph.curr_node_idx(), 2);
@@ -69,8 +69,8 @@ mod graph_test {
         let c = 100.0; 
 
         let mut graph = ComputationGraph::new(); 
-        graph.binary(a, b, Operation::add());
-        graph.unary(c, Operation::add()); 
+        graph.binary(a, b, Box::new(Add));
+        graph.unary(c, Box::new(Add)); 
 
         assert_eq!(graph.nodes().len(), 5); 
         assert_eq!(graph.curr_node_idx(), 4); 

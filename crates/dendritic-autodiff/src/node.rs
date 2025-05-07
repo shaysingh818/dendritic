@@ -13,7 +13,7 @@ pub struct Node<T> {
     pub inputs: Vec<usize>,
     pub upstream: Vec<usize>,
     pub value: Tensor<T>,
-    pub operation: Operation<T>,
+    pub operation: Box<dyn Operation<T>>,
 }
 
 impl<T: Clone + Default> Node<T> {
@@ -60,27 +60,32 @@ impl<T: Clone + Default> Node<T> {
 
     /// Perform forward pass on current node
     pub fn forward(&self, nodes: &Vec<Node<T>>, curr_node_idx: usize) -> T {
-        (self.operation.forward)(nodes, curr_node_idx)
+        self.operation.forward(nodes, curr_node_idx)
     }
 
     /// Peform backward pass on current node
-    pub fn backward(&self, nodes: &mut Vec<Node<T>>, curr_node_idx: usize) {
-        (self.operation.backward)(nodes, curr_node_idx)
+    pub fn backward(&mut self, nodes: &mut Vec<Node<T>>, curr_node_idx: usize) {
+        self.operation.backward(nodes, curr_node_idx)
     }
 
     /// Create value with no inputs (but contain upstream dependencies)
     pub fn val(value: T) -> Self {
 
+        let val = Box::new(DefaultValue);
+
         Node {
             inputs: vec![],
             upstream: vec![],
             value: Tensor::new(&value),
-            operation: Operation::default(),
+            operation: val,
         }
     }
 
     /// Create binary node with exactly 2 inputs
-    pub fn binary(lhs: usize, rhs: usize, op: Operation<T>) -> Self {
+    pub fn binary(
+        lhs: usize, 
+        rhs: usize, 
+        op: Box<dyn Operation<T>>) -> Self {
 
         Node {
             inputs: vec![lhs, rhs],
@@ -94,7 +99,7 @@ impl<T: Clone + Default> Node<T> {
 
 
 
-
+/*
 #[derive(Debug, Clone)]
 pub struct Node2<T> {
     pub inputs: Vec<usize>,
@@ -194,7 +199,7 @@ where
         }
     }
 
-}
+} */
 
 
 
