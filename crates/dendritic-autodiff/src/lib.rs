@@ -24,6 +24,7 @@ pub mod node;
 pub mod ops;
 pub mod tensor;
 pub mod graph;
+pub mod graph_interface; 
 pub mod error;
 
 

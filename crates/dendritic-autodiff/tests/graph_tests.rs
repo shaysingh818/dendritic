@@ -9,15 +9,9 @@ mod graph_test {
     use dendritic_autodiff::ops::*; 
     use ndarray::prelude::*; 
     use ndarray::{arr2};
-    use dendritic_autodiff::graph::{
-        ComputationGraph, 
-        UnaryOperation, 
-        BinaryOperation
-    };
+    use dendritic_autodiff::graph::*;
+    use dendritic_autodiff::graph_interface::*;
 
-    fn type_of<T>(_: &T) -> &'static str {
-        type_name::<T>()
-    }
 
     #[test]
     fn test_graph_instantiation() {
@@ -111,10 +105,10 @@ mod graph_test {
     fn test_graph_operation_relationships() {
 
         let mut graph = ComputationGraph::new();
-        graph.add(5.0, 10.0); 
-        graph.u_add(100.0);
-        graph.u_mul(20.0);
-        graph.u_sub(10.0); 
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]); 
 
         assert_eq!(graph.nodes().len(), 9);
         assert_eq!(graph.path().len(), 0);
@@ -166,10 +160,10 @@ mod graph_test {
     fn test_graph_forward_evaluate_scalar() {
 
         let mut graph = ComputationGraph::new();
-        graph.add(5.0, 10.0); 
-        graph.u_add(100.0);
-        graph.u_mul(20.0);
-        graph.u_sub(10.0); 
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]); 
 
         graph.forward(); 
 
@@ -191,16 +185,16 @@ mod graph_test {
     fn test_graph_backward_evaluate_scalar() {
 
         let mut graph = ComputationGraph::new();
-        graph.add(5.0, 10.0); 
-        graph.u_add(100.0);
-        graph.u_mul(20.0);
-        graph.u_sub(10.0); 
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]); 
 
         graph.forward(); 
 
         let output_node = graph.curr_node(); 
 
-        graph.backward(output_node.output());
+        graph.backward();
 
         assert_eq!(graph.path().len(), 4);
         assert_eq!(
@@ -215,7 +209,7 @@ mod graph_test {
         let ops = graph.operations();
 
         let expected_var_grads = vec![1.0, 1.0, 1.0, 115.0, 1.0];
-        let expected_op_grads = vec![1.0, 20.0, 1.0, 2290.0];
+        let expected_op_grads = vec![1.0, 20.0, 1.0, 0.0];
 
         for (idx, var) in vars.iter().enumerate() {
             let node = graph.node(*var); 

@@ -60,6 +60,11 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
         self.nodes.clone()
     }
 
+    /// Set output of specific node value and reference by index
+    pub fn mut_node_output(&mut self, idx: usize, val: T) {
+        self.nodes[idx].set_output(val);
+    }
+
     /// Get latest node created in the computation graph
     pub fn curr_node(&self) -> Node<T> {
         self.nodes[self.curr_node_idx as usize].clone()
@@ -276,84 +281,3 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
 
 }
 
-
-/// Shared trait for constructing scalar binary operations.
-pub trait BinaryOperation<T> {
-
-    fn add(&mut self, lhs: T, rhs: T) -> &mut ComputationGraph<T>; 
-
-    fn sub(&mut self, lhs: T, rhs: T) -> &mut ComputationGraph<T>; 
-
-    fn mul(&mut self, lhs: T, rhs: T) -> &mut ComputationGraph<T>; 
-
-}
-
-macro_rules! scalar_binary_methods {
-
-    ($t:ty) => {
-
-        impl BinaryOperation<$t> for ComputationGraph<$t> {
-
-            fn add(&mut self, lhs: $t, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.binary(Some(lhs), Some(rhs), Box::new(Add)) 
-            }
-
-            fn sub(&mut self, lhs: $t, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.binary(Some(lhs), Some(rhs), Box::new(Sub)) 
-            }
-
-            fn mul(&mut self, lhs: $t, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.binary(Some(lhs), Some(rhs), Box::new(Mul)) 
-            }
-
-        }
-    }
-}
-
-//scalar_binary_ops!(f32); 
-scalar_binary_methods!(f64);
-scalar_binary_methods!(Array2<f64>);
-
-/// Unary operations for scalar values
-pub trait UnaryOperation<T> {
-
-    fn u_add(&mut self, rhs: T) -> &mut ComputationGraph<T>;
-
-    fn u_sub(&mut self, rhs: T) -> &mut ComputationGraph<T>; 
-
-    fn u_mul(&mut self, rhs: T) -> &mut ComputationGraph<T>;
-
-    fn mse(&mut self, rhs: T) -> &mut ComputationGraph<T>; 
-
-}
-
-macro_rules! scalar_unary_methods {
-
-    ($t:ty) => {
-
-        impl UnaryOperation<$t> for ComputationGraph<$t> {
-
-            fn u_add(&mut self, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.unary(rhs, Box::new(Add))  
-            }
-
-            fn u_sub(&mut self, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.unary(rhs, Box::new(Sub)) 
-            }
-
-            fn u_mul(&mut self, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.unary(rhs, Box::new(Mul))
-            }
-
-            fn mse(&mut self, rhs: $t) -> &mut ComputationGraph<$t> {
-                self.unary(rhs, Box::new(MSE))
-            }
-
-        }
-
-    }
-}
-
-//scalar_unary_methods!(f32); 
-scalar_unary_methods!(f64);
-scalar_unary_methods!(Array2<f64>);

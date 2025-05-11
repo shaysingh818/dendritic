@@ -2,18 +2,16 @@
 #[cfg(test)]
 mod graph_test {
 
-    use std::any::type_name; 
+    use std::any::type_name;
+    use ndarray::prelude::*; 
+    use ndarray::{arr2};
+
     use dendritic_autodiff::tensor::Tensor; 
     use dendritic_autodiff::node::Node; 
     use dendritic_autodiff::error::{GraphError};
-    use dendritic_autodiff::ops::*; 
-    use ndarray::prelude::*; 
-    use ndarray::{arr2};
-    use dendritic_autodiff::graph::{
-        ComputationGraph, 
-        UnaryOperation, 
-        BinaryOperation
-    };
+    use dendritic_autodiff::ops::*;
+    use dendritic_autodiff::graph::*;
+    use dendritic_autodiff::graph_interface::*;
 
 
     #[test]
@@ -31,8 +29,8 @@ mod graph_test {
         ]);
         
         let mut graph = ComputationGraph::new();
-        graph.mul(x, w); 
-        graph.u_add(b); 
+        graph.mul(vec![x, w]); 
+        graph.add(vec![b]); 
 
 
     }

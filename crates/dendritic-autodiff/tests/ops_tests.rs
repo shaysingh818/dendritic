@@ -3,12 +3,13 @@ mod operations_test {
 
     use dendritic_autodiff::node::{Node};
     use dendritic_autodiff::graph::{ComputationGraph};
+    use dendritic_autodiff::graph_interface::*;
     use dendritic_autodiff::ops::*;
     use ndarray::prelude::*; 
     use ndarray::{arr2};
 
     #[test]
-    fn test_scalar_generic_add() {
+    fn test_add() {
 
         let mut nodes: Vec<Node<f64>> = Vec::new(); 
         let a: Node<f64> = Node::val(2.0); 
@@ -41,7 +42,7 @@ mod operations_test {
 
 
     #[test]
-    fn test_scalar_generic_sub() {
+    fn test_subtract() {
 
         let mut nodes: Vec<Node<f64>> = Vec::new(); 
         let a: Node<f64> = Node::val(2.0); 
@@ -75,7 +76,7 @@ mod operations_test {
 
 
     #[test]
-    fn test_scalar_generic_mul() {
+    fn test_multiply() {
 
         let mut nodes: Vec<Node<f64>> = Vec::new(); 
         let a: Node<f64> = Node::val(2.0); 
@@ -104,6 +105,46 @@ mod operations_test {
 
         assert_eq!(nodes[1].grad(), 2.0); 
         assert_eq!(nodes[0].grad(), 3.0); 
+
+    }
+
+
+    #[test]
+    fn test_mse() {
+
+        let a = arr2(&[[1.0], [2.0], [3.0]]); 
+        let b = arr2(&[[1.0], [2.0], [3.0]]); 
+        let c = arr2(&[[1.0], [1.0], [1.0]]); 
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![a, b]);
+        graph.mse(c);
+
+        assert_eq!(graph.nodes().len(), 5);
+
+        assert_eq!(graph.node(0).inputs().len(), 0); 
+        assert_eq!(graph.node(0).output().shape(), vec![3, 1]); 
+
+        assert_eq!(graph.node(1).inputs().len(), 0); 
+        assert_eq!(graph.node(1).output().shape(), vec![3, 1]); 
+
+        assert_eq!(graph.node(2).inputs().len(), 2); 
+        assert_eq!(graph.node(2).output().shape(), vec![0, 0]); 
+
+        graph.forward();
+
+        assert_eq!(graph.node(2).output().shape(), vec![3, 1]); 
+        assert_eq!(
+            graph.node(2).output(), 
+            arr2(&[[2.0],[4.0],[6.0]])
+        );
+
+        graph.backward();
+
+        assert_eq!(
+            graph.node(2).grad(), 
+            arr2(&[[1.0],[3.0],[5.0]])
+        );
 
     }
 

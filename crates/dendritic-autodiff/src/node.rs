@@ -40,7 +40,7 @@ impl<T: Clone + Default> Node<T> {
 
     /// Get output value of node structure
     pub fn output(&self) -> T {
-        self.value.value.clone()
+        self.value.value()
     }
 
     /// Get output value of node structure
@@ -50,7 +50,7 @@ impl<T: Clone + Default> Node<T> {
 
     /// Set output attribute of node structure
     pub fn set_output(&mut self, val: T) {
-        self.value = Tensor::new(&val);
+        self.value.set_value(val);
     }
 
     /// Set gradient attribute of output tensor value

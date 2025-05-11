@@ -195,8 +195,8 @@ impl Operation<Array2<f64>> for Add {
         }
 
         let upstream_grad = nodes[upstream[0]].grad(); 
-        nodes[curr_node_idx].set_grad_output(upstream_grad); 
-        
+        nodes[curr_node_idx].set_grad_output(upstream_grad);
+
         debug_log(
             &format!(
                 "(ADD) Updated gradients for node input indexes: {:?}",
@@ -637,7 +637,6 @@ impl Operation<Array2<f64>> for L1Regularization {
         let rhs = nodes[inputs[1]].output(); 
 
         let rhs_square = rhs.mapv(|x| x * x);
-        //let rhs_sum = rhs_square.sum(); 
         lhs.dot(&rhs_square)
     }
 
