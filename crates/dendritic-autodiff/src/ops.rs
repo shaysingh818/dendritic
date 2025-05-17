@@ -124,6 +124,7 @@ impl Operation<f64> for Add {
         ); 
 
         let node_inputs = nodes[curr_idx].inputs();
+        println!("ADD DEBUG: {:?}", node_inputs); 
         for (idx, input) in node_inputs.iter().enumerate() {
             nodes[node_inputs[idx]].set_grad_output(1.0);
         }
@@ -183,12 +184,18 @@ impl Operation<Array2<f64>> for Add {
         let lhs = nodes[inputs[0]].output(); 
         let rhs = nodes[inputs[1]].output();
 
-        if upstream.len() > 1 {
-            panic!("Backward add can only handle one upstream"); 
+        match upstream.len() {
+            1 => {
+                let upstream_grad = nodes[upstream[0]].grad(); 
+                nodes[curr_idx].set_grad_output(upstream_grad);
+            },
+            0 => {
+                panic!("No upstream values associated with node: {:?}", nodes[curr_idx]); 
+            },
+            _ => {
+                panic!("ADD: Unable to handle upstream values");
+            }
         }
-
-        let upstream_grad = nodes[upstream[0]].grad(); 
-        nodes[curr_idx].set_grad_output(upstream_grad);
 
         debug_log(
             &format!(
@@ -434,12 +441,25 @@ impl Operation<Array2<f64>> for Mul {
             panic!("Backward multiply can only handle one upstream"); 
         }
 
-        let upstream = nodes[upstream[0]].grad();  
-        let rhs_grad = upstream.dot(&rhs.t());
-        let lhs_grad = lhs.t().dot(&upstream); 
 
-        nodes[inputs[0]].set_grad_output(rhs_grad); 
-        nodes[inputs[1]].set_grad_output(lhs_grad);
+        match upstream.len() {
+            1 => {
+                let upstream = nodes[upstream[0]].grad(); 
+                println!("UPSTREAM: {:?}", upstream); 
+
+                let rhs_grad = upstream.dot(&rhs.t());
+                let lhs_grad = lhs.t().dot(&upstream); 
+
+                nodes[inputs[0]].set_grad_output(rhs_grad); 
+                nodes[inputs[1]].set_grad_output(lhs_grad);
+            },
+            0 => {
+                panic!("No upstream values associated with node: {:?}", nodes[curr_idx]); 
+            },
+            _ => {
+                panic!("MUL: Unable to handle and map upstream values for backward pass");
+            }
+        }
 
         debug_log(
             &format!(
@@ -664,6 +684,122 @@ impl Operation<Array2<f64>> for L1Regularization {
             &format!(
                 "Updated gradients for node input indexes: {:?}",
                 node_inputs
+            ) 
+        ); 
+
+    }
+}
+
+
+#[derive(Clone, Debug)]
+pub struct DefaultLossFunction;
+
+impl Operation<Array2<f64>> for DefaultLossFunction {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) -> Array2<f64> {
+
+        debug_log(
+            &format!(
+                "Performing forward default loss on node: {:?}",
+                curr_idx
+            ) 
+        ); 
+
+        debug_log(
+            &format!(
+                "Forward MSE upstream values: {:?}",
+                nodes[curr_idx].upstream()
+            ) 
+        );
+
+        let inputs = nodes[curr_idx].inputs();
+        println!("INPUTS LENGTH: {:?}", inputs); 
+        match inputs.len() {
+            1 => {
+                nodes[inputs[0]].output()
+            },
+            0 => {
+                panic!("Previous node needs to exist to create default loss function");
+            },
+            _ => {
+                panic!("Error validating inputs for default loss function forward pass"); 
+            }
+        }
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) {
+
+        debug_log(
+            &format!(
+                "Performing backward default loss on node index: {:?}",
+                nodes[curr_idx].inputs()
+            ) 
+        );
+
+        let grad = nodes[curr_idx].output();
+        nodes[curr_idx].set_grad_output(grad.clone());
+
+        debug_log(
+            &format!(
+                "Updated gradients for node input indexes: {:?}",
+                nodes[curr_idx].inputs()
+            ) 
+        ); 
+
+    }
+}
+
+
+impl Operation<f64> for DefaultLossFunction {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node<f64>>, 
+        curr_idx: usize) -> f64 {
+
+        debug_log(
+            &format!(
+                "Performing forward MSE on node index: {:?}",
+                nodes[curr_idx].inputs()
+            ) 
+        ); 
+
+        debug_log(
+            &format!(
+                "Forward MSE upstream values: {:?}",
+                nodes[curr_idx].upstream()
+            ) 
+        );
+
+        nodes[curr_idx].output()
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node<f64>>, 
+        curr_idx: usize) {
+
+
+        debug_log(
+            &format!(
+                "Performing backward multiply on node index: {:?}",
+                nodes[curr_idx].inputs()
+            ) 
+        );
+
+        let grad = nodes[curr_idx].output();
+        nodes[curr_idx].set_grad_output(grad);
+
+        debug_log(
+            &format!(
+                "Updated gradients for node input indexes: {:?}",
+                nodes[curr_idx].inputs()
             ) 
         ); 
 

@@ -11,7 +11,6 @@ use crate::ops::*;
 /// computation graph. Since nodes are not clonable and only references
 /// of nodes can be used, the array of nodes is stored as smart pointers
 /// that allow for interior mutability. 
-
 pub struct ComputationGraph<T> {
 
     /// references to node operations in the graph
@@ -119,6 +118,8 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
     pub fn forward(&mut self) {
         let mut idx = 0;
         let mut nodes = self.nodes.clone(); 
+
+        debug_log("Starting forward pass..."); 
         for mut node in &mut nodes {
             if node.inputs().len() > 0 {
                 self.path.push(idx);
@@ -134,10 +135,11 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
         if self.path.len() <= 0 {
             panic!("Forward pass path has not been completed yet"); 
         }
-
+ 
         let mut path_clone = self.path.clone(); 
         path_clone.reverse();
 
+        debug_log("Starting backward pass..."); 
         for node_idx in path_clone {
             self.backward_node(node_idx); 
         }

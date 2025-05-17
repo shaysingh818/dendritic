@@ -95,5 +95,18 @@ impl<T: Clone + Default> Node<T> {
         }
     }
 
+    /// Create unary node with exactly 1 inputs
+    pub fn unary(
+        lhs: usize, 
+        op: Box<dyn Operation<T>>) -> Self {
+
+        Node {
+            inputs: vec![lhs],
+            upstream: vec![],
+            value: Tensor::default(),
+            operation: op,
+        }
+    }
+
 }
 

@@ -2,7 +2,8 @@ use ndarray::Array2;
 use std::fmt::Debug; 
 
 use crate::graph::*; 
-use crate::ops::*; 
+use crate::ops::*;
+use crate::node::{Node}; 
 
 
 /// Shared trait for constructing scalar binary operations.
@@ -81,7 +82,9 @@ arithmetic_ops!(Array2<f64>);
 /// Shared trait for constructing scalar binary operations.
 pub trait LossFunction<T> {
 
-    fn mse(&mut self, val: T) -> &mut ComputationGraph<T>; 
+    fn mse(&mut self, val: T) -> &mut ComputationGraph<T>;
+
+    fn default(&mut self) -> &mut ComputationGraph<T>; 
 
 }
 
@@ -90,6 +93,21 @@ impl LossFunction<Array2<f64>> for ComputationGraph<Array2<f64>> {
 
     fn mse(&mut self, val: Array2<f64>) -> &mut ComputationGraph<Array2<f64>> {
         self.unary(val, Box::new(MSE))
+    }
+
+    fn default(&mut self) -> &mut ComputationGraph<Array2<f64>> {
+
+        let curr_node = self.curr_node_idx as usize; 
+        self.add_node(
+            Node::unary(curr_node, Box::new(DefaultLossFunction))
+        );
+
+        self.add_upstream_node(
+            curr_node, 
+            vec![self.curr_node_idx as usize]
+        );
+
+        self
     }
 
 }

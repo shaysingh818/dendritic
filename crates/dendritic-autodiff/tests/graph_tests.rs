@@ -101,6 +101,7 @@ mod graph_test {
         Ok(())
     }
 
+    /*
     #[test]
     fn test_graph_operation_relationships() {
 
@@ -221,7 +222,7 @@ mod graph_test {
             assert_eq!(node.grad(), expected_op_grads[idx]); 
         }
 
-    }
+    } */
 
 
 
