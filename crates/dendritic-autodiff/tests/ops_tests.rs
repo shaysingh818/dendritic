@@ -8,7 +8,6 @@ mod operations_test {
     use ndarray::prelude::*; 
     use ndarray::{arr2};
 
-    /*
     #[test]
     fn test_add() {
 
@@ -87,11 +86,7 @@ mod operations_test {
                 expected_grads[idx]
             );
         }
-
-
-
     }
-
 
     #[test]
     fn test_subtract() {
@@ -134,8 +129,7 @@ mod operations_test {
             assert_eq!(scalar_graph.node(*var).grad(), 1.0);
         }
 
-    } */
-
+    } 
 
     #[test]
     fn test_multiply() {
@@ -203,37 +197,27 @@ mod operations_test {
             nd_graph.node(4).output(),
             arr2(&[[6.0],[12.0],[18.0]])
         );
-        
-        nd_graph.backward();
 
-        /*
-        let vars = nd_graph.variables();
+        nd_graph.backward(); 
 
-        for (idx, var) in vars.iter().enumerate() {
-            println!("{:?}", nd_graph.node(*var).grad()); 
-            /*
-            assert_eq!(
-                nd_graph.node(*var).grad(),
-                expected_grads[idx]
-            );*/
-        } 
+        let grad_1 = arr2(&[
+            [6.0, 12.0, 18.0],
+            [12.0, 24.0, 36.0],
+            [18.0, 36.0, 54.0]
+        ]);
+        let grad_2 = arr2(&[[84.0], [84.0], [84.0]]);
+        let grad_3 = arr2(&[[504.0]]);
+        let grads = vec![grad_1, grad_2, grad_3]; 
 
         let vars = nd_graph.variables();
-        let expected_grads = vec![a, b, c];
-
         for (idx, var) in vars.iter().enumerate() {
-            /*
             assert_eq!(
                 nd_graph.node(*var).grad(),
-                expected_grads[idx]
-            );*/
-        } */
-
-
+                grads[idx]
+            );
+        }
     }
 
-
-    /*
     #[test]
     fn test_mse() {
 
@@ -271,8 +255,56 @@ mod operations_test {
             arr2(&[[1.0],[3.0],[5.0]])
         );
 
-    } */
+    }
 
+
+    #[test]
+    fn test_binary_cross_entropy() {
+
+        let a = arr2(&[
+            [0.0], [0.0], [1.0], [0.0], [1.0],
+            [1.0], [1.0], [1.0], [1.0], [1.0]
+        ]);
+
+
+        let b = arr2(&[
+            [0.0], [0.0], [0.0], [0.0], [0.0],
+            [0.0], [0.0], [0.0], [0.0], [0.0]
+        ]);
+
+        let c = arr2(&[
+            [0.19], [0.33], [0.47], [0.7], [0.74],
+            [0.81], [0.86], [0.94], [0.97], [0.99]
+        ]); 
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![c, b]);
+        graph.bce(a);
+
+        assert_eq!(graph.nodes().len(), 5); 
+
+        graph.forward();
+
+        let output = graph.curr_node();
+        let output_nd = output.output();
+        let output_val = output_nd[[0, 0]];
+
+        assert_eq!(output_val, 3.335227947407202); 
+        assert_eq!(output_nd.shape(), vec![1, 1]);
+
+        graph.backward();
+
+        assert_eq!(graph.node(4).grad().len(), 10); 
+
+    }
+
+
+    #[test]
+    fn test_sigmoid() {
+
+
+
+    }
 
 }
 

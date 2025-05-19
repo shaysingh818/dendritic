@@ -276,7 +276,8 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
         self.add_upstream_node(
             (self.curr_node_idx - 1) as usize, 
             vec![self.curr_node_idx as usize]
-        ); 
+        );
+
         self
     }
 

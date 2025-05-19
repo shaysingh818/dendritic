@@ -82,9 +82,14 @@ arithmetic_ops!(Array2<f64>);
 /// Shared trait for constructing scalar binary operations.
 pub trait LossFunction<T> {
 
+    /// Mean squared error
     fn mse(&mut self, val: T) -> &mut ComputationGraph<T>;
 
-    fn default(&mut self) -> &mut ComputationGraph<T>; 
+    /// Binary cross entropy
+    fn bce(&mut self, val: T) -> &mut ComputationGraph<T>;
+
+    /// Default function for no loss function provided
+    fn default(&mut self) -> &mut ComputationGraph<T>;
 
 }
 
@@ -95,12 +100,21 @@ impl LossFunction<Array2<f64>> for ComputationGraph<Array2<f64>> {
         self.unary(val, Box::new(MSE))
     }
 
+    fn bce(&mut self, val: Array2<f64>) -> &mut ComputationGraph<Array2<f64>> {
+        self.unary(val, Box::new(BinaryCrossEntropy))
+    }
+
     fn default(&mut self) -> &mut ComputationGraph<Array2<f64>> {
 
-        let curr_node = self.curr_node_idx as usize; 
+        let curr_node = self.curr_node_idx as usize;
+        let prev_node = self.nodes[self.curr_node_idx as usize].clone(); 
         self.add_node(
             Node::unary(curr_node, Box::new(DefaultLossFunction))
         );
+
+        let new_node_idx = self.curr_node_idx as usize;
+        self.nodes[new_node_idx].set_output(prev_node.output());
+        self.nodes[new_node_idx].set_grad_output(prev_node.output());
 
         self.add_upstream_node(
             curr_node, 
@@ -111,4 +125,5 @@ impl LossFunction<Array2<f64>> for ComputationGraph<Array2<f64>> {
     }
 
 }
+
 

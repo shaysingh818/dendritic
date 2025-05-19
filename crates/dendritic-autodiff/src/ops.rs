@@ -241,7 +241,6 @@ impl Operation<f64> for Sub {
         nodes: &mut Vec<Node<f64>>, 
         curr_idx: usize) {
 
-
         debug_log(
             &format!(
                 "Performing backward subtract on node index: {:?}",
@@ -423,7 +422,6 @@ impl Operation<Array2<f64>> for Mul {
         nodes: &mut Vec<Node<Array2<f64>>>, 
         curr_idx: usize) {
 
-
         debug_log(
             &format!(
                 "(MUL) Performing backward multiply on node index: {:?}",
@@ -432,7 +430,7 @@ impl Operation<Array2<f64>> for Mul {
         ); 
 
         let inputs = nodes[curr_idx].inputs();
-        let upstream = nodes[curr_idx].upstream(); 
+        let upstream = nodes[curr_idx].upstream();
 
         let lhs = nodes[inputs[0]].output(); 
         let rhs = nodes[inputs[1]].output();
@@ -441,14 +439,11 @@ impl Operation<Array2<f64>> for Mul {
             panic!("Backward multiply can only handle one upstream"); 
         }
 
-
         match upstream.len() {
             1 => {
-                let upstream = nodes[upstream[0]].grad(); 
-                println!("UPSTREAM: {:?}", upstream); 
-
+                let upstream = nodes[upstream[0]].grad();
                 let rhs_grad = upstream.dot(&rhs.t());
-                let lhs_grad = lhs.t().dot(&upstream); 
+                let lhs_grad = lhs.t().dot(&upstream);
 
                 nodes[inputs[0]].set_grad_output(rhs_grad); 
                 nodes[inputs[1]].set_grad_output(lhs_grad);
@@ -473,9 +468,9 @@ impl Operation<Array2<f64>> for Mul {
 
 
 #[derive(Clone, Debug)]
-pub struct Regularization;
+pub struct Sigmoid;
 
-impl Operation<Array2<f64>> for Regularization {
+impl Operation<Array2<f64>> for Sigmoid {
 
     fn forward(
         &self, 
@@ -484,24 +479,25 @@ impl Operation<Array2<f64>> for Regularization {
 
         debug_log(
             &format!(
-                "Performing forward regularization on node index: {:?}",
+                "Performing forward MSE on node index: {:?}",
                 nodes[curr_idx].inputs()
             ) 
         ); 
 
         debug_log(
             &format!(
-                "Forward regularization upstream values: {:?}",
+                "Forward MSE upstream values: {:?}",
                 nodes[curr_idx].upstream()
             ) 
         );
 
         let inputs = nodes[curr_idx].inputs();
-        let lhs = nodes[inputs[0]].output(); 
-        let rhs = nodes[inputs[1]].output(); 
+        if inputs.len() != 1 {
+            panic!("Sigmoid node can only handle 1 input"); 
+        }
 
-        let rhs_square = rhs.mapv(|x| x * x);
-        lhs.dot(&rhs_square)
+        let input = nodes[inputs[0]].output();
+        input.mapv(|v| 1.0 / (1.0 + (-v).exp()))
     }
 
     fn backward(
@@ -515,180 +511,34 @@ impl Operation<Array2<f64>> for Regularization {
                 "Performing backward multiply on node index: {:?}",
                 nodes[curr_idx].inputs()
             ) 
-        ); 
-
-        let node_inputs = nodes[curr_idx].inputs();
-        let node_upstream = nodes[curr_idx].upstream(); 
-
-        let lhs = nodes[node_inputs[0]].output(); 
-        let rhs = nodes[node_inputs[1]].output();
-
-        if node_upstream.len() > 1 {
-            panic!("Backward multiply can only handle one upstream"); 
-        }
-
-        let upstream = nodes[node_upstream[0]].output();  
-        let rhs_grad = upstream.dot(&rhs.t());
-        let lhs_grad = lhs.t().dot(&upstream); 
-
-        nodes[node_inputs[0]].set_grad_output(rhs_grad); 
-        nodes[node_inputs[1]].set_grad_output(lhs_grad);
-
-        debug_log(
-            &format!(
-                "Updated gradients for node input indexes: {:?}",
-                node_inputs
-            ) 
-        ); 
-
-    }
-}
-
-
-#[derive(Clone, Debug)]
-pub struct L2Regularization;
-
-impl Operation<Array2<f64>> for L2Regularization {
-
-    fn forward(
-        &self, 
-        nodes: &Vec<Node<Array2<f64>>>, 
-        curr_idx: usize) -> Array2<f64> {
-
-        debug_log(
-            &format!(
-                "Performing forward regularization on node index: {:?}",
-                nodes[curr_idx].inputs()
-            ) 
-        ); 
-
-        debug_log(
-            &format!(
-                "Forward regularization upstream values: {:?}",
-                nodes[curr_idx].upstream()
-            ) 
         );
 
         let inputs = nodes[curr_idx].inputs();
-        let lhs = nodes[inputs[0]].output(); 
-        let rhs = nodes[inputs[1]].output(); 
+        let upstream = nodes[curr_idx].upstream();
 
-        let rhs_square = rhs.mapv(|x| x * x);
-        lhs.dot(&rhs_square)
-    }
+        match upstream.len() {
+            1 => {
 
-    fn backward(
-        &self, 
-        nodes: &mut Vec<Node<Array2<f64>>>, 
-        curr_idx: usize) {
+                let upstream = nodes[upstream[0]].grad();
 
 
-        debug_log(
-            &format!(
-                "Performing backward multiply on node index: {:?}",
-                nodes[curr_idx].inputs()
-            ) 
-        ); 
+            },
+            _ => {
 
-        let node_inputs = nodes[curr_idx].inputs();
-        let node_upstream = nodes[curr_idx].upstream(); 
-
-        let lhs = nodes[node_inputs[0]].output(); 
-        let rhs = nodes[node_inputs[1]].output();
-
-        if node_upstream.len() > 1 {
-            panic!("Backward multiply can only handle one upstream"); 
+            }
         }
 
-        let upstream = nodes[node_upstream[0]].output();  
-        let rhs_grad = upstream.dot(&rhs.t());
-        let lhs_grad = lhs.t().dot(&upstream); 
-
-        nodes[node_inputs[0]].set_grad_output(rhs_grad); 
-        nodes[node_inputs[1]].set_grad_output(lhs_grad);
 
         debug_log(
             &format!(
                 "Updated gradients for node input indexes: {:?}",
-                node_inputs
+                inputs
             ) 
         ); 
 
     }
 }
 
-
-#[derive(Clone, Debug)]
-pub struct L1Regularization;
-
-impl Operation<Array2<f64>> for L1Regularization {
-
-    fn forward(
-        &self, 
-        nodes: &Vec<Node<Array2<f64>>>, 
-        curr_idx: usize) -> Array2<f64> {
-
-        debug_log(
-            &format!(
-                "Performing forward regularization on node index: {:?}",
-                nodes[curr_idx].inputs()
-            ) 
-        ); 
-
-        debug_log(
-            &format!(
-                "Forward regularization upstream values: {:?}",
-                nodes[curr_idx].upstream()
-            ) 
-        );
-
-        let inputs = nodes[curr_idx].inputs();
-        let lhs = nodes[inputs[0]].output(); 
-        let rhs = nodes[inputs[1]].output(); 
-
-        let rhs_square = rhs.mapv(|x| x * x);
-        lhs.dot(&rhs_square)
-    }
-
-    fn backward(
-        &self, 
-        nodes: &mut Vec<Node<Array2<f64>>>, 
-        curr_idx: usize) {
-
-
-        debug_log(
-            &format!(
-                "Performing backward multiply on node index: {:?}",
-                nodes[curr_idx].inputs()
-            ) 
-        ); 
-
-        let node_inputs = nodes[curr_idx].inputs();
-        let node_upstream = nodes[curr_idx].upstream(); 
-
-        let lhs = nodes[node_inputs[0]].output(); 
-        let rhs = nodes[node_inputs[1]].output();
-
-        if node_upstream.len() > 1 {
-            panic!("Backward multiply can only handle one upstream"); 
-        }
-
-        let upstream = nodes[node_upstream[0]].output();  
-        let rhs_grad = upstream.dot(&rhs.t());
-        let lhs_grad = lhs.t().dot(&upstream); 
-
-        nodes[node_inputs[0]].set_grad_output(rhs_grad); 
-        nodes[node_inputs[1]].set_grad_output(lhs_grad);
-
-        debug_log(
-            &format!(
-                "Updated gradients for node input indexes: {:?}",
-                node_inputs
-            ) 
-        ); 
-
-    }
-}
 
 
 #[derive(Clone, Debug)]
@@ -716,7 +566,6 @@ impl Operation<Array2<f64>> for DefaultLossFunction {
         );
 
         let inputs = nodes[curr_idx].inputs();
-        println!("INPUTS LENGTH: {:?}", inputs); 
         match inputs.len() {
             1 => {
                 nodes[inputs[0]].output()
@@ -744,6 +593,10 @@ impl Operation<Array2<f64>> for DefaultLossFunction {
 
         let grad = nodes[curr_idx].output();
         nodes[curr_idx].set_grad_output(grad.clone());
+
+        for idx in nodes[curr_idx].inputs() {
+            nodes[idx].set_grad_output(grad.clone()); 
+        }
 
         debug_log(
             &format!(
@@ -929,3 +782,76 @@ impl Operation<f64> for MSE {
 
     }
 }
+
+
+#[derive(Clone, Debug)]
+pub struct BinaryCrossEntropy;
+
+impl Operation<Array2<f64>> for BinaryCrossEntropy {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) -> Array2<f64> {
+
+        debug_log(
+            &format!(
+                "Performing forward MSE on node index: {:?}",
+                nodes[curr_idx].inputs()
+            ) 
+        ); 
+
+        debug_log(
+            &format!(
+                "Forward MSE upstream values: {:?}",
+                nodes[curr_idx].upstream()
+            ) 
+        );
+
+        let inputs = nodes[curr_idx].inputs();
+        let y_pred = nodes[inputs[0]].output(); 
+        let y_true = nodes[inputs[1]].output();
+
+        // shape validation
+        let mut idx = 0; 
+        let mut result = 0.0;
+        for y in y_true.iter() {
+            let y_val = y_pred[(idx, 0)];
+            let diff = -(y * y_val.ln() + (1.0 - y) * (1.0-y_val).ln()); 
+            result += diff; 
+            idx += 1;
+        } 
+
+        Array2::from_elem((1, 1), result) 
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) {
+
+
+        debug_log(
+            &format!(
+                "Performing backward BCE on node index: {:?}",
+                curr_idx
+            ) 
+        );
+
+        let inputs = nodes[curr_idx].inputs();
+        let y_pred = nodes[inputs[0]].output(); 
+        let y_true = nodes[inputs[1]].output();
+        let grad = y_pred - y_true;
+        nodes[curr_idx].set_grad_output(grad); 
+
+        debug_log(
+            &format!(
+                "Updated gradients for node input indexes: {:?}",
+                inputs
+            ) 
+        ); 
+
+    }
+}
+
+

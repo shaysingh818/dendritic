@@ -9,7 +9,6 @@ pub struct Tensor<T> {
 
 impl<T: Clone + Default> Tensor<T> {
 
-
     /// Create new instance of tensor value
     pub fn default() -> Tensor<T> {
         
