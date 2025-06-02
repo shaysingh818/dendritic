@@ -5,8 +5,22 @@ use dendritic_autodiff::tensor::{Tensor};
 use dendritic_autodiff::graph::*; 
 use dendritic_autodiff::graph_interface::*;
 
+use polars::prelude::*; 
+
+fn write_df_to_file() -> Result<(), Box<dyn std::error::Error>>   {
+    let s = Series::new("values".into(), &[1, 2, 3]);
+    let df = DataFrame::new(vec![s.into()])?;
+    //ParquetWriter::new("data.parquet").finish(&mut df.clone())?;
+    Ok(())
+}
+
 fn main() {
 
+    let s1 = Column::new("Fruit".into(), ["Apple", "Apple", "Pear"]);
+    let s2 = Column::new("Color".into(), ["Red", "Yellow", "Green"]);
+
+    let df: PolarsResult<DataFrame> = DataFrame::new(vec![s1, s2]);
+    
     let lr: f64 = 0.02; 
     let w = Array2::<f64>::zeros((3, 1));
     let b = Array2::<f64>::zeros((1, 1));

@@ -4,7 +4,9 @@ use std::cell::{RefCell};
 use crate::node::{Node};
 use crate::error::{GraphError};
 use ndarray::Array2;
-use crate::ops::*; 
+use crate::ops::*;
+
+use polars::prelude::*; 
 
 /// A dendrite is an instance of expression stored in a computation graph.
 /// A dendrite stores an adjacency list of nodes (operations) in the

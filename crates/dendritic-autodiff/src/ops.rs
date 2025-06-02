@@ -468,80 +468,6 @@ impl Operation<Array2<f64>> for Mul {
 
 
 #[derive(Clone, Debug)]
-pub struct Sigmoid;
-
-impl Operation<Array2<f64>> for Sigmoid {
-
-    fn forward(
-        &self, 
-        nodes: &Vec<Node<Array2<f64>>>, 
-        curr_idx: usize) -> Array2<f64> {
-
-        debug_log(
-            &format!(
-                "Performing forward MSE on node index: {:?}",
-                nodes[curr_idx].inputs()
-            ) 
-        ); 
-
-        debug_log(
-            &format!(
-                "Forward MSE upstream values: {:?}",
-                nodes[curr_idx].upstream()
-            ) 
-        );
-
-        let inputs = nodes[curr_idx].inputs();
-        if inputs.len() != 1 {
-            panic!("Sigmoid node can only handle 1 input"); 
-        }
-
-        let input = nodes[inputs[0]].output();
-        input.mapv(|v| 1.0 / (1.0 + (-v).exp()))
-    }
-
-    fn backward(
-        &self, 
-        nodes: &mut Vec<Node<Array2<f64>>>, 
-        curr_idx: usize) {
-
-
-        debug_log(
-            &format!(
-                "Performing backward multiply on node index: {:?}",
-                nodes[curr_idx].inputs()
-            ) 
-        );
-
-        let inputs = nodes[curr_idx].inputs();
-        let upstream = nodes[curr_idx].upstream();
-
-        match upstream.len() {
-            1 => {
-
-                let upstream = nodes[upstream[0]].grad();
-
-
-            },
-            _ => {
-
-            }
-        }
-
-
-        debug_log(
-            &format!(
-                "Updated gradients for node input indexes: {:?}",
-                inputs
-            ) 
-        ); 
-
-    }
-}
-
-
-
-#[derive(Clone, Debug)]
 pub struct DefaultLossFunction;
 
 impl Operation<Array2<f64>> for DefaultLossFunction {
@@ -712,7 +638,9 @@ impl Operation<Array2<f64>> for MSE {
         let y_pred = nodes[inputs[0]].output(); 
         let y_true = nodes[inputs[1]].output();
         let grad = y_pred - y_true;
-        nodes[curr_idx].set_grad_output(grad); 
+        nodes[curr_idx].set_grad_output(grad.clone());
+        nodes[inputs[0]].set_grad_output(grad.clone());
+        nodes[inputs[1]].set_grad_output(grad);
 
         debug_log(
             &format!(
@@ -771,7 +699,9 @@ impl Operation<f64> for MSE {
         let y_pred = nodes[inputs[0]].output(); 
         let y_true = nodes[inputs[1]].output();
         let grad = y_pred - y_true;
-        nodes[curr_idx].set_grad_output(grad); 
+        nodes[curr_idx].set_grad_output(grad);
+        nodes[inputs[0]].set_grad_output(grad);
+        nodes[inputs[1]].set_grad_output(grad);
 
         debug_log(
             &format!(
@@ -783,6 +713,91 @@ impl Operation<f64> for MSE {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct Sigmoid;
+
+impl Operation<Array2<f64>> for Sigmoid {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) -> Array2<f64> {
+
+        debug_log(
+            &format!(
+                "Performing forward MSE on node index: {:?}",
+                nodes[curr_idx].inputs()
+            ) 
+        ); 
+
+        debug_log(
+            &format!(
+                "Forward MSE upstream values: {:?}",
+                nodes[curr_idx].upstream()
+            ) 
+        );
+
+        let inputs = nodes[curr_idx].inputs();
+        if inputs.len() != 1 {
+            panic!("Sigmoid node can only handle 1 input"); 
+        }
+
+        let input = nodes[inputs[0]].output();
+        input.mapv(|v| 1.0 / (1.0 + (-v).exp()))
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) {
+
+
+        debug_log(
+            &format!(
+                "Performing backward multiply on node index: {:?}",
+                nodes[curr_idx].inputs()
+            ) 
+        );
+
+
+        let inputs = nodes[curr_idx].inputs();
+        if inputs.len() != 1 {
+            panic!("Sigmoid node can only handle 1 input"); 
+        }
+
+        let upstream = nodes[curr_idx].upstream();
+
+        fn sigmoid(x: f64) -> f64 { 1.0 / (1.0 + f64::exp(-x)) }
+
+        match upstream.len() {
+            1 => {
+
+                let upstream = nodes[upstream[0]].grad();
+                let input = nodes[inputs[0]].output(); 
+
+                let sig: Array2<f64> = input.mapv(
+                    |x| sigmoid(x) * (1.0 - sigmoid(x))
+                );
+
+                let grad = upstream * sig;
+                nodes[inputs[0]].set_grad_output(grad); 
+
+            },
+            _ => {
+                panic!("Sigmoid must only have 1 input"); 
+            }
+        }
+
+
+        debug_log(
+            &format!(
+                "Updated gradients for sigmoid operation: {:?}",
+                inputs
+            ) 
+        ); 
+
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct BinaryCrossEntropy;
