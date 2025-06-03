@@ -851,8 +851,6 @@ impl Operation<Array2<f64>> for Tanh {
         }
 
         let upstream = nodes[curr_idx].upstream();
-        fn sigmoid(x: f64) -> f64 { 1.0 / (1.0 + f64::exp(-x)) }
-
         match upstream.len() {
             1 => {
 
@@ -867,7 +865,7 @@ impl Operation<Array2<f64>> for Tanh {
                 nodes[inputs[0]].set_grad_output(grad.clone());
             },
             _ => {
-                panic!("TANH must only have 1 input"); 
+                panic!("TANH must only have 1 upstream value"); 
             }
         }
 

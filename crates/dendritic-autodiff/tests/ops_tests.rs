@@ -351,8 +351,8 @@ mod operations_test {
     fn test_tanh() {
 
         let lr: f64 = 0.02; 
-        let w = Array2::<f64>::zeros((3, 1));
         let b = Array2::<f64>::zeros((1, 1));
+        let w = arr2(&[[1.0],[2.0],[3.0]]);
 
         let x = arr2(&[
             [1.0, 2.0, 3.0],
@@ -370,7 +370,33 @@ mod operations_test {
         graph.tanh(); 
         graph.mse(y.clone());
 
+        graph.forward();
 
+        let add_output = graph.node(4); 
+        let tan_output = graph.node(5);
+
+        assert_eq!(
+            add_output.output(),
+            arr2(&[[14.0],[20.0],[26.0],[32.0],[38.0]])
+        );
+
+        assert_eq!(
+            tan_output.output(),
+            arr2(&[[0.9999999999986171],[1.0],[1.0],[1.0],[1.0]])
+        );
+
+        graph.backward(); 
+
+        assert_eq!(
+            graph.node(4).grad(),
+            arr2(&[
+                [-9.000000000001382],
+                [-11.0],
+                [-13.0],
+                [-15.0],
+                [-17.0]
+            ])
+        );
 
     }
 
