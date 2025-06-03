@@ -327,16 +327,53 @@ mod operations_test {
         let add_output = graph.node(4); 
         let sig_output = graph.node(5); 
 
-        println!("{:?}", add_output); 
-        println!("{:?}", sig_output);
+        assert_eq!(
+            add_output.output(), 
+            arr2(&[[0.0],[0.0],[0.0],[0.0], [0.0]])
+        );
 
-        assert_eq!(add_output.output(), arr2(&[[0.0],[0.0],[0.0],[0.0], [0.0]]));
-        assert_eq!(sig_output.output(), arr2(&[[0.5],[0.5],[0.5],[0.5], [0.5]]));
+        assert_eq!(
+            sig_output.output(), 
+            arr2(&[[0.5],[0.5],[0.5],[0.5], [0.5]])
+        );
 
-        graph.backward(); 
+        graph.backward();
+
+        assert_eq!(
+            graph.node(4).grad(),
+            arr2(&[[-9.5],[-11.5],[-13.5],[-15.5],[-17.5]])
+        );
+
+    }
+
+
+    #[test]
+    fn test_tanh() {
+
+        let lr: f64 = 0.02; 
+        let w = Array2::<f64>::zeros((3, 1));
+        let b = Array2::<f64>::zeros((1, 1));
+
+        let x = arr2(&[
+            [1.0, 2.0, 3.0],
+            [2.0, 3.0, 4.0],
+            [3.0, 4.0, 5.0],
+            [4.0, 5.0, 6.0],
+            [5.0, 6.0, 7.0]
+        ]);
+
+        let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]); 
+        
+        let mut graph = ComputationGraph::new();
+        graph.mul(vec![x, w]); 
+        graph.add(vec![b]);
+        graph.tanh(); 
+        graph.mse(y.clone());
+
 
 
     }
+
 
 }
 

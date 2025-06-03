@@ -130,10 +130,11 @@ impl LossFunction<Array2<f64>> for ComputationGraph<Array2<f64>> {
 /// Shared trait for constructing scalar binary operations.
 pub trait ActivationFunction<T> {
 
-    /// Mean squared error
+    /// Sigmoid activation function for non linear data
     fn sigmoid(&mut self) -> &mut ComputationGraph<T>;
 
-    //fn tanh(&mut self, val: T) -> &mut ComputationGraph<T>;
+    /// Tanh activation function 
+    fn tanh(&mut self) -> &mut ComputationGraph<T>;
 
 }
 
@@ -159,10 +160,23 @@ impl ActivationFunction<Array2<f64>> for ComputationGraph<Array2<f64>> {
         self
     }
 
-    /*
-    fn bce(&mut self, val: Array2<f64>) -> &mut ComputationGraph<Array2<f64>> {
-        self.unary(val, Box::new(BinaryCrossEntropy))
-    } */
+    fn tanh(&mut self) -> &mut ComputationGraph<Array2<f64>> {
 
+        let curr_node = self.curr_node_idx as usize;
+        let prev_node = self.nodes[self.curr_node_idx as usize].clone(); 
+        self.add_node(
+            Node::unary(curr_node, Box::new(Tanh))
+        );
+
+        let new_node_idx = self.curr_node_idx as usize;
+        self.nodes[new_node_idx].set_output(prev_node.output());
+        self.nodes[new_node_idx].set_grad_output(prev_node.output());
+
+        self.add_upstream_node(
+            curr_node, 
+            vec![self.curr_node_idx as usize]
+        );
+        self
+    } 
 
 }

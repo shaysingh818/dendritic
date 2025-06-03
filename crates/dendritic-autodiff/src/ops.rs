@@ -124,7 +124,6 @@ impl Operation<f64> for Add {
         ); 
 
         let node_inputs = nodes[curr_idx].inputs();
-        println!("ADD DEBUG: {:?}", node_inputs); 
         for (idx, input) in node_inputs.iter().enumerate() {
             nodes[node_inputs[idx]].set_grad_output(1.0);
         }
@@ -780,8 +779,7 @@ impl Operation<Array2<f64>> for Sigmoid {
                 );
 
                 let grad = upstream * sig;
-                nodes[inputs[0]].set_grad_output(grad); 
-
+                nodes[inputs[0]].set_grad_output(grad.clone());
             },
             _ => {
                 panic!("Sigmoid must only have 1 input"); 
@@ -798,6 +796,92 @@ impl Operation<Array2<f64>> for Sigmoid {
 
     }
 }
+
+
+#[derive(Clone, Debug)]
+pub struct Tanh;
+
+impl Operation<Array2<f64>> for Tanh {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) -> Array2<f64> {
+
+        debug_log(
+            &format!(
+                "Performing TANH on node index: {:?}",
+                curr_idx
+            ) 
+        ); 
+
+        debug_log(
+            &format!(
+                "Forward TANH upstream values: {:?}",
+                nodes[curr_idx].upstream()
+            ) 
+        );
+
+        let inputs = nodes[curr_idx].inputs();
+        if inputs.len() != 1 {
+            panic!("TANH node can only handle 1 input"); 
+        }
+
+        let input = nodes[inputs[0]].output();
+        input.mapv(|v| v.tanh())
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) {
+
+
+        debug_log(
+            &format!(
+                "Performing backward TANH on node index: {:?}",
+                nodes[curr_idx].inputs()
+            ) 
+        );
+
+
+        let inputs = nodes[curr_idx].inputs();
+        if inputs.len() != 1 {
+            panic!("TANH node can only handle 1 input"); 
+        }
+
+        let upstream = nodes[curr_idx].upstream();
+        fn sigmoid(x: f64) -> f64 { 1.0 / (1.0 + f64::exp(-x)) }
+
+        match upstream.len() {
+            1 => {
+
+                let upstream = nodes[upstream[0]].grad();
+                let input = nodes[inputs[0]].output(); 
+                
+                let tan: Array2<f64> = input.mapv(
+                    |x| 1.0 - x.tanh().powf(2.0)
+                );
+
+                let grad = upstream * tan;
+                nodes[inputs[0]].set_grad_output(grad.clone());
+            },
+            _ => {
+                panic!("TANH must only have 1 input"); 
+            }
+        }
+
+
+        debug_log(
+            &format!(
+                "Updated gradients for TANH operation: {:?}",
+                inputs
+            ) 
+        ); 
+
+    }
+}
+
 
 #[derive(Clone, Debug)]
 pub struct BinaryCrossEntropy;
