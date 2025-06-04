@@ -17,9 +17,8 @@ fn write_df_to_file() -> Result<(), Box<dyn std::error::Error>>   {
     Ok(())
 }
 
-fn main() {
+fn working_lin_regression_example() {
 
-    
     let lr: f64 = 0.02; 
     let w = Array2::<f64>::zeros((3, 1));
     let b = Array2::<f64>::zeros((1, 1));
@@ -61,10 +60,56 @@ fn main() {
         let db = b.grad() * (lr / y.len() as f64);
         graph.mut_node_output(3, db.clone());
 
-
     }
 
     println!("{:?}", graph.node(4)); 
+
+
+}
+
+fn main() {
+
+    
+    let lr: f64 = 0.02; 
+    let w1 = Array2::<f64>::zeros((2, 3));
+    let b1 = Array2::<f64>::zeros((1, 3));
+
+    let w2 = Array2::<f64>::zeros((3, 1));
+    let b2 = Array2::<f64>::zeros((1, 1));
+
+    let x = arr2(&[
+        [0.0, 0.0],
+        [1.0, 1.0],
+        [1.0, 0.0],
+        [0.0, 1.0],
+    ]);
+
+    let y = arr2(&[[0.0], [0.0], [1.0], [1.0]]); 
+    
+    let mut graph = ComputationGraph::new();
+    graph.mul(vec![x, w1]); 
+    graph.add(vec![b1]);
+    graph.tanh();
+    graph.mul(vec![w2]); 
+    graph.add(vec![b2]);
+    graph.tanh(); 
+    graph.mse(y.clone());
+
+    println!("{:?}", graph.node(5)); 
+
+    graph.forward();
+
+    graph.backward();
+
+    println!("Var indices"); 
+    for var_idx in graph.variables() {
+        let mut var = graph.node(var_idx);
+        let delta_var = var.grad() * (lr / y.len() as f64);
+        graph.mut_node_output(var_idx, delta_var.clone());
+    }
+    
+    println!("Updated vars"); 
+
 
 
 

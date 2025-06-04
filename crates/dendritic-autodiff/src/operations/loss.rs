@@ -231,16 +231,9 @@ impl Operation<f64> for MSE {
         debug_log(
             &format!(
                 "Performing forward MSE on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         ); 
-
-        debug_log(
-            &format!(
-                "Forward MSE upstream values: {:?}",
-                nodes[curr_idx].upstream()
-            ) 
-        );
 
         let inputs = nodes[curr_idx].inputs();
         let y_pred = nodes[inputs[0]].output();
@@ -259,7 +252,7 @@ impl Operation<f64> for MSE {
         debug_log(
             &format!(
                 "Performing backward multiply on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         );
 
@@ -295,16 +288,9 @@ impl Operation<Array2<f64>> for BinaryCrossEntropy {
         debug_log(
             &format!(
                 "Performing forward MSE on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         ); 
-
-        debug_log(
-            &format!(
-                "Forward MSE upstream values: {:?}",
-                nodes[curr_idx].upstream()
-            ) 
-        );
 
         let inputs = nodes[curr_idx].inputs();
         let y_pred = nodes[inputs[0]].output(); 

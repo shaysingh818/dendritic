@@ -139,7 +139,7 @@ impl Operation<Array2<f64>> for Add {
         debug_log(
             &format!(
                 "(ADD) Performing forward pass on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         ); 
 
@@ -156,7 +156,7 @@ impl Operation<Array2<f64>> for Add {
         debug_log(
             &format!(
                 "(ADD) Performing backward on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         );
 
@@ -203,7 +203,7 @@ impl Operation<f64> for Sub {
         debug_log(
             &format!(
                 "Performing forward pass subtract on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         ); 
 
@@ -219,7 +219,7 @@ impl Operation<f64> for Sub {
         debug_log(
             &format!(
                 "Performing backward subtract on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         ); 
 
@@ -249,7 +249,7 @@ impl Operation<Array2<f64>> for Sub {
         debug_log(
             &format!(
                 "Performing forward pass multiply on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         ); 
 
@@ -267,7 +267,7 @@ impl Operation<Array2<f64>> for Sub {
         debug_log(
             &format!(
                 "Performing backward multiply on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         ); 
 
@@ -312,7 +312,7 @@ impl Operation<f64> for Mul {
         debug_log(
             &format!(
                 "(MUL) Performing forward pass on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         ); 
 
@@ -329,9 +329,11 @@ impl Operation<f64> for Mul {
         debug_log(
             &format!(
                 "(MUL) Performing backward pass on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
-        ); 
+        );
+
+        // add match statement for unary & binary operations
 
         let node_inputs = nodes[curr_idx].inputs();
         let lhs = nodes[node_inputs[0]].output(); 
@@ -361,7 +363,7 @@ impl Operation<Array2<f64>> for Mul {
         debug_log(
             &format!(
                 "(MUL) Performing forward pass on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         ); 
 
@@ -379,7 +381,7 @@ impl Operation<Array2<f64>> for Mul {
         debug_log(
             &format!(
                 "(MUL) Performing backward multiply on node index: {:?}",
-                nodes[curr_idx].inputs()
+                curr_idx
             ) 
         ); 
 
