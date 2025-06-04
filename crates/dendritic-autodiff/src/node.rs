@@ -1,5 +1,5 @@
 use crate::tensor::Tensor; 
-use crate::ops::*; 
+use crate::operations::base::*; 
 use std::fmt;
 use std::fmt::{Debug, Display}; 
 use std::cell::RefCell;

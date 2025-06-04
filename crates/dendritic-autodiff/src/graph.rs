@@ -4,7 +4,7 @@ use std::cell::{RefCell};
 use crate::node::{Node};
 use crate::error::{GraphError};
 use ndarray::Array2;
-use crate::ops::*;
+use crate::operations::base::*;
 
 use polars::prelude::*; 
 
