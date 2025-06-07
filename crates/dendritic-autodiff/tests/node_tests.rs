@@ -4,7 +4,7 @@ mod node_tests {
 
     use dendritic_autodiff::tensor::{Tensor};
     use dendritic_autodiff::node::{Node};
-    use dendritic_autodiff::ops::*;
+    use dendritic_autodiff::operations::arithmetic::*;
     
 
     #[test]

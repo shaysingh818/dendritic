@@ -8,10 +8,9 @@ mod graph_test {
 
     use dendritic_autodiff::tensor::Tensor; 
     use dendritic_autodiff::node::Node; 
-    use dendritic_autodiff::error::{GraphError};
-    use dendritic_autodiff::ops::*;
+    use dendritic_autodiff::error::{GraphError}; 
     use dendritic_autodiff::graph::*;
-    use dendritic_autodiff::graph_interface::*;
+    use dendritic_autodiff::operations::arithmetic::*;
 
 
     #[test]

@@ -10,6 +10,7 @@ use std::borrow::{BorrowMut, Borrow};
 /// Nodes also store a trait object that contains shared behavior for all operations.
 #[derive(Debug, Clone)]
 pub struct Node<T> {
+    pub is_param: bool,
     pub inputs: Vec<usize>,
     pub upstream: Vec<usize>,
     pub value: Tensor<T>,
@@ -74,6 +75,7 @@ impl<T: Clone + Default> Node<T> {
         let val = Box::new(DefaultValue);
 
         Node {
+            is_param: false,
             inputs: vec![],
             upstream: vec![],
             value: Tensor::new(&value),
@@ -88,6 +90,7 @@ impl<T: Clone + Default> Node<T> {
         op: Box<dyn Operation<T>>) -> Self {
 
         Node {
+            is_param: false,
             inputs: vec![lhs, rhs],
             upstream: vec![],
             value: Tensor::default(),
@@ -101,6 +104,7 @@ impl<T: Clone + Default> Node<T> {
         op: Box<dyn Operation<T>>) -> Self {
 
         Node {
+            is_param: false,
             inputs: vec![lhs],
             upstream: vec![],
             value: Tensor::default(),

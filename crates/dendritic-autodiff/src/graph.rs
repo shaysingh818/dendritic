@@ -79,11 +79,27 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
     /// Get node indexes of variables in the computation expression
     pub fn variables(&self) -> Vec<usize> { 
         self.variables.clone()
+    } 
+
+    /// Get node indexes of variables in the computation expression
+    pub fn parameters(&self) -> Vec<usize> {
+        let mut var_idxs: Vec<usize> = Vec::new(); 
+        for (idx, item) in self.nodes.iter().enumerate() {
+            if item.is_param {
+                var_idxs.push(idx);
+            }
+        }
+        var_idxs
     }   
 
     /// Get node indexes of operations in the computation expression
     pub fn operations(&self) -> Vec<usize> {
         self.operations.clone()
+    }
+
+    /// Mark specific node index as a parameter value
+    pub fn add_parameter(&mut self, node_idx: usize) {
+        self.nodes[node_idx].is_param = true;
     }
 
     /// Add node to current array of nodes

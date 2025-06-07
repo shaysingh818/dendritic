@@ -69,46 +69,68 @@ fn working_lin_regression_example() {
 
 fn main() {
 
-    
+ 
     let lr: f64 = 0.02; 
-    let w1 = Array2::<f64>::zeros((2, 3));
-    let b1 = Array2::<f64>::zeros((1, 3));
-
-    let w2 = Array2::<f64>::zeros((3, 1));
-    let b2 = Array2::<f64>::zeros((1, 1));
+    let w = Array2::<f64>::zeros((3, 1));
+    let b = Array2::<f64>::zeros((1, 1));
 
     let x = arr2(&[
-        [0.0, 0.0],
-        [1.0, 1.0],
-        [1.0, 0.0],
-        [0.0, 1.0],
+        [1.0, 2.0, 3.0],
+        [2.0, 3.0, 4.0],
+        [3.0, 4.0, 5.0],
+        [4.0, 5.0, 6.0],
+        [5.0, 6.0, 7.0]
     ]);
 
-    let y = arr2(&[[0.0], [0.0], [1.0], [1.0]]); 
+    let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]); 
     
     let mut graph = ComputationGraph::new();
-    graph.mul(vec![x, w1]); 
-    graph.add(vec![b1]);
-    graph.tanh();
-    graph.mul(vec![w2]); 
-    graph.add(vec![b2]);
-    graph.tanh(); 
+    graph.mul(vec![x, w]); 
+    graph.add(vec![b]);
     graph.mse(y.clone());
 
-    println!("{:?}", graph.node(5)); 
+    // mark parameter (temporary bad way for now)
+    graph.add_parameter(1);
+    graph.add_parameter(3);
 
-    graph.forward();
+    for epoch in 0..1 {
 
-    graph.backward();
+        graph.forward();
 
-    println!("Var indices"); 
-    for var_idx in graph.variables() {
-        let mut var = graph.node(var_idx);
-        let delta_var = var.grad() * (lr / y.len() as f64);
-        graph.mut_node_output(var_idx, delta_var.clone());
-    }
+        let loss_node = graph.node(6);
+        let loss = loss_node.output();
+        println!("Loss: {:?}", loss.as_slice().unwrap()); 
+        
+        graph.backward();
+
+        /*
+        let x = graph.node(0); 
+        let mut w = graph.node(1); 
+        let mut b = graph.node(3);
+
+        let w_grad = w.grad() * (lr / y.len() as f64); 
+        let dw = w.output() - w_grad;
+        graph.mut_node_output(1, dw.clone());
+
+        let b_grad = b.grad().sum_axis(Axis(0)); 
+        let db = b.grad() * (lr / y.len() as f64);
+        graph.mut_node_output(3, db.clone());  */
+
     
-    println!("Updated vars"); 
+        for var_idx in graph.parameters() {
+            println!("PARAM IDX"); 
+            let mut var = graph.node(var_idx);
+            let delta_var = var.grad() * (lr / y.len() as f64);
+            graph.mut_node_output(var_idx, delta_var.clone());
+        }
+
+
+    }
+
+    println!("{:?}", graph.node(4)); 
+
+
+    
 
 
 

@@ -6,11 +6,12 @@ mod graph_test {
     use dendritic_autodiff::tensor::Tensor; 
     use dendritic_autodiff::node::Node; 
     use dendritic_autodiff::error::{GraphError};
-    use dendritic_autodiff::ops::*; 
+    use dendritic_autodiff::operations::activation::*; 
+    use dendritic_autodiff::operations::arithmetic::*; 
+    use dendritic_autodiff::operations::loss::*; 
+    use dendritic_autodiff::graph::*; 
     use ndarray::prelude::*; 
     use ndarray::{arr2};
-    use dendritic_autodiff::graph::*;
-    use dendritic_autodiff::graph_interface::*;
 
 
     #[test]

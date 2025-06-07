@@ -169,7 +169,9 @@ impl Operation<Array2<f64>> for Add {
         match upstream.len() {
             1 => {
                 let upstream_grad = nodes[upstream[0]].grad(); 
-                nodes[curr_idx].set_grad_output(upstream_grad);
+                nodes[curr_idx].set_grad_output(upstream_grad.clone());
+                nodes[inputs[0]].set_grad_output(upstream_grad.clone()); 
+                nodes[inputs[1]].set_grad_output(upstream_grad.clone());
             },
             0 => {
                 panic!("No upstream values associated with node: {:?}", nodes[curr_idx]); 
@@ -333,8 +335,6 @@ impl Operation<f64> for Mul {
             ) 
         );
 
-        // add match statement for unary & binary operations
-
         let node_inputs = nodes[curr_idx].inputs();
         let lhs = nodes[node_inputs[0]].output(); 
         let rhs = nodes[node_inputs[1]].output();
@@ -394,6 +394,8 @@ impl Operation<Array2<f64>> for Mul {
         if upstream.len() > 1 {
             panic!("Backward multiply can only handle one upstream"); 
         }
+
+        //println!("UPSTREAM MUL: {:?}", upstream); 
 
         match upstream.len() {
             1 => {

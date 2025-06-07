@@ -198,9 +198,9 @@ impl Operation<Array2<f64>> for Tanh {
                     |x| 1.0 - x.tanh().powf(2.0)
                 );
 
-                println!("Shape debugging"); 
-                println!("Shape: {:?}, upstream idx: {:?}", upstream.shape(), upstream); 
-                println!("{:?}", tan.shape()); 
+                //println!("Shape debugging"); 
+                //println!("Shape: {:?}, upstream idx: {:?}", upstream.shape(), upstream); 
+                //println!("{:?}", tan.shape()); 
 
                 let grad = upstream * tan;
                 nodes[inputs[0]].set_grad_output(grad.clone());
