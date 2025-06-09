@@ -299,6 +299,28 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
         self
     }
 
+    /// Create node that applies functions to previous node
+    pub fn function(
+        &mut self, 
+        op: Box<dyn Operation<T>>) -> &mut ComputationGraph<T> {
+ 
+        let curr_node = self.curr_node_idx as usize;
+        let prev_node = self.nodes[self.curr_node_idx as usize].clone(); 
+        self.add_node(
+            Node::unary(curr_node, op)
+        );
+        self.operations.push(self.curr_node_idx as usize); 
+
+        let new_node_idx = self.curr_node_idx as usize;
+        self.nodes[new_node_idx].set_output(prev_node.output());
+
+        self.add_upstream_node(
+            curr_node, 
+            vec![self.curr_node_idx as usize]
+        );
+        self
+    }
+
 
 }
 

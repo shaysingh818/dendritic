@@ -102,7 +102,61 @@ mod graph_test {
         Ok(())
     }
 
-    /*
+
+    #[test]
+    fn test_graph_fn_node() -> Result<(), Box<dyn std::error::Error>>  {
+
+        let a = arr2(&[[0.0],[0.0],[0.0],[0.0]]);
+        let b = arr2(&[[0.0],[0.0],[0.0],[0.0]]);
+        let y = arr2(&[[1.0],[1.0],[1.0],[1.0]]); 
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![a, b]);
+        graph.function(Box::new(Sigmoid));
+        graph.mse(y.clone()); 
+
+        assert_eq!(graph.nodes().len(), 6); 
+        assert_eq!(graph.variables(), vec![0,1,4]); 
+        assert_eq!(graph.operations(), vec![2,3,5]);
+
+        graph.forward();
+
+        assert_eq!(
+            graph.node(2).output(), 
+            arr2(&[[0.0],[0.0],[0.0],[0.0]])
+        );
+
+        assert_eq!(
+            graph.node(3).output(),
+            arr2(&[[0.5],[0.5],[0.5],[0.5]])
+        );
+
+        graph.backward(); 
+
+        assert_eq!(
+            graph.node(3).grad(),
+            arr2(&[[-0.5],[-0.5],[-0.5],[-0.5]])
+        );
+
+        assert_eq!(
+            graph.node(2).grad(),
+            arr2(&[[-0.5],[-0.5],[-0.5],[-0.5]])
+        );
+
+        assert_eq!(
+            graph.node(1).grad(),
+            arr2(&[[-0.5],[-0.5],[-0.5],[-0.5]])
+        );
+
+        assert_eq!(
+            graph.node(0).grad(),
+            arr2(&[[-0.5],[-0.5],[-0.5],[-0.5]])
+        );
+
+        Ok(())
+    }
+
+    
     #[test]
     fn test_graph_operation_relationships() {
 
@@ -223,7 +277,7 @@ mod graph_test {
             assert_eq!(node.grad(), expected_op_grads[idx]); 
         }
 
-    } */
+    } 
 
 
 

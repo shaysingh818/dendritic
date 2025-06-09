@@ -34,23 +34,7 @@ impl LossFunction<Array2<f64>> for ComputationGraph<Array2<f64>> {
     }
 
     fn default(&mut self) -> &mut ComputationGraph<Array2<f64>> {
-
-        let curr_node = self.curr_node_idx as usize;
-        let prev_node = self.nodes[self.curr_node_idx as usize].clone(); 
-        self.add_node(
-            Node::unary(curr_node, Box::new(DefaultLossFunction))
-        );
-
-        let new_node_idx = self.curr_node_idx as usize;
-        self.nodes[new_node_idx].set_output(prev_node.output());
-        self.nodes[new_node_idx].set_grad_output(prev_node.output());
-
-        self.add_upstream_node(
-            curr_node, 
-            vec![self.curr_node_idx as usize]
-        );
-
-        self
+        self.function(Box::new(DefaultLossFunction))
     }
 
 }
@@ -126,7 +110,7 @@ impl Operation<f64> for DefaultLossFunction {
 
         debug_log(
             &format!(
-                "Performing forward MSE on node index: {:?}",
+                "Performing forward default function on node index: {:?}",
                 curr_idx
             ) 
         ); 
