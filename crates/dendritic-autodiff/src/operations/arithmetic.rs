@@ -90,7 +90,7 @@ impl Operation<f64> for Add {
         nodes: &Vec<Node<f64>>, 
         curr_idx: usize) -> f64 {
 
-        debug_log(
+        debug!(
             &format!(
                 "(ADD SCALAR) Performing forward pass on node index: {:?}",
                 curr_idx
@@ -106,7 +106,7 @@ impl Operation<f64> for Add {
         nodes: &mut Vec<Node<f64>>, 
         curr_idx: usize) {
 
-        debug_log(
+        debug!(
             &format!(
                 "(ADD SCALAR) Performing backward on node index: {:?}",
                 nodes[curr_idx].inputs()
@@ -118,7 +118,7 @@ impl Operation<f64> for Add {
             nodes[node_inputs[idx]].set_grad_output(1.0);
         }
 
-        debug_log(
+        debug!(
             &format!(
                 "Updated gradients for node input indexes: {:?}",
                 node_inputs

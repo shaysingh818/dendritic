@@ -1,12 +1,15 @@
 use std::fmt::Debug; 
 use std::collections::{HashMap, HashSet}; 
 use std::cell::{RefCell}; 
+
+use ndarray::Array2;
+use polars::prelude::*; 
+use log::{debug, info, warn}; 
+
 use crate::node::{Node};
 use crate::error::{GraphError};
-use ndarray::Array2;
 use crate::operations::base::*;
 
-use polars::prelude::*; 
 
 /// A dendrite is an instance of expression stored in a computation graph.
 /// A dendrite stores an adjacency list of nodes (operations) in the
@@ -44,7 +47,6 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
             operations: vec![]
         }
     }
-
 
     /// Get path of nodes traversed in most recent forward pass
     pub fn path(&self) -> Vec<usize> {
@@ -137,7 +139,7 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
         let mut idx = 0;
         let mut nodes = self.nodes.clone(); 
 
-        debug_log("Starting forward pass..."); 
+        info!("Starting forward pass..."); 
         for mut node in &mut nodes {
             if node.inputs().len() > 0 {
                 self.path.push(idx);
@@ -157,7 +159,7 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
         let mut path_clone = self.path.clone(); 
         path_clone.reverse();
 
-        debug_log("Starting backward pass..."); 
+        info!("Starting backward pass..."); 
         for node_idx in path_clone {
             self.backward_node(node_idx); 
         }
@@ -203,13 +205,6 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
             let lhs_idx = self.binary_relation();
             let rhs_idx = self.curr_node_idx as usize;
 
-            debug_log(
-                &format!(
-                    "Set input indexes: ({:?}, {:?})",
-                    lhs_idx, rhs_idx
-                )
-            );
-
             self.add_node(Node::binary(lhs_idx, rhs_idx, op));
             self.operations.push(self.curr_node_idx as usize); 
 
@@ -221,22 +216,8 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
                 rhs_idx, 
                 vec![self.curr_node_idx as usize]
             );
-
-            debug_log(
-                &format!(
-                    "Set upstream indexes: ({:?}, {:?}) -> {:?}",
-                    lhs_idx, rhs_idx, self.curr_node_idx
-                )
-            );
-            
+ 
         } else {
-
-            debug_log(
-                &format!(
-                    "Set input indexes: ({:?}, {:?})",
-                    self.curr_node_idx - 1, self.curr_node_idx
-                )
-            );
 
             self.add_node(
                 Node::binary(
@@ -257,12 +238,6 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
                 vec![self.curr_node_idx as usize]
             );
 
-            debug_log(
-                &format!(
-                    "Set upstream indexes: ({:?}, {:?}) -> {:?}",
-                    self.curr_node_idx-2, self.curr_node_idx-1, self.curr_node_idx
-                )
-            );
         }
 
         self

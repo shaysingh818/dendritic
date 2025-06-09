@@ -1,10 +1,14 @@
 use std::fmt; 
 use std::fmt::{Debug, Display};
+
+
+use ndarray::{arr2, Array2};
+use log::{debug, warn, info}; 
+
 use crate::operations::base::*; 
 use crate::tensor::Tensor;
 use crate::node::{Node}; 
 use crate::graph::ComputationGraph; 
-use ndarray::{arr2, Array2};
 
 
 /// Shared trait for constructing scalar binary operations.
@@ -22,41 +26,11 @@ pub trait ActivationFunction<T> {
 impl ActivationFunction<Array2<f64>> for ComputationGraph<Array2<f64>> {
 
     fn sigmoid(&mut self) -> &mut ComputationGraph<Array2<f64>> {
-
-        let curr_node = self.curr_node_idx as usize;
-        let prev_node = self.nodes[self.curr_node_idx as usize].clone(); 
-        self.add_node(
-            Node::unary(curr_node, Box::new(Sigmoid))
-        );
-
-        let new_node_idx = self.curr_node_idx as usize;
-        self.nodes[new_node_idx].set_output(prev_node.output());
-        self.nodes[new_node_idx].set_grad_output(prev_node.output());
-
-        self.add_upstream_node(
-            curr_node, 
-            vec![self.curr_node_idx as usize]
-        );
-        self
+        self.function(Box::new(Sigmoid))
     }
 
     fn tanh(&mut self) -> &mut ComputationGraph<Array2<f64>> {
-
-        let curr_node = self.curr_node_idx as usize;
-        let prev_node = self.nodes[self.curr_node_idx as usize].clone(); 
-        self.add_node(
-            Node::unary(curr_node, Box::new(Tanh))
-        );
-
-        let new_node_idx = self.curr_node_idx as usize;
-        self.nodes[new_node_idx].set_output(prev_node.output());
-        self.nodes[new_node_idx].set_grad_output(prev_node.output());
-
-        self.add_upstream_node(
-            curr_node, 
-            vec![self.curr_node_idx as usize]
-        );
-        self
+        self.function(Box::new(Tanh))
     } 
 
 }
@@ -72,7 +46,7 @@ impl Operation<Array2<f64>> for Sigmoid {
         nodes: &Vec<Node<Array2<f64>>>, 
         curr_idx: usize) -> Array2<f64> {
 
-        debug_log(
+        debug!(
             &format!(
                 "Sigmoid activation on node index: {:?}",
                 curr_idx
@@ -94,7 +68,7 @@ impl Operation<Array2<f64>> for Sigmoid {
         curr_idx: usize) {
 
 
-        debug_log(
+        debug!(
             &format!(
                 "Performing backward sigmoid on node index: {:?}",
                 curr_idx
@@ -129,8 +103,7 @@ impl Operation<Array2<f64>> for Sigmoid {
             }
         }
 
-
-        debug_log(
+        debug!(
             &format!(
                 "Updated gradients for sigmoid operation: {:?}",
                 inputs
@@ -151,7 +124,7 @@ impl Operation<Array2<f64>> for Tanh {
         nodes: &Vec<Node<Array2<f64>>>, 
         curr_idx: usize) -> Array2<f64> {
 
-        debug_log(
+        debug!(
             &format!(
                 "Performing TANH on node index: {:?}",
                 curr_idx
@@ -174,7 +147,7 @@ impl Operation<Array2<f64>> for Tanh {
         curr_idx: usize) {
 
 
-        debug_log(
+        debug!(
             &format!(
                 "Performing backward TANH on node index: {:?}",
                 curr_idx
@@ -211,7 +184,7 @@ impl Operation<Array2<f64>> for Tanh {
         }
 
 
-        debug_log(
+        debug!(
             &format!(
                 "Updated gradients for TANH operation: {:?}",
                 inputs
