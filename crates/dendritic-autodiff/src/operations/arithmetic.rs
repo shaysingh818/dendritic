@@ -1,11 +1,14 @@
 use std::fmt; 
 use std::fmt::{Debug, Display};
+
+use serde::{Serialize, Deserialize}; 
+use ndarray::{arr2, Array2};
+use log::{debug, warn, info}; 
+
 use crate::operations::base::*; 
 use crate::tensor::Tensor;
 use crate::node::{Node}; 
 use crate::graph::ComputationGraph; 
-use ndarray::{arr2, Array2};
-
 
 /// Shared trait for constructing scalar binary operations.
 pub trait Arithmetic<T> {
@@ -91,10 +94,8 @@ impl Operation<f64> for Add {
         curr_idx: usize) -> f64 {
 
         debug!(
-            &format!(
-                "(ADD SCALAR) Performing forward pass on node index: {:?}",
-                curr_idx
-            ) 
+            "(ADD SCALAR) Performing forward pass on node index: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -107,10 +108,8 @@ impl Operation<f64> for Add {
         curr_idx: usize) {
 
         debug!(
-            &format!(
-                "(ADD SCALAR) Performing backward on node index: {:?}",
-                nodes[curr_idx].inputs()
-            ) 
+            "(ADD SCALAR) Performing backward on node index: {:?}",
+            nodes[curr_idx].inputs()
         ); 
 
         let node_inputs = nodes[curr_idx].inputs();
@@ -119,10 +118,8 @@ impl Operation<f64> for Add {
         }
 
         debug!(
-            &format!(
-                "Updated gradients for node input indexes: {:?}",
-                node_inputs
-            ) 
+            "Updated gradients for node input indexes: {:?}",
+            node_inputs
         ); 
 
     }
@@ -136,11 +133,9 @@ impl Operation<Array2<f64>> for Add {
         nodes: &Vec<Node<Array2<f64>>>, 
         curr_idx: usize) -> Array2<f64> {
 
-        debug_log(
-            &format!(
-                "(ADD) Performing forward pass on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "(ADD) Performing forward pass on node index: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -153,11 +148,9 @@ impl Operation<Array2<f64>> for Add {
         curr_idx: usize) {
 
 
-        debug_log(
-            &format!(
-                "(ADD) Performing backward on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "(ADD) Performing backward on node index: {:?}",
+            curr_idx
         );
 
         let inputs = nodes[curr_idx].inputs();
@@ -181,11 +174,9 @@ impl Operation<Array2<f64>> for Add {
             }
         }
 
-        debug_log(
-            &format!(
-                "(ADD) Updated gradients for node input indexes: {:?}",
-                inputs
-            ) 
+        debug!(
+            "(ADD) Updated gradients for node input indexes: {:?}",
+            inputs
         ); 
 
     }
@@ -202,11 +193,9 @@ impl Operation<f64> for Sub {
         nodes: &Vec<Node<f64>>, 
         curr_idx: usize) -> f64 {
 
-        debug_log(
-            &format!(
-                "Performing forward pass subtract on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing forward pass subtract on node index: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -218,11 +207,9 @@ impl Operation<f64> for Sub {
         nodes: &mut Vec<Node<f64>>, 
         curr_idx: usize) {
 
-        debug_log(
-            &format!(
-                "Performing backward subtract on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing backward subtract on node index: {:?}",
+            curr_idx
         ); 
 
         let node_inputs = nodes[curr_idx].inputs();
@@ -230,11 +217,9 @@ impl Operation<f64> for Sub {
             nodes[node_inputs[idx]].set_grad_output(1.0);
         }
 
-        debug_log(
-            &format!(
-                "Updated gradients for node input indexes: {:?}",
-                node_inputs
-            ) 
+        debug!(
+            "Updated gradients for node input indexes: {:?}",
+            node_inputs
         ); 
 
     }
@@ -248,11 +233,9 @@ impl Operation<Array2<f64>> for Sub {
         nodes: &Vec<Node<Array2<f64>>>, 
         curr_idx: usize) -> Array2<f64> {
 
-        debug_log(
-            &format!(
-                "Performing forward pass multiply on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing forward pass multiply on node index: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -266,11 +249,9 @@ impl Operation<Array2<f64>> for Sub {
         nodes: &mut Vec<Node<Array2<f64>>>, 
         curr_idx: usize) {
 
-        debug_log(
-            &format!(
-                "Performing backward multiply on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing backward multiply on node index: {:?}",
+            curr_idx
         ); 
 
         let node_inputs = nodes[curr_idx].inputs();
@@ -290,19 +271,24 @@ impl Operation<Array2<f64>> for Sub {
         nodes[node_inputs[0]].set_grad_output(rhs_grad); 
         nodes[node_inputs[1]].set_grad_output(lhs_grad);
 
-        debug_log(
-            &format!(
-                "Updated gradients for node input indexes: {:?}",
-                node_inputs
-            ) 
+        debug!(
+            "Updated gradients for node input indexes: {:?}",
+            node_inputs
         ); 
 
     }
 }
 
 
-#[derive(Clone, Debug)]
-pub struct Mul; 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Mul;
+
+
+impl fmt::Display for Mul {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "trait: {}", self)
+    }
+} 
 
 impl Operation<f64> for Mul {
 
@@ -311,11 +297,9 @@ impl Operation<f64> for Mul {
         nodes: &Vec<Node<f64>>, 
         curr_idx: usize) -> f64 {
 
-        debug_log(
-            &format!(
-                "(MUL) Performing forward pass on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "(MUL) Performing forward pass on node index: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -328,11 +312,9 @@ impl Operation<f64> for Mul {
         curr_idx: usize) {
 
 
-        debug_log(
-            &format!(
-                "(MUL) Performing backward pass on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "(MUL) Performing backward pass on node index: {:?}",
+            curr_idx
         );
 
         let node_inputs = nodes[curr_idx].inputs();
@@ -342,11 +324,9 @@ impl Operation<f64> for Mul {
         nodes[node_inputs[0]].set_grad_output(rhs); 
         nodes[node_inputs[1]].set_grad_output(lhs);
 
-        debug_log(
-            &format!(
-                "(MUL) Updated gradients for node input indexes: {:?}",
-                node_inputs
-            ) 
+        debug!(
+            "(MUL) Updated gradients for node input indexes: {:?}",
+            node_inputs
         ); 
 
     }
@@ -360,11 +340,9 @@ impl Operation<Array2<f64>> for Mul {
         nodes: &Vec<Node<Array2<f64>>>, 
         curr_idx: usize) -> Array2<f64> {
 
-        debug_log(
-            &format!(
-                "(MUL) Performing forward pass on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "(MUL) Performing forward pass on node index: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -378,11 +356,9 @@ impl Operation<Array2<f64>> for Mul {
         nodes: &mut Vec<Node<Array2<f64>>>, 
         curr_idx: usize) {
 
-        debug_log(
-            &format!(
-                "(MUL) Performing backward multiply on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "(MUL) Performing backward multiply on node index: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -394,8 +370,6 @@ impl Operation<Array2<f64>> for Mul {
         if upstream.len() > 1 {
             panic!("Backward multiply can only handle one upstream"); 
         }
-
-        //println!("UPSTREAM MUL: {:?}", upstream); 
 
         match upstream.len() {
             1 => {
@@ -414,11 +388,9 @@ impl Operation<Array2<f64>> for Mul {
             }
         }
 
-        debug_log(
-            &format!(
-                "(MUL) Updated gradients for node input indexes: {:?}",
-                inputs
-            ) 
+        debug!(
+            "(MUL) Updated gradients for node input indexes: {:?}",
+            inputs
         ); 
 
     }

@@ -1,9 +1,12 @@
-use crate::tensor::Tensor; 
-use crate::operations::base::*; 
 use std::fmt;
 use std::fmt::{Debug, Display}; 
 use std::cell::RefCell;
 use std::borrow::{BorrowMut, Borrow};
+
+use serde::ser::{Serialize, Serializer, SerializeStruct}; 
+
+use crate::tensor::Tensor; 
+use crate::operations::base::*; 
 
 /// Node structure that stores operations in a computation graph.
 /// Nodes store the inputs and the outputs of the computed inputs. 
@@ -57,6 +60,11 @@ impl<T: Clone + Default> Node<T> {
     /// Set gradient attribute of output tensor value
     pub fn set_grad_output(&mut self, val: T) {
         self.value.set_grad(val); 
+    }
+
+    /// Get operation trait associated with node
+    pub fn operation(&self) -> Box<dyn Operation<T>> {
+        self.operation.clone()
     }
 
     /// Perform forward pass on current node

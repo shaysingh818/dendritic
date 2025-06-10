@@ -17,6 +17,9 @@ chrono = "0.4"
 polars = "0.48.1"
 log = "0.4.27"
 env_logger = "0.11"
+serde = "1.0.126"
+serde_json = "1.0.64"
+typetag = "0.2.20"
 
 [dev-dependencies]
 rand = "0.8"

@@ -1,5 +1,10 @@
+use std::io::Write; 
+
+use serde_json; 
+use chrono::Local;
 use ndarray::prelude::*; 
 use ndarray::{arr2, Array2}; 
+
 use dendritic_autodiff::node::{Node};
 use dendritic_autodiff::tensor::{Tensor}; 
 use dendritic_autodiff::graph::*;
@@ -8,7 +13,9 @@ use dendritic_autodiff::operations::activation::*;
 use dendritic_autodiff::operations::arithmetic::*; 
 use dendritic_autodiff::operations::loss::*; 
 
-use polars::prelude::*; 
+use polars::prelude::*;
+use env_logger; 
+use log::{debug}; 
 
 fn write_df_to_file() -> Result<(), Box<dyn std::error::Error>>   {
     let s = Series::new("values".into(), &[1, 2, 3]);
@@ -106,8 +113,7 @@ fn mlp_integration() {
     graph.add_parameter(6); 
     graph.add_parameter(8); 
 
-
-    for epoch in 0..1000 {
+    for epoch in 0..1 {
         
         graph.forward();
 
@@ -131,6 +137,40 @@ fn mlp_integration() {
 
 
 fn main() {
+
+    env_logger::builder()
+    .format(|buf, record| {
+        let now = Local::now(); 
+        let log_time = now.format("%Y-%m-%d %H:%M:%S").to_string();
+        writeln!(buf, "{}:{} {}", log_time, record.level(), record.args())
+    }).init();
+
+
+    let lr: f64 = 0.01;
+    let w1 = Array2::<f64>::zeros((2, 3));
+    let b1 = Array2::<f64>::zeros((1, 3));
+    let w2 = Array2::<f64>::zeros((3, 1));
+    let b2 = Array2::<f64>::zeros((1, 1));
+
+    let x = arr2(&[
+        [0.0, 0.0],
+        [1.0, 1.0],
+        [1.0, 0.0],
+        [0.0, 1.0]
+    ]);
+
+    let y = arr2(&[[0.0],[0.0],[1.0],[1.0]]);
+
+    let mut graph = ComputationGraph::new();
+
+    //layer 1
+    graph.mul(vec![2.0, 3.0]); 
+    graph.add(vec![4.0]);
+
+    let nodes = graph.node(2); 
+    println!("{}", nodes.operation());
+
+
 
 
 

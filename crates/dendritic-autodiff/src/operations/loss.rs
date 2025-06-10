@@ -1,11 +1,14 @@
 use std::fmt; 
 use std::fmt::{Debug, Display};
+
+use chrono::Local; 
+use ndarray::{arr2, Array2};
+use log::{debug, warn, info}; 
+
 use crate::operations::base::*;
 use crate::tensor::Tensor;
 use crate::node::{Node}; 
 use crate::graph::ComputationGraph; 
-use chrono::Local; 
-use ndarray::{arr2, Array2};
 
 
 /// Shared trait for constructing scalar binary operations.
@@ -50,11 +53,9 @@ impl Operation<Array2<f64>> for DefaultLossFunction {
         nodes: &Vec<Node<Array2<f64>>>, 
         curr_idx: usize) -> Array2<f64> {
 
-        debug_log(
-            &format!(
-                "Performing forward default loss on node: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing forward default loss on node: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -76,11 +77,9 @@ impl Operation<Array2<f64>> for DefaultLossFunction {
         nodes: &mut Vec<Node<Array2<f64>>>, 
         curr_idx: usize) {
 
-        debug_log(
-            &format!(
-                "Performing backward default loss on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing backward default loss on node index: {:?}",
+            curr_idx
         );
 
         let grad = nodes[curr_idx].output();
@@ -90,11 +89,9 @@ impl Operation<Array2<f64>> for DefaultLossFunction {
             nodes[idx].set_grad_output(grad.clone()); 
         }
 
-        debug_log(
-            &format!(
-                "Updated gradients for node input indexes: {:?}",
-                nodes[curr_idx].inputs()
-            ) 
+        debug!(
+            "Updated gradients for node input indexes: {:?}",
+            nodes[curr_idx].inputs()
         ); 
 
     }
@@ -108,11 +105,9 @@ impl Operation<f64> for DefaultLossFunction {
         nodes: &Vec<Node<f64>>, 
         curr_idx: usize) -> f64 {
 
-        debug_log(
-            &format!(
-                "Performing forward default function on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing forward default function on node index: {:?}",
+            curr_idx
         ); 
 
         nodes[curr_idx].output()
@@ -124,21 +119,17 @@ impl Operation<f64> for DefaultLossFunction {
         curr_idx: usize) {
 
 
-        debug_log(
-            &format!(
-                "Performing backward default loss on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing backward default loss on node index: {:?}",
+            curr_idx
         );
 
         let grad = nodes[curr_idx].output();
         nodes[curr_idx].set_grad_output(grad);
 
-        debug_log(
-            &format!(
-                "Updated gradients for node input indexes: {:?}",
-                nodes[curr_idx].inputs()
-            ) 
+        debug!(
+            "Updated gradients for node input indexes: {:?}",
+            nodes[curr_idx].inputs()
         ); 
 
     }
@@ -155,11 +146,9 @@ impl Operation<Array2<f64>> for MSE {
         nodes: &Vec<Node<Array2<f64>>>, 
         curr_idx: usize) -> Array2<f64> {
 
-        debug_log(
-            &format!(
-                "Performing forward MSE on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing forward MSE on node index: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -179,11 +168,9 @@ impl Operation<Array2<f64>> for MSE {
         curr_idx: usize) {
 
 
-        debug_log(
-            &format!(
-                "Performing backward MSE on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing backward MSE on node index: {:?}",
+            curr_idx
         );
 
         let inputs = nodes[curr_idx].inputs();
@@ -194,11 +181,9 @@ impl Operation<Array2<f64>> for MSE {
         nodes[inputs[0]].set_grad_output(grad.clone());
         nodes[inputs[1]].set_grad_output(grad);
 
-        debug_log(
-            &format!(
-                "Updated gradients for node input indexes: {:?}",
-                inputs
-            ) 
+        debug!(
+            "Updated gradients for node input indexes: {:?}",
+            inputs
         ); 
 
     }
@@ -212,11 +197,9 @@ impl Operation<f64> for MSE {
         nodes: &Vec<Node<f64>>, 
         curr_idx: usize) -> f64 {
 
-        debug_log(
-            &format!(
-                "Performing forward MSE on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing forward MSE on node index: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -233,11 +216,9 @@ impl Operation<f64> for MSE {
         curr_idx: usize) {
 
 
-        debug_log(
-            &format!(
-                "Performing backward multiply on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing backward multiply on node index: {:?}",
+            curr_idx
         );
 
         let inputs = nodes[curr_idx].inputs();
@@ -248,11 +229,9 @@ impl Operation<f64> for MSE {
         nodes[inputs[0]].set_grad_output(grad);
         nodes[inputs[1]].set_grad_output(grad);
 
-        debug_log(
-            &format!(
-                "Updated gradients for node input indexes: {:?}",
-                inputs
-            ) 
+        debug!(
+            "Updated gradients for node input indexes: {:?}",
+            inputs
         ); 
 
     }
@@ -269,11 +248,9 @@ impl Operation<Array2<f64>> for BinaryCrossEntropy {
         nodes: &Vec<Node<Array2<f64>>>, 
         curr_idx: usize) -> Array2<f64> {
 
-        debug_log(
-            &format!(
-                "Performing forward MSE on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing forward MSE on node index: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -299,11 +276,9 @@ impl Operation<Array2<f64>> for BinaryCrossEntropy {
         curr_idx: usize) {
 
 
-        debug_log(
-            &format!(
-                "Performing backward BCE on node index: {:?}",
-                curr_idx
-            ) 
+        debug!(
+            "Performing backward BCE on node index: {:?}",
+            curr_idx
         );
 
         let inputs = nodes[curr_idx].inputs();
@@ -312,11 +287,9 @@ impl Operation<Array2<f64>> for BinaryCrossEntropy {
         let grad = y_pred - y_true;
         nodes[curr_idx].set_grad_output(grad); 
 
-        debug_log(
-            &format!(
-                "Updated gradients for node input indexes: {:?}",
-                inputs
-            ) 
+        debug!(
+            "Updated gradients for node input indexes: {:?}",
+            inputs
         ); 
 
     }

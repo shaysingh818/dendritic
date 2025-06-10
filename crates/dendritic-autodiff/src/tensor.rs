@@ -1,7 +1,8 @@
 use std::fmt::Debug; 
+use serde::{Serialize, Deserialize}; 
 
 /// Value node for computation graph
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Tensor<T> {
     pub value: T,
     pub gradient: T,

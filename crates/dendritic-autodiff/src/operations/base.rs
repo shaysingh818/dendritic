@@ -1,21 +1,15 @@
 use std::fmt; 
-use crate::Local;
 use std::fmt::{Debug, Display};
+
+use serde::{Serialize, Serializer, Deserialize}; 
+use chrono::Local;
+use ndarray::{arr2, Array2};
+use log::{debug, warn, info}; 
+
 use crate::tensor::Tensor;
 use crate::node::{Node}; 
 use crate::graph::ComputationGraph; 
-use ndarray::{arr2, Array2};
 
-
-/// General purpose logging function
-pub fn debug_log(msg: &str) {
-    #[cfg(debug_assertions)]
-    {
-        let now = Local::now(); 
-        let log_time = now.format("%Y-%m-%d %H:%M:%S").to_string();
-        println!("[{}]: {}", log_time, msg);
-    }
-}
 
 pub trait Operation<T>: OperationClone<T> + Debug {
 
@@ -24,7 +18,6 @@ pub trait Operation<T>: OperationClone<T> + Debug {
     fn backward(&self, nodes: &mut Vec<Node<T>>, curr_idx: usize);
 
 }
-
 
 pub trait OperationClone<T> {
     fn clone_box(&self) -> Box<dyn Operation<T>>;
@@ -44,10 +37,16 @@ impl<T> Clone for Box<dyn Operation<T>> {
     fn clone(&self) -> Box<dyn Operation<T>> {
         self.clone_box()
     }
+}
+
+impl<T> fmt::Display for dyn Operation<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "trait: {}", self)
+    }
 } 
 
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DefaultValue; 
 
 
@@ -70,11 +69,9 @@ where
         curr_idx: usize) {
 
 
-        debug_log(
-            &format!(
-                "Backward on raw value idx: {}",
-                curr_idx
-            ) 
+        debug!(
+            "Backward on raw value idx: {}",
+            curr_idx
         ); 
 
     }

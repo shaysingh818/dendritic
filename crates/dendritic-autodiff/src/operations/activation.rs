@@ -1,7 +1,6 @@
 use std::fmt; 
 use std::fmt::{Debug, Display};
 
-
 use ndarray::{arr2, Array2};
 use log::{debug, warn, info}; 
 
@@ -47,10 +46,8 @@ impl Operation<Array2<f64>> for Sigmoid {
         curr_idx: usize) -> Array2<f64> {
 
         debug!(
-            &format!(
-                "Sigmoid activation on node index: {:?}",
-                curr_idx
-            ) 
+            "Sigmoid activation on node index: {:?}",
+            curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
@@ -69,10 +66,8 @@ impl Operation<Array2<f64>> for Sigmoid {
 
 
         debug!(
-            &format!(
-                "Performing backward sigmoid on node index: {:?}",
-                curr_idx
-            ) 
+            "Performing backward sigmoid on node index: {:?}",
+            curr_idx
         );
 
 
@@ -104,10 +99,8 @@ impl Operation<Array2<f64>> for Sigmoid {
         }
 
         debug!(
-            &format!(
-                "Updated gradients for sigmoid operation: {:?}",
-                inputs
-            ) 
+            "Updated gradients for sigmoid operation: {:?}",
+            inputs
         ); 
 
     }
@@ -125,10 +118,8 @@ impl Operation<Array2<f64>> for Tanh {
         curr_idx: usize) -> Array2<f64> {
 
         debug!(
-            &format!(
-                "Performing TANH on node index: {:?}",
-                curr_idx
-            ) 
+            "Performing TANH on node index: {:?}",
+            curr_idx
         ); 
 
 
@@ -148,10 +139,8 @@ impl Operation<Array2<f64>> for Tanh {
 
 
         debug!(
-            &format!(
-                "Performing backward TANH on node index: {:?}",
-                curr_idx
-            ) 
+            "Performing backward TANH on node index: {:?}",
+            curr_idx
         );
 
 
@@ -171,10 +160,6 @@ impl Operation<Array2<f64>> for Tanh {
                     |x| 1.0 - x.tanh().powf(2.0)
                 );
 
-                //println!("Shape debugging"); 
-                //println!("Shape: {:?}, upstream idx: {:?}", upstream.shape(), upstream); 
-                //println!("{:?}", tan.shape()); 
-
                 let grad = upstream * tan;
                 nodes[inputs[0]].set_grad_output(grad.clone());
             },
@@ -185,10 +170,8 @@ impl Operation<Array2<f64>> for Tanh {
 
 
         debug!(
-            &format!(
-                "Updated gradients for TANH operation: {:?}",
-                inputs
-            ) 
+            "Updated gradients for TANH operation: {:?}",
+            inputs
         ); 
 
     }
