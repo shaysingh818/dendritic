@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display};
 use std::cell::RefCell;
 use std::borrow::{BorrowMut, Borrow};
 
-use serde::ser::{Serialize, Serializer, SerializeStruct}; 
+use serde::{Serialize, Deserialize}; 
 
 use crate::tensor::Tensor; 
 use crate::operations::base::*; 
@@ -19,6 +19,16 @@ pub struct Node<T> {
     pub value: Tensor<T>,
     pub operation: Box<dyn Operation<T>>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NodeSerialize<T> {
+    pub is_param: bool,
+    pub inputs: Vec<usize>,
+    pub upstream: Vec<usize>,
+    pub value: Tensor<T>,
+    pub operation: String
+}
+
 
 impl<T: Clone + Default> Node<T> {
 
@@ -117,6 +127,17 @@ impl<T: Clone + Default> Node<T> {
             upstream: vec![],
             value: Tensor::default(),
             operation: op,
+        }
+    }
+
+    /// Convert to structure that is serializable
+    pub fn serialize(&self) -> NodeSerialize<T> {
+        NodeSerialize {
+            is_param: self.is_param,
+            inputs: self.inputs.clone(),
+            upstream: self.upstream.clone(),
+            value: self.value.clone(),
+            operation: format!("{:?}", self.operation)
         }
     }
 

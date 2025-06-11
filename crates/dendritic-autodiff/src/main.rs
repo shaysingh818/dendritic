@@ -167,8 +167,8 @@ fn main() {
     graph.mul(vec![2.0, 3.0]); 
     graph.add(vec![4.0]);
 
-    let nodes = graph.node(2); 
-    println!("{}", nodes.operation());
+    let node = graph.node(2);
+    println!("{:?}", node.serialize());
 
 
 
