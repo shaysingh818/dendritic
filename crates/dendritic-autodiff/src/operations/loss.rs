@@ -29,14 +29,17 @@ pub trait LossFunction<T> {
 impl LossFunction<Array2<f64>> for ComputationGraph<Array2<f64>> {
 
     fn mse(&mut self, val: Array2<f64>) -> &mut ComputationGraph<Array2<f64>> {
+        self.registry.insert("MSE".to_string(), Box::new(MSE));
         self.unary(val, Box::new(MSE))
     }
 
     fn bce(&mut self, val: Array2<f64>) -> &mut ComputationGraph<Array2<f64>> {
+        self.registry.insert("BinaryCrossEntropy".to_string(), Box::new(BinaryCrossEntropy));
         self.unary(val, Box::new(BinaryCrossEntropy))
     }
 
     fn default(&mut self) -> &mut ComputationGraph<Array2<f64>> {
+        self.registry.insert("DefaultLossFunction".to_string(), Box::new(DefaultLossFunction));
         self.function(Box::new(DefaultLossFunction))
     }
 

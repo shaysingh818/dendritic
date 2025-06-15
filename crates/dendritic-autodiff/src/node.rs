@@ -1,8 +1,12 @@
 use std::fmt;
+use std::fs::File;
+use std::io::{BufWriter, Write, Read}; 
+use std::collections::HashMap;
 use std::fmt::{Debug, Display}; 
 use std::cell::RefCell;
 use std::borrow::{BorrowMut, Borrow};
 
+use ndarray::{arr2, Array2};
 use serde::{Serialize, Deserialize}; 
 
 use crate::tensor::Tensor; 
@@ -27,6 +31,19 @@ pub struct NodeSerialize<T> {
     pub upstream: Vec<usize>,
     pub value: Tensor<T>,
     pub operation: String
+}
+
+pub trait NodeSerialization<T> {
+
+    /// Trait method to save node
+    fn save(&self, filepath: &str) -> std::io::Result<()>; 
+
+    /// Trait method to load node instance
+    fn load(
+        &self, 
+        filepath: &str, 
+        op_registry: HashMap<String, Box<dyn Operation<T>>>) -> std::io::Result<Node<T>>;
+
 }
 
 
@@ -130,16 +147,72 @@ impl<T: Clone + Default> Node<T> {
         }
     }
 
-    /// Convert to structure that is serializable
-    pub fn serialize(&self) -> NodeSerialize<T> {
-        NodeSerialize {
-            is_param: self.is_param,
-            inputs: self.inputs.clone(),
-            upstream: self.upstream.clone(),
-            value: self.value.clone(),
-            operation: format!("{:?}", self.operation)
+}
+
+macro_rules! node_serialize {
+
+    ($t:ty) => {
+
+        impl NodeSerialization<$t> for Node<$t> {
+
+            fn save(&self, filepath: &str) -> std::io::Result<()> {
+
+                let filename_format = format!("{filepath}.json");
+                let file = match File::create(filename_format) {
+                    Ok(file) => file,
+                    Err(err) => {
+                        return Err(err);
+                    }
+                };
+
+                let obj = NodeSerialize {
+                    is_param: self.is_param,
+                    inputs: self.inputs.clone(),
+                    upstream: self.upstream.clone(),
+                    value: self.value.clone(),
+                    operation: format!("{:?}", self.operation)
+                };
+
+                let mut writer = BufWriter::new(file);
+                let json_string = serde_json::to_string_pretty(&obj)?;
+                writer.write_all(json_string.as_bytes())?;
+                Ok(())
+            }
+
+
+            /// Convert to structure that is serializable
+            fn load(
+                &self, 
+                filepath: &str, 
+                op_registry: HashMap<String, Box<dyn Operation<$t>>>) -> std::io::Result<Node<$t>> {
+
+                let filename_format = format!("{filepath}.json");
+                let mut file = match File::open(filename_format) {
+                    Ok(file) => file,
+                    Err(err) => {
+                        return Err(err);
+                    }
+                };
+
+                let mut contents = String::new();
+                file.read_to_string(&mut contents)?;
+                let instance: NodeSerialize<$t> = serde_json::from_str(&contents)?;
+                let key = instance.operation.to_string(); 
+
+                Ok(Node {
+                    is_param: instance.is_param,
+                    inputs: instance.inputs,
+                    upstream: instance.upstream,
+                    value: instance.value,
+                    operation: op_registry.get(&key).unwrap(),
+                })
+            }
+
         }
+
     }
 
 }
 
+node_serialize!(f64); 
+//node_serialize!(Array2<f64>);

@@ -9,9 +9,10 @@ use dendritic_autodiff::node::{Node};
 use dendritic_autodiff::tensor::{Tensor}; 
 use dendritic_autodiff::graph::*;
 
+use dendritic_autodiff::registry::OperationRegistry; 
 use dendritic_autodiff::operations::activation::*; 
 use dendritic_autodiff::operations::arithmetic::*; 
-use dendritic_autodiff::operations::loss::*; 
+use dendritic_autodiff::operations::loss::*;
 
 use polars::prelude::*;
 use env_logger; 
@@ -144,33 +145,6 @@ fn main() {
         let log_time = now.format("%Y-%m-%d %H:%M:%S").to_string();
         writeln!(buf, "{}:{} {}", log_time, record.level(), record.args())
     }).init();
-
-
-    let lr: f64 = 0.01;
-    let w1 = Array2::<f64>::zeros((2, 3));
-    let b1 = Array2::<f64>::zeros((1, 3));
-    let w2 = Array2::<f64>::zeros((3, 1));
-    let b2 = Array2::<f64>::zeros((1, 1));
-
-    let x = arr2(&[
-        [0.0, 0.0],
-        [1.0, 1.0],
-        [1.0, 0.0],
-        [0.0, 1.0]
-    ]);
-
-    let y = arr2(&[[0.0],[0.0],[1.0],[1.0]]);
-
-    let mut graph = ComputationGraph::new();
-
-    //layer 1
-    graph.mul(vec![2.0, 3.0]); 
-    graph.add(vec![4.0]);
-
-    let node = graph.node(2);
-    println!("{:?}", node.serialize());
-
-
 
 
 

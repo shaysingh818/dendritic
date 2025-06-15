@@ -31,7 +31,10 @@ pub struct ComputationGraph<T> {
     pub variables: Vec<usize>,
 
     /// List of indices that point to operations in the graph
-    pub operations: Vec<usize>
+    pub operations: Vec<usize>,
+
+    /// Mapping of strings to behavior traits for operations
+    pub registry: HashMap<String, Box<dyn Operation<T>>> 
 }
 
 impl<T: Clone + Default + Debug> ComputationGraph<T> {
@@ -44,7 +47,8 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
             path: vec![],
             curr_node_idx: -1,
             variables: vec![],
-            operations: vec![]
+            operations: vec![],
+            registry: HashMap::new()
         }
     }
 

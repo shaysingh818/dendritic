@@ -25,10 +25,12 @@ pub trait ActivationFunction<T> {
 impl ActivationFunction<Array2<f64>> for ComputationGraph<Array2<f64>> {
 
     fn sigmoid(&mut self) -> &mut ComputationGraph<Array2<f64>> {
+        self.registry.insert("Sigmoid".to_string(), Box::new(Sigmoid));
         self.function(Box::new(Sigmoid))
     }
 
     fn tanh(&mut self) -> &mut ComputationGraph<Array2<f64>> {
+        self.registry.insert("Tanh".to_string(), Box::new(Tanh));
         self.function(Box::new(Tanh))
     } 
 
