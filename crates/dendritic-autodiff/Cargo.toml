@@ -12,7 +12,7 @@ license = "MIT"
 dendritic = {version = "1.1.1", path = "../../" }
 dendritic-ndarray = { version = "1.1.0", path = '../dendritic-ndarray' }
 dendritic-metrics = { version = "1.1.0", path = '../dendritic-metrics' }
-ndarray = "0.16.1"
+ndarray = { version = "0.16.1", features = ["serde"] }
 chrono = "0.4"
 polars = "0.48.1"
 log = "0.4.27"

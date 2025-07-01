@@ -2,9 +2,10 @@ use std::fmt::Debug;
 use std::collections::{HashMap, HashSet}; 
 use std::cell::{RefCell}; 
 
-use ndarray::Array2;
 use polars::prelude::*; 
 use log::{debug, info, warn}; 
+use ndarray::Array2;
+use serde::{Serialize, Deserialize}; 
 
 use crate::node::{Node};
 use crate::error::{GraphError};
@@ -16,6 +17,8 @@ use crate::operations::base::*;
 /// computation graph. Since nodes are not clonable and only references
 /// of nodes can be used, the array of nodes is stored as smart pointers
 /// that allow for interior mutability. 
+
+#[derive(Serialize, Deserialize)]
 pub struct ComputationGraph<T> {
 
     /// references to node operations in the graph
@@ -36,6 +39,8 @@ pub struct ComputationGraph<T> {
     /// Mapping of strings to behavior traits for operations
     pub registry: HashMap<String, Box<dyn Operation<T>>> 
 }
+
+
 
 impl<T: Clone + Default + Debug> ComputationGraph<T> {
 
@@ -300,6 +305,10 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
         self
     }
 
+}
+
+
+macro_rules! graph_serialize {
 
 }
 

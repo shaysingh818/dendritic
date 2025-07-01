@@ -197,15 +197,22 @@ macro_rules! node_serialize {
                 let mut contents = String::new();
                 file.read_to_string(&mut contents)?;
                 let instance: NodeSerialize<$t> = serde_json::from_str(&contents)?;
-                let key = instance.operation.to_string(); 
+                let key = instance.operation.to_string();
+                
+                match op_registry.get(&key) {
+                    Some(op) => {
 
-                Ok(Node {
-                    is_param: instance.is_param,
-                    inputs: instance.inputs,
-                    upstream: instance.upstream,
-                    value: instance.value,
-                    operation: op_registry.get(&key).unwrap(),
-                })
+                        Ok(Node {
+                            is_param: instance.is_param,
+                            inputs: instance.inputs,
+                            upstream: instance.upstream,
+                            value: instance.value,
+                            operation: op.clone(),
+                        })
+                    },
+                    _ => panic!("Couldn't find matching behavior trait for {key}")
+                }
+
             }
 
         }
