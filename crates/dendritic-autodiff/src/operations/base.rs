@@ -1,5 +1,6 @@
 use std::fmt; 
 use std::fmt::{Debug, Display};
+use std::collections::HashMap; 
 
 use serde::{Serialize, Serializer, Deserialize}; 
 use chrono::Local;
@@ -9,7 +10,7 @@ use log::{debug, warn, info};
 use crate::tensor::Tensor;
 use crate::node::{Node}; 
 use crate::graph::ComputationGraph; 
-
+use crate::operations::arithmetic::*; 
 
 pub trait Operation<T>: OperationClone<T> + Debug {
 
@@ -76,3 +77,4 @@ where
 
     }
 }
+

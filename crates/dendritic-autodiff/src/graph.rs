@@ -1,4 +1,6 @@
-use std::fmt::Debug; 
+use std::fmt::Debug;
+use std::fs::File; 
+use std::io::{BufWriter, Write}; 
 use std::collections::{HashMap, HashSet}; 
 use std::cell::{RefCell}; 
 
@@ -7,7 +9,7 @@ use log::{debug, info, warn};
 use ndarray::Array2;
 use serde::{Serialize, Deserialize}; 
 
-use crate::node::{Node};
+use crate::node::{Node, NodeSerialization};
 use crate::error::{GraphError};
 use crate::operations::base::*;
 
@@ -17,8 +19,6 @@ use crate::operations::base::*;
 /// computation graph. Since nodes are not clonable and only references
 /// of nodes can be used, the array of nodes is stored as smart pointers
 /// that allow for interior mutability. 
-
-#[derive(Serialize, Deserialize)]
 pub struct ComputationGraph<T> {
 
     /// references to node operations in the graph
@@ -41,6 +41,22 @@ pub struct ComputationGraph<T> {
 }
 
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ComputationGraphMetadata {
+
+    /// Temporary list to store path traversals in graph
+    pub path: Vec<usize>,
+
+    /// Current node index on computation
+    pub curr_node_idx: i64,
+
+    /// List of indices that point to raw variables in the graph
+    pub variables: Vec<usize>,
+
+    /// List of indices that point to operations in the graph
+    pub operations: Vec<usize>
+}
+
 
 impl<T: Clone + Default + Debug> ComputationGraph<T> {
 
@@ -54,6 +70,16 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
             variables: vec![],
             operations: vec![],
             registry: HashMap::new()
+        }
+    }
+
+    pub fn serialize(&self) -> ComputationGraphMetadata {
+
+        ComputationGraphMetadata {
+            path: self.path.clone(),
+            curr_node_idx: self.curr_node_idx,
+            variables: self.variables.clone(),
+            operations: self.operations.clone(),
         }
     }
 
@@ -310,5 +336,57 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
 
 macro_rules! graph_serialize {
 
+
+    ($t:ty) => {
+
+        impl ComputationGraph<$t> {
+
+            pub fn save(&self, namespace: &str) -> std::io::Result<()> {
+
+                let nodes = self.nodes.clone(); 
+                let node_namespace = format!("{namespace}_nodes.json"); 
+                let metadata = format!("{namespace}_metadata.json");
+
+                let node_file = match File::create(node_namespace) {
+                    Ok(file) => file,
+                    Err(err) => {
+                        return Err(err);
+                    }
+                };
+
+                let metadata_file = match File::create(metadata) {
+                    Ok(file) => file,
+                    Err(err) => {
+                        return Err(err);
+                    }
+                };  
+
+                let mut node_writer = BufWriter::new(node_file);
+                let mut node_vec = Vec::new();
+                for node in nodes {
+                    node_vec.push(node.serialize());
+                }
+                serde_json::to_writer_pretty(&mut node_writer, &node_vec);
+                node_writer.flush()?; 
+
+                let metadata_writer = BufWriter::new(metadata_file); 
+
+
+                Ok(())
+            
+            }
+
+            pub fn load(&self, filepath: &str) -> std::io::Result<()> {
+                Ok(())
+            }
+
+        }
+
+
+    }
+
 }
+
+graph_serialize!(f64); 
+graph_serialize!(Array2<f64>);
 

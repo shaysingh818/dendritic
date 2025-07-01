@@ -1,6 +1,6 @@
 use std::fmt;
 use std::fs::File;
-use std::io::{BufWriter, Write, Read}; 
+use std::io::{BufWriter, Write, Read, Error}; 
 use std::collections::HashMap;
 use std::fmt::{Debug, Display}; 
 use std::cell::RefCell;
@@ -35,8 +35,8 @@ pub struct NodeSerialize<T> {
 
 pub trait NodeSerialization<T> {
 
-    /// Trait method to save node
-    fn save(&self, filepath: &str) -> std::io::Result<()>; 
+    /// Trait method to save node and get prettified json string
+    fn save(&self) -> Result<String, Error>; 
 
     /// Trait method to load node instance
     fn load(
@@ -147,6 +147,19 @@ impl<T: Clone + Default> Node<T> {
         }
     }
 
+    /// Create serializable version of structure
+    pub fn serialize(&self) -> NodeSerialize<T> {
+
+        NodeSerialize {
+            is_param: self.is_param,
+            inputs: self.inputs.clone(),
+            upstream: self.upstream.clone(),
+            value: self.value.clone(),
+            operation: format!("{:?}", self.operation)
+        }
+
+    }
+
 }
 
 macro_rules! node_serialize {
@@ -155,15 +168,7 @@ macro_rules! node_serialize {
 
         impl NodeSerialization<$t> for Node<$t> {
 
-            fn save(&self, filepath: &str) -> std::io::Result<()> {
-
-                let filename_format = format!("{filepath}.json");
-                let file = match File::create(filename_format) {
-                    Ok(file) => file,
-                    Err(err) => {
-                        return Err(err);
-                    }
-                };
+            fn save(&self) -> Result<String, Error> {
 
                 let obj = NodeSerialize {
                     is_param: self.is_param,
@@ -173,10 +178,7 @@ macro_rules! node_serialize {
                     operation: format!("{:?}", self.operation)
                 };
 
-                let mut writer = BufWriter::new(file);
-                let json_string = serde_json::to_string_pretty(&obj)?;
-                writer.write_all(json_string.as_bytes())?;
-                Ok(())
+                Ok(serde_json::to_string_pretty(&obj).unwrap())
             }
 
 
@@ -222,4 +224,4 @@ macro_rules! node_serialize {
 }
 
 node_serialize!(f64); 
-//node_serialize!(Array2<f64>);
+node_serialize!(Array2<f64>);

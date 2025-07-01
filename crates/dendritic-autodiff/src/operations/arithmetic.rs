@@ -31,12 +31,10 @@ macro_rules! arithmetic_ops {
             fn add(&mut self, inputs: Vec<$t>) -> &mut ComputationGraph<$t> {
                 match inputs.len() {
                     2 => {
-                        self.registry.insert("Add".to_string(), Box::new(Add));
                         self.binary(Some(inputs[0].clone()), Some(inputs[1].clone()), Box::new(Add))
                     },
 
                     1 => {
-                        self.registry.insert("Add".to_string(), Box::new(Add));
                         self.unary(inputs[0].clone(), Box::new(Add))
                     },
                     _ => {
@@ -49,12 +47,10 @@ macro_rules! arithmetic_ops {
 
                 match inputs.len() {
                     2 => {
-                        self.registry.insert("Sub".to_string(), Box::new(Sub));
                         self.binary(Some(inputs[0].clone()), Some(inputs[1].clone()), Box::new(Sub))
                     },
 
                     1 => {
-                        self.registry.insert("Sub".to_string(), Box::new(Sub));
                         self.unary(inputs[0].clone(), Box::new(Sub))
                     },
                     _ => {
@@ -67,12 +63,10 @@ macro_rules! arithmetic_ops {
 
                 match inputs.len() {
                     2 => {
-                        self.registry.insert("Mul".to_string(), Box::new(Mul));
                         self.binary(Some(inputs[0].clone()), Some(inputs[1].clone()), Box::new(Mul))
                     },
 
                     1 => {
-                        self.registry.insert("Mul".to_string(), Box::new(Mul));
                         self.unary(inputs[0].clone(), Box::new(Mul))
                     },
                     _ => {

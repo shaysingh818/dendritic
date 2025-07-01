@@ -277,7 +277,27 @@ mod graph_test {
             assert_eq!(node.grad(), expected_op_grads[idx]); 
         }
 
-    } 
+    }
+
+    #[test]
+    fn test_graph_save() {
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]);
+
+        println!("OP Registry: {:?}", graph.registry);
+        graph.save("test"); 
+
+    }
+
+
+    #[test]
+    fn test_graph_load() {
+
+    }
 
 
 
