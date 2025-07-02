@@ -25,22 +25,31 @@ pub trait LossFunction<T> {
 
 }
 
+macro_rules! loss_funcs {
 
-impl LossFunction<Array2<f64>> for ComputationGraph<Array2<f64>> {
+    ($t:ty) => {
 
-    fn mse(&mut self, val: Array2<f64>) -> &mut ComputationGraph<Array2<f64>> {
-        self.unary(val, Box::new(MSE))
+        impl LossFunction<$t> for ComputationGraph<$t> {
+
+            fn mse(&mut self, val: $t) -> &mut ComputationGraph<$t> {
+                self.unary(val, Box::new(MSE))
+            }
+
+            fn bce(&mut self, val: $t) -> &mut ComputationGraph<$t> {
+                self.unary(val, Box::new(BinaryCrossEntropy))
+            }
+
+            fn default(&mut self) -> &mut ComputationGraph<$t> {
+                self.function(Box::new(DefaultLossFunction))
+            }
+
+        }
+
     }
-
-    fn bce(&mut self, val: Array2<f64>) -> &mut ComputationGraph<Array2<f64>> {
-        self.unary(val, Box::new(BinaryCrossEntropy))
-    }
-
-    fn default(&mut self) -> &mut ComputationGraph<Array2<f64>> {
-        self.function(Box::new(DefaultLossFunction))
-    }
-
 }
+
+loss_funcs!(f64); 
+loss_funcs!(Array2<f64>); 
 
 
 #[derive(Clone, Debug)]
@@ -291,6 +300,30 @@ impl Operation<Array2<f64>> for BinaryCrossEntropy {
             "Updated gradients for node input indexes: {:?}",
             inputs
         ); 
+
+    }
+}
+
+
+impl Operation<f64> for BinaryCrossEntropy {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node<f64>>, 
+        curr_idx: usize) -> f64 {
+
+        debug!("BCE for scalar values not implemented yet..");
+        unimplemented!();
+
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node<f64>>, 
+        curr_idx: usize) {
+
+        debug!("BCE for scalar values not implemented yet..");
+        unimplemented!();
 
     }
 }

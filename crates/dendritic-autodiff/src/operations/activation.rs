@@ -21,18 +21,27 @@ pub trait ActivationFunction<T> {
 
 }
 
+macro_rules! activation_funcs {
 
-impl ActivationFunction<Array2<f64>> for ComputationGraph<Array2<f64>> {
+    ($t:ty) => {
 
-    fn sigmoid(&mut self) -> &mut ComputationGraph<Array2<f64>> {
-        self.function(Box::new(Sigmoid))
+        impl ActivationFunction<$t> for ComputationGraph<$t> {
+
+            fn sigmoid(&mut self) -> &mut ComputationGraph<$t> {
+                self.function(Box::new(Sigmoid))
+            }
+
+            fn tanh(&mut self) -> &mut ComputationGraph<$t> {
+                self.function(Box::new(Tanh))
+            } 
+
+        }
     }
 
-    fn tanh(&mut self) -> &mut ComputationGraph<Array2<f64>> {
-        self.function(Box::new(Tanh))
-    } 
-
 }
+
+activation_funcs!(f64); 
+activation_funcs!(Array2<f64>); 
 
 
 #[derive(Clone, Debug)]
@@ -106,6 +115,29 @@ impl Operation<Array2<f64>> for Sigmoid {
     }
 }
 
+impl Operation<f64> for Sigmoid {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node<f64>>, 
+        curr_idx: usize) -> f64 {
+
+        debug!("Sigmoid for scalar values not implemented yet..");
+        unimplemented!();
+
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node<f64>>, 
+        curr_idx: usize) {
+
+        debug!("Sigmoid for scalar values not implemented yet..");
+        unimplemented!();
+
+    }
+}
+
 
 #[derive(Clone, Debug)]
 pub struct Tanh;
@@ -173,6 +205,30 @@ impl Operation<Array2<f64>> for Tanh {
             "Updated gradients for TANH operation: {:?}",
             inputs
         ); 
+
+    }
+}
+
+
+impl Operation<f64> for Tanh {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node<f64>>, 
+        curr_idx: usize) -> f64 {
+
+        debug!("Tanh for scalar values not implemented yet..");
+        unimplemented!();
+
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node<f64>>, 
+        curr_idx: usize) {
+
+        debug!("Tanh for scalar values not implemented yet..");
+        unimplemented!();
 
     }
 }

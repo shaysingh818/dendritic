@@ -2,7 +2,7 @@
 mod operations_test {
 
     use dendritic_autodiff::node::{Node};
-    use dendritic_autodiff::graph::{ComputationGraph};
+    use dendritic_autodiff::graph::*;
     use dendritic_autodiff::operations::activation::*; 
     use dendritic_autodiff::operations::arithmetic::*; 
     use dendritic_autodiff::operations::loss::*; 

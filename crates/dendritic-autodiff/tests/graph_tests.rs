@@ -280,6 +280,31 @@ mod graph_test {
     }
 
     #[test]
+    fn test_graph_op_registry() {
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]);
+
+        let registry_keys = graph.registry.keys(); 
+        let mut keys_vec: Vec<String> = registry_keys.cloned().collect();
+
+        let mut expected = vec![
+            "Mul", "Sub", "Add", 
+            "Tanh", "BinaryCrossEntropy", "DefaultLossFunction",
+            "MSE", "Sigmoid"
+        ];
+
+        keys_vec.sort(); 
+        expected.sort(); 
+
+        assert_eq!(keys_vec, expected); 
+    }
+
+
+    #[test]
     fn test_graph_save() {
 
         let mut graph = ComputationGraph::new();
@@ -288,14 +313,7 @@ mod graph_test {
         graph.mul(vec![20.0]);
         graph.sub(vec![10.0]);
 
-        println!("OP Registry: {:?}", graph.registry);
-        graph.save("test"); 
-
-    }
-
-
-    #[test]
-    fn test_graph_load() {
+        graph.save("testing"); 
 
     }
 

@@ -9,7 +9,6 @@ use dendritic_autodiff::node::{Node};
 use dendritic_autodiff::tensor::{Tensor}; 
 use dendritic_autodiff::graph::*;
 
-use dendritic_autodiff::registry::OperationRegistry; 
 use dendritic_autodiff::operations::activation::*; 
 use dendritic_autodiff::operations::arithmetic::*; 
 use dendritic_autodiff::operations::loss::*;

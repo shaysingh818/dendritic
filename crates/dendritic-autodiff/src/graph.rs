@@ -1,6 +1,9 @@
 use std::fmt::Debug;
-use std::fs::File; 
+use std::fs::File;
+use std::fs; 
+use std::path::Path;
 use std::io::{BufWriter, Write}; 
+use std::hash::{DefaultHasher, Hash, Hasher}; 
 use std::collections::{HashMap, HashSet}; 
 use std::cell::{RefCell}; 
 
@@ -11,6 +14,7 @@ use serde::{Serialize, Deserialize};
 
 use crate::node::{Node, NodeSerialization};
 use crate::error::{GraphError};
+use crate::registry::*; 
 use crate::operations::base::*;
 
 
@@ -60,19 +64,7 @@ pub struct ComputationGraphMetadata {
 
 impl<T: Clone + Default + Debug> ComputationGraph<T> {
 
-    /// Create new instance of computation graph structure
-    pub fn new() -> Self {
-
-        ComputationGraph {
-            nodes: vec![],
-            path: vec![],
-            curr_node_idx: -1,
-            variables: vec![],
-            operations: vec![],
-            registry: HashMap::new()
-        }
-    }
-
+    /// Create new instance of computation graph structure metadata
     pub fn serialize(&self) -> ComputationGraphMetadata {
 
         ComputationGraphMetadata {
@@ -137,6 +129,11 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
     /// Mark specific node index as a parameter value
     pub fn add_parameter(&mut self, node_idx: usize) {
         self.nodes[node_idx].is_param = true;
+    }
+
+    /// Mark specific node index as a parameter value
+    pub fn register(&mut self, key: &str, op: Box<dyn Operation<T>>) {
+        self.registry.insert(key.to_string(), op); 
     }
 
     /// Add node to current array of nodes
@@ -334,6 +331,43 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
 }
 
 
+pub trait GraphConstruction<T> {
+    
+    fn new() -> Self;
+
+}
+
+
+macro_rules! graph_constructor {
+
+    ($t:ty) => {
+
+        impl GraphConstruction<$t> for ComputationGraph<$t> {
+
+            fn new() -> Self {
+
+                let mut graph = ComputationGraph {
+                    nodes: vec![],
+                    path: vec![],
+                    curr_node_idx: -1,
+                    variables: vec![],
+                    operations: vec![],
+                    registry: HashMap::new()
+                };
+                graph.register_default_operations(); 
+                graph
+            }
+
+        }
+
+    }
+
+}
+
+graph_constructor!(f64);
+graph_constructor!(Array2<f64>); 
+
+
 macro_rules! graph_serialize {
 
 
@@ -343,9 +377,27 @@ macro_rules! graph_serialize {
 
             pub fn save(&self, namespace: &str) -> std::io::Result<()> {
 
+                let mut hasher = DefaultHasher::new();
+                hasher.write(namespace.as_bytes()); 
+                let hashed = hasher.finish(); 
+
                 let nodes = self.nodes.clone(); 
-                let node_namespace = format!("{namespace}_nodes.json"); 
-                let metadata = format!("{namespace}_metadata.json");
+                let node_namespace = format!("{namespace}/{hashed}_nodes.json"); 
+                let metadata = format!("{namespace}/{hashed}_metadata.json");
+
+                if !Path::new(namespace).exists() {
+                    match fs::create_dir(namespace) {
+                        Ok(_) => debug!("namespace partition created"),
+                        Err(e) => eprintln!(
+                            "Failed to create namespace: {}", e
+                        ),
+                    }
+                } else {
+                    debug!(
+                        "Namepspace partition already exists {}", 
+                        namespace
+                    );
+                }
 
                 let node_file = match File::create(node_namespace) {
                     Ok(file) => file,
@@ -369,8 +421,13 @@ macro_rules! graph_serialize {
                 serde_json::to_writer_pretty(&mut node_writer, &node_vec);
                 node_writer.flush()?; 
 
-                let metadata_writer = BufWriter::new(metadata_file); 
-
+                let mut metadata_writer = BufWriter::new(metadata_file);
+                let metadata_obj = self.serialize();
+                serde_json::to_writer_pretty(
+                    &mut metadata_writer, 
+                    &metadata_obj
+                );
+                metadata_writer.flush()?; 
 
                 Ok(())
             
