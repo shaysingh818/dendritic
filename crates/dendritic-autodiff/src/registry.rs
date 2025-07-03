@@ -1,10 +1,5 @@
-use std::fmt::Debug;
-use std::collections::{HashMap, HashSet}; 
+use ndarray::Array2;
 
-use ndarray::{arr2, Array2};
-use log::{debug, warn, info}; 
-
-use crate::node::{Node}; 
 use crate::graph::ComputationGraph; 
 use crate::operations::base::*; 
 use crate::operations::activation::*; 
@@ -17,7 +12,8 @@ pub trait DefaultOperations<T> {
     fn register_default_operations(&mut self);
 }
 
-
+/// Registry of supported operations by default. 
+/// Operation registry for computation graph can be extended using this trait pattern implementation
 macro_rules! default_ops {
 
     ($t:ty) => {
@@ -25,6 +21,9 @@ macro_rules! default_ops {
         impl DefaultOperations<$t> for ComputationGraph<$t> {
 
             fn register_default_operations(&mut self) {
+
+                // default value
+                self.register("DefaultValue", Box::new(DefaultValue)); 
 
                 // default arithmetic operations
                 self.register("Add", Box::new(Add)); 

@@ -1,12 +1,7 @@
-use std::fmt;
-use std::fs::File;
-use std::io::{BufWriter, Write, Read, Error}; 
+use std::io::Error; 
 use std::collections::HashMap;
-use std::fmt::{Debug, Display}; 
-use std::cell::RefCell;
-use std::borrow::{BorrowMut, Borrow};
 
-use ndarray::{arr2, Array2};
+use ndarray::Array2;
 use serde::{Serialize, Deserialize}; 
 
 use crate::tensor::Tensor; 
@@ -17,13 +12,24 @@ use crate::operations::base::*;
 /// Nodes also store a trait object that contains shared behavior for all operations.
 #[derive(Debug, Clone)]
 pub struct Node<T> {
+
+    /// Indicates if node value is a parameter
     pub is_param: bool,
+
+    /// Graph node indices  associated with inputs to node
     pub inputs: Vec<usize>,
+
+    /// Graph node indices associated with upstream values
     pub upstream: Vec<usize>,
+
+    /// Generic tensor to store value in node
     pub value: Tensor<T>,
+
+    /// Generic trait for operation behavior of nodes
     pub operation: Box<dyn Operation<T>>,
 }
 
+/// Serializable struct for node
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NodeSerialize<T> {
     pub is_param: bool,
@@ -40,8 +46,7 @@ pub trait NodeSerialization<T> {
 
     /// Trait method to load node instance
     fn load(
-        &self, 
-        filepath: &str, 
+        node: NodeSerialize<T>, 
         op_registry: HashMap<String, Box<dyn Operation<T>>>) -> std::io::Result<Node<T>>;
 
 }
@@ -184,31 +189,19 @@ macro_rules! node_serialize {
 
             /// Convert to structure that is serializable
             fn load(
-                &self, 
-                filepath: &str, 
+                node: NodeSerialize<$t>, 
                 op_registry: HashMap<String, Box<dyn Operation<$t>>>) -> std::io::Result<Node<$t>> {
 
-                let filename_format = format!("{filepath}.json");
-                let mut file = match File::open(filename_format) {
-                    Ok(file) => file,
-                    Err(err) => {
-                        return Err(err);
-                    }
-                };
-
-                let mut contents = String::new();
-                file.read_to_string(&mut contents)?;
-                let instance: NodeSerialize<$t> = serde_json::from_str(&contents)?;
-                let key = instance.operation.to_string();
+                let key = node.operation.to_string();
                 
                 match op_registry.get(&key) {
                     Some(op) => {
 
                         Ok(Node {
-                            is_param: instance.is_param,
-                            inputs: instance.inputs,
-                            upstream: instance.upstream,
-                            value: instance.value,
+                            is_param: node.is_param,
+                            inputs: node.inputs,
+                            upstream: node.upstream,
+                            value: node.value,
                             operation: op.clone(),
                         })
                     },

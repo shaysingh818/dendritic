@@ -1,19 +1,15 @@
 use std::fmt::Debug;
 use std::fs::File;
 use std::fs; 
-use std::path::Path;
-use std::io::{BufWriter, Write}; 
-use std::hash::{DefaultHasher, Hash, Hasher}; 
-use std::collections::{HashMap, HashSet}; 
-use std::cell::{RefCell}; 
+use std::io::{BufWriter, BufReader}; 
+use std::hash::{DefaultHasher, Hasher}; 
+use std::collections::HashMap; 
 
-use polars::prelude::*; 
-use log::{debug, info, warn}; 
+use log::info; 
 use ndarray::Array2;
 use serde::{Serialize, Deserialize}; 
 
-use crate::node::{Node, NodeSerialization};
-use crate::error::{GraphError};
+use crate::node::{Node, NodeSerialization, NodeSerialize};
 use crate::registry::*; 
 use crate::operations::base::*;
 
@@ -45,6 +41,7 @@ pub struct ComputationGraph<T> {
 }
 
 
+/// Serializable struct for computation graph that stores metadata
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ComputationGraphMetadata {
 
@@ -148,7 +145,7 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
         node_idx: usize,
         upstream_vals: Vec<usize>) {
 
-        let mut node = &mut self.nodes[node_idx];
+        let node = &mut self.nodes[node_idx];
         for upstream in upstream_vals {
             node.add_upstream(upstream); 
         }
@@ -172,7 +169,7 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
         let mut nodes = self.nodes.clone(); 
 
         info!("Starting forward pass..."); 
-        for mut node in &mut nodes {
+        for node in &mut nodes {
             if node.inputs().len() > 0 {
                 self.path.push(idx);
                 self.forward_node(idx);
@@ -368,78 +365,121 @@ graph_constructor!(f64);
 graph_constructor!(Array2<f64>); 
 
 
+pub trait GraphSerialize<T> {
+    
+    fn save(&self, namespace: &str) -> std::io::Result<()>;
+
+    fn load(filepath: &str) -> std::io::Result<ComputationGraph<T>>;
+}
+
+
 macro_rules! graph_serialize {
 
 
     ($t:ty) => {
 
-        impl ComputationGraph<$t> {
+        impl GraphSerialize<$t> for ComputationGraph<$t> {
 
-            pub fn save(&self, namespace: &str) -> std::io::Result<()> {
+            fn save(&self, namespace: &str) -> std::io::Result<()> {
 
                 let mut hasher = DefaultHasher::new();
                 hasher.write(namespace.as_bytes()); 
                 let hashed = hasher.finish(); 
 
-                let nodes = self.nodes.clone(); 
-                let node_namespace = format!("{namespace}/{hashed}_nodes.json"); 
-                let metadata = format!("{namespace}/{hashed}_metadata.json");
+                let node_path = format!("{namespace}/{hashed}_nodes.json"); 
+                let metadata_path = format!("{namespace}/{hashed}_metadata.json");
 
-                if !Path::new(namespace).exists() {
-                    match fs::create_dir(namespace) {
-                        Ok(_) => debug!("namespace partition created"),
-                        Err(e) => eprintln!(
-                            "Failed to create namespace: {}", e
-                        ),
-                    }
-                } else {
-                    debug!(
-                        "Namepspace partition already exists {}", 
-                        namespace
-                    );
+                fs::create_dir_all(namespace)?;
+
+                {
+                    let file = File::create(&node_path)?;
+                    let writer = BufWriter::new(file);
+                    let serialized_nodes: Vec<_> = self
+                        .nodes
+                        .iter()
+                        .map(|n| n.serialize())
+                        .collect();
+
+                    serde_json::to_writer_pretty(writer, &serialized_nodes)?;
                 }
 
-                let node_file = match File::create(node_namespace) {
-                    Ok(file) => file,
-                    Err(err) => {
-                        return Err(err);
+                {
+                    let file = File::create(&metadata_path)?;
+                    let writer = BufWriter::new(file);
+                    let metadata_obj = self.serialize();
+                    serde_json::to_writer_pretty(writer, &metadata_obj)?;
+                }
+
+                Ok(())
+            }
+
+            fn load(filepath: &str) -> std::io::Result<ComputationGraph<$t>> {
+
+                let mut node_file: Option<String> = None; 
+                let mut metadata_file: Option<String> = None;
+
+                for entry in fs::read_dir(filepath)? {
+                    let path = entry?.path();
+
+                    if path.is_file() {
+                        if let Some(name) = path.to_str() {
+                            if name.contains("_nodes") {
+                                node_file = Some(name.to_string());
+                            } else if name.contains("_metadata") {
+                                metadata_file = Some(name.to_string());
+                            }
+                        }
                     }
+                }
+                
+                let node_file = node_file.ok_or_else(|| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::NotFound, 
+                        "File containing serialized nodes not found"
+                    )
+                })?;
+
+                let metadata_file = metadata_file.ok_or_else(|| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::NotFound, 
+                        "File containing graph metadata not found"
+                    )
+                })?;
+
+                let nodes: Vec<NodeSerialize<$t>> = {
+                    let file = File::open(&node_file)?;
+                    let reader = BufReader::new(file);
+                    serde_json::from_reader(reader)?
+                };
+                
+                let g_metadata: ComputationGraphMetadata = {
+                    let file = File::open(&metadata_file)?;
+                    let reader = BufReader::new(file);
+                    serde_json::from_reader(reader)?
                 };
 
-                let metadata_file = match File::create(metadata) {
-                    Ok(file) => file,
-                    Err(err) => {
-                        return Err(err);
-                    }
-                };  
+                let mut graph = ComputationGraph {
+                    nodes: vec![],
+                    path: g_metadata.path,
+                    curr_node_idx: g_metadata.curr_node_idx,
+                    variables: g_metadata.variables,
+                    operations: g_metadata.operations,
+                    registry: HashMap::new()
+                };
+                graph.register_default_operations();
 
-                let mut node_writer = BufWriter::new(node_file);
-                let mut node_vec = Vec::new();
-                for node in nodes {
-                    node_vec.push(node.serialize());
+
+                for node in nodes.iter() {
+                    let item = Node::load(
+                        node.clone(), 
+                        graph.registry.clone()
+                    )?;
+                    graph.nodes.push(item); 
                 }
-                serde_json::to_writer_pretty(&mut node_writer, &node_vec);
-                node_writer.flush()?; 
 
-                let mut metadata_writer = BufWriter::new(metadata_file);
-                let metadata_obj = self.serialize();
-                serde_json::to_writer_pretty(
-                    &mut metadata_writer, 
-                    &metadata_obj
-                );
-                metadata_writer.flush()?; 
-
-                Ok(())
-            
+                Ok(graph)
             }
-
-            pub fn load(&self, filepath: &str) -> std::io::Result<()> {
-                Ok(())
-            }
-
         }
-
-
     }
 
 }

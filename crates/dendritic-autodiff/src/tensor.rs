@@ -4,15 +4,18 @@ use serde::{Serialize, Deserialize};
 /// Value node for computation graph
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Tensor<T> {
+
+    /// Raw generic value associated with tensor
     pub value: T,
+
+    /// Gradient that stores first order derivative value
     pub gradient: T,
 }
 
 impl<T: Clone + Default> Tensor<T> {
 
     /// Create new instance of tensor value
-    pub fn default() -> Tensor<T> {
-        
+    pub fn default() -> Tensor<T> { 
         Tensor {
             value: T::default(),
             gradient: T::default()
@@ -20,8 +23,7 @@ impl<T: Clone + Default> Tensor<T> {
     }
 
     /// Create new instance of tensor value
-    pub fn new(value: &T) -> Tensor<T> {
-        
+    pub fn new(value: &T) -> Tensor<T> { 
         Tensor {
             value: value.clone(),
             gradient: value.clone()

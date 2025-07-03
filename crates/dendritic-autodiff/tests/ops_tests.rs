@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod operations_test {
 
-    use dendritic_autodiff::node::{Node};
     use dendritic_autodiff::graph::*;
     use dendritic_autodiff::operations::activation::*; 
     use dendritic_autodiff::operations::arithmetic::*; 
@@ -79,9 +78,8 @@ mod operations_test {
         nd_graph.backward();
 
         let vars = nd_graph.variables();
-        let expected_grads = vec![a, b, c];
 
-        for (idx, var) in vars.iter().enumerate() {
+        for (_idx, var) in vars.iter().enumerate() {
             println!("{:?}", nd_graph.node(*var).grad()); 
             /*
             assert_eq!(
@@ -128,7 +126,7 @@ mod operations_test {
         scalar_graph.backward();
 
         let vars = scalar_graph.variables();
-        for (idx, var) in vars.iter().enumerate() {
+        for (_idx, var) in vars.iter().enumerate() {
             assert_eq!(scalar_graph.node(*var).grad(), 1.0);
         }
 
@@ -305,7 +303,6 @@ mod operations_test {
     #[test]
     fn test_sigmoid() {
 
-        let lr: f64 = 0.02; 
         let w = Array2::<f64>::zeros((3, 1));
         let b = Array2::<f64>::zeros((1, 1));
 
@@ -353,7 +350,6 @@ mod operations_test {
     #[test]
     fn test_tanh() {
 
-        let lr: f64 = 0.02; 
         let b = Array2::<f64>::zeros((1, 1));
         let w = arr2(&[[1.0],[2.0],[3.0]]);
 

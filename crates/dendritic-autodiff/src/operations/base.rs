@@ -1,16 +1,11 @@
 use std::fmt; 
-use std::fmt::{Debug, Display};
-use std::collections::HashMap; 
+use std::fmt::Debug;
 
-use serde::{Serialize, Serializer, Deserialize}; 
-use chrono::Local;
-use ndarray::{arr2, Array2};
-use log::{debug, warn, info}; 
+use serde::{Serialize, Deserialize}; 
+use log::debug; 
 
-use crate::tensor::Tensor;
 use crate::node::{Node}; 
-use crate::graph::ComputationGraph; 
-use crate::operations::arithmetic::*; 
+
 
 pub trait Operation<T>: OperationClone<T> + Debug {
 
@@ -66,7 +61,7 @@ where
 
     fn backward(
         &self, 
-        nodes: &mut Vec<Node<T>>, 
+        _nodes: &mut Vec<Node<T>>, 
         curr_idx: usize) {
 
 

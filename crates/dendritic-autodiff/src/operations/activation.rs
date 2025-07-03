@@ -1,11 +1,9 @@
-use std::fmt; 
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 
-use ndarray::{arr2, Array2};
-use log::{debug, warn, info}; 
+use ndarray::Array2;
+use log::debug; 
 
 use crate::operations::base::*; 
-use crate::tensor::Tensor;
 use crate::node::{Node}; 
 use crate::graph::ComputationGraph; 
 
@@ -119,8 +117,8 @@ impl Operation<f64> for Sigmoid {
 
     fn forward(
         &self, 
-        nodes: &Vec<Node<f64>>, 
-        curr_idx: usize) -> f64 {
+        _nodes: &Vec<Node<f64>>, 
+        _curr_idx: usize) -> f64 {
 
         debug!("Sigmoid for scalar values not implemented yet..");
         unimplemented!();
@@ -129,8 +127,8 @@ impl Operation<f64> for Sigmoid {
 
     fn backward(
         &self, 
-        nodes: &mut Vec<Node<f64>>, 
-        curr_idx: usize) {
+        _nodes: &mut Vec<Node<f64>>, 
+        _curr_idx: usize) {
 
         debug!("Sigmoid for scalar values not implemented yet..");
         unimplemented!();
@@ -214,8 +212,8 @@ impl Operation<f64> for Tanh {
 
     fn forward(
         &self, 
-        nodes: &Vec<Node<f64>>, 
-        curr_idx: usize) -> f64 {
+        _nodes: &Vec<Node<f64>>, 
+        _curr_idx: usize) -> f64 {
 
         debug!("Tanh for scalar values not implemented yet..");
         unimplemented!();
@@ -224,8 +222,8 @@ impl Operation<f64> for Tanh {
 
     fn backward(
         &self, 
-        nodes: &mut Vec<Node<f64>>, 
-        curr_idx: usize) {
+        _nodes: &mut Vec<Node<f64>>, 
+        _curr_idx: usize) {
 
         debug!("Tanh for scalar values not implemented yet..");
         unimplemented!();

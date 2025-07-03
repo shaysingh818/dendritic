@@ -1,12 +1,7 @@
-use std::fmt; 
-use std::fmt::{Debug, Display};
-
-use chrono::Local; 
-use ndarray::{arr2, Array2};
-use log::{debug, warn, info}; 
+use ndarray::Array2;
+use log::debug; 
 
 use crate::operations::base::*;
-use crate::tensor::Tensor;
 use crate::node::{Node}; 
 use crate::graph::ComputationGraph; 
 
@@ -309,8 +304,8 @@ impl Operation<f64> for BinaryCrossEntropy {
 
     fn forward(
         &self, 
-        nodes: &Vec<Node<f64>>, 
-        curr_idx: usize) -> f64 {
+        _nodes: &Vec<Node<f64>>, 
+        _curr_idx: usize) -> f64 {
 
         debug!("BCE for scalar values not implemented yet..");
         unimplemented!();
@@ -319,8 +314,8 @@ impl Operation<f64> for BinaryCrossEntropy {
 
     fn backward(
         &self, 
-        nodes: &mut Vec<Node<f64>>, 
-        curr_idx: usize) {
+        _nodes: &mut Vec<Node<f64>>, 
+        _curr_idx: usize) {
 
         debug!("BCE for scalar values not implemented yet..");
         unimplemented!();

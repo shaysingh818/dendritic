@@ -2,13 +2,9 @@
 #[cfg(test)]
 mod graph_test {
 
-    use std::any::type_name;
     use ndarray::prelude::*; 
     use ndarray::{arr2};
 
-    use dendritic_autodiff::tensor::Tensor; 
-    use dendritic_autodiff::node::Node; 
-    use dendritic_autodiff::error::{GraphError}; 
     use dendritic_autodiff::graph::*;
     use dendritic_autodiff::operations::arithmetic::*;
     use dendritic_autodiff::operations::activation::*;
@@ -37,7 +33,6 @@ mod graph_test {
     #[test]
     fn test_mlp_example() {
 
-        let lr: f64 = 0.01;
         let w1 = Array2::<f64>::zeros((2, 3));
         let b1 = Array2::<f64>::zeros((1, 3));
         let w2 = Array2::<f64>::zeros((3, 1));

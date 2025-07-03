@@ -1,12 +1,11 @@
 use std::fmt; 
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 
 use serde::{Serialize, Deserialize}; 
-use ndarray::{arr2, Array2};
-use log::{debug, warn, info}; 
+use ndarray::Array2;
+use log::debug; 
 
 use crate::operations::base::*; 
-use crate::tensor::Tensor;
 use crate::node::{Node}; 
 use crate::graph::ComputationGraph; 
 
@@ -113,7 +112,7 @@ impl Operation<f64> for Add {
         ); 
 
         let node_inputs = nodes[curr_idx].inputs();
-        for (idx, input) in node_inputs.iter().enumerate() {
+        for (idx, _input) in node_inputs.iter().enumerate() {
             nodes[node_inputs[idx]].set_grad_output(1.0);
         }
 
@@ -155,9 +154,6 @@ impl Operation<Array2<f64>> for Add {
 
         let inputs = nodes[curr_idx].inputs();
         let upstream = nodes[curr_idx].upstream(); 
-
-        let lhs = nodes[inputs[0]].output(); 
-        let rhs = nodes[inputs[1]].output();
 
         match upstream.len() {
             1 => {
@@ -213,7 +209,7 @@ impl Operation<f64> for Sub {
         ); 
 
         let node_inputs = nodes[curr_idx].inputs();
-        for (idx, input) in node_inputs.iter().enumerate() {
+        for (idx, _input) in node_inputs.iter().enumerate() {
             nodes[node_inputs[idx]].set_grad_output(1.0);
         }
 

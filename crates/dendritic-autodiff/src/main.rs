@@ -1,29 +1,17 @@
 use std::io::Write; 
 
-use serde_json; 
 use chrono::Local;
-use ndarray::prelude::*; 
 use ndarray::{arr2, Array2}; 
 
-use dendritic_autodiff::node::{Node};
-use dendritic_autodiff::tensor::{Tensor}; 
 use dendritic_autodiff::graph::*;
 
 use dendritic_autodiff::operations::activation::*; 
 use dendritic_autodiff::operations::arithmetic::*; 
 use dendritic_autodiff::operations::loss::*;
 
-use polars::prelude::*;
 use env_logger; 
-use log::{debug}; 
 
-fn write_df_to_file() -> Result<(), Box<dyn std::error::Error>>   {
-    let s = Series::new("values".into(), &[1, 2, 3]);
-    let df = DataFrame::new(vec![s.into()])?;
-    //ParquetWriter::new("data.parquet").finish(&mut df.clone())?;
-    Ok(())
-}
-
+#[allow(dead_code)]
 fn working_lin_regression_example() {
 
     let lr: f64 = 0.01; 
@@ -49,7 +37,7 @@ fn working_lin_regression_example() {
     graph.add_parameter(1);
     graph.add_parameter(3);
 
-    for epoch in 0..1000 {
+    for _epoch in 0..1000 {
 
         graph.forward();
 
@@ -60,7 +48,7 @@ fn working_lin_regression_example() {
         graph.backward();
     
         for var_idx in graph.parameters() {
-            let mut var = graph.node(var_idx);
+            let var = graph.node(var_idx);
             let grad = var.grad() * (lr / y.len() as f64);
             let delta = var.output() - grad;
             graph.mut_node_output(var_idx, delta.clone());
@@ -74,7 +62,7 @@ fn working_lin_regression_example() {
 
 }
 
-
+#[allow(dead_code)]
 fn mlp_integration() {
 
     let lr: f64 = 0.01;
@@ -113,7 +101,7 @@ fn mlp_integration() {
     graph.add_parameter(6); 
     graph.add_parameter(8); 
 
-    for epoch in 0..1 {
+    for _epoch in 0..1 {
         
         graph.forward();
 
@@ -124,7 +112,7 @@ fn mlp_integration() {
         graph.backward();
 
         for var_idx in graph.parameters() {
-            let mut var = graph.node(var_idx);
+            let var = graph.node(var_idx);
             let grad = var.grad() * (lr as f64);
             let delta = var.output() - grad;
             graph.mut_node_output(var_idx, delta.clone());
@@ -146,6 +134,7 @@ fn main() {
     }).init();
 
 
+    /*
     let lr: f64 = 0.01;
     let w1 = Array2::<f64>::zeros((2, 3));
     let b1 = Array2::<f64>::zeros((1, 3));
@@ -182,6 +171,29 @@ fn main() {
     graph.add_parameter(6); 
     graph.add_parameter(8);
 
+    graph.save("nn_module"); */
+
+    let lr: f64 = 0.01;
+    let mut graph: ComputationGraph<Array2<f64>> = ComputationGraph::load("nn_module").unwrap(); 
+
+    for _epoch in 0..1000 {
+        
+        graph.forward();
+
+        let loss_node = graph.curr_node();
+        let loss = loss_node.output();
+        println!("Loss: {:?}", loss.as_slice().unwrap()); 
+
+        graph.backward();
+
+        for var_idx in graph.parameters() {
+            let var = graph.node(var_idx);
+            let grad = var.grad() * (lr as f64);
+            let delta = var.output() - grad;
+            graph.mut_node_output(var_idx, delta.clone());
+        }
+
+    }
     
 
 

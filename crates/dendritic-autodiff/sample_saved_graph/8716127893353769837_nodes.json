@@ -1,0 +1,120 @@
+[
+  {
+    "is_param": false,
+    "inputs": [],
+    "upstream": [
+      2
+    ],
+    "value": {
+      "value": 5.0,
+      "gradient": 5.0
+    },
+    "operation": "DefaultValue"
+  },
+  {
+    "is_param": false,
+    "inputs": [],
+    "upstream": [
+      2
+    ],
+    "value": {
+      "value": 10.0,
+      "gradient": 10.0
+    },
+    "operation": "DefaultValue"
+  },
+  {
+    "is_param": false,
+    "inputs": [
+      0,
+      1
+    ],
+    "upstream": [
+      4
+    ],
+    "value": {
+      "value": 0.0,
+      "gradient": 0.0
+    },
+    "operation": "Add"
+  },
+  {
+    "is_param": false,
+    "inputs": [],
+    "upstream": [
+      4
+    ],
+    "value": {
+      "value": 100.0,
+      "gradient": 100.0
+    },
+    "operation": "DefaultValue"
+  },
+  {
+    "is_param": false,
+    "inputs": [
+      2,
+      3
+    ],
+    "upstream": [
+      6
+    ],
+    "value": {
+      "value": 0.0,
+      "gradient": 0.0
+    },
+    "operation": "Add"
+  },
+  {
+    "is_param": false,
+    "inputs": [],
+    "upstream": [
+      6
+    ],
+    "value": {
+      "value": 20.0,
+      "gradient": 20.0
+    },
+    "operation": "DefaultValue"
+  },
+  {
+    "is_param": false,
+    "inputs": [
+      4,
+      5
+    ],
+    "upstream": [
+      8
+    ],
+    "value": {
+      "value": 0.0,
+      "gradient": 0.0
+    },
+    "operation": "Mul"
+  },
+  {
+    "is_param": false,
+    "inputs": [],
+    "upstream": [
+      8
+    ],
+    "value": {
+      "value": 10.0,
+      "gradient": 10.0
+    },
+    "operation": "DefaultValue"
+  },
+  {
+    "is_param": false,
+    "inputs": [
+      6,
+      7
+    ],
+    "upstream": [],
+    "value": {
+      "value": 0.0,
+      "gradient": 0.0
+    },
+    "operation": "Sub"
+  }
+]

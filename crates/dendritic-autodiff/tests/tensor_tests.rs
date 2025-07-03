@@ -3,7 +3,6 @@
 mod value_test {
 
     use dendritic_autodiff::tensor::Tensor;
-    use ndarray::prelude::*; 
     use ndarray::{arr2};
 
     #[test]

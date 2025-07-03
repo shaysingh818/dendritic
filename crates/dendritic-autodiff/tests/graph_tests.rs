@@ -2,15 +2,13 @@
 #[cfg(test)]
 mod graph_test {
 
-    use std::any::type_name; 
-    use dendritic_autodiff::tensor::Tensor; 
-    use dendritic_autodiff::node::Node; 
-    use dendritic_autodiff::error::{GraphError};
+    use std::fs;
+    use std::fs::File; 
+    use dendritic_autodiff::node::*; 
     use dendritic_autodiff::operations::activation::*; 
     use dendritic_autodiff::operations::arithmetic::*; 
     use dendritic_autodiff::operations::loss::*; 
     use dendritic_autodiff::graph::*; 
-    use ndarray::prelude::*; 
     use ndarray::{arr2};
 
 
@@ -248,8 +246,6 @@ mod graph_test {
 
         graph.forward(); 
 
-        let output_node = graph.curr_node(); 
-
         graph.backward();
 
         assert_eq!(graph.path().len(), 4);
@@ -292,7 +288,7 @@ mod graph_test {
         let mut keys_vec: Vec<String> = registry_keys.cloned().collect();
 
         let mut expected = vec![
-            "Mul", "Sub", "Add", 
+            "Mul", "Sub", "Add", "DefaultValue", 
             "Tanh", "BinaryCrossEntropy", "DefaultLossFunction",
             "MSE", "Sigmoid"
         ];
@@ -305,7 +301,7 @@ mod graph_test {
 
 
     #[test]
-    fn test_graph_save() {
+    fn test_graph_save() -> std::io::Result<()> {
 
         let mut graph = ComputationGraph::new();
         graph.add(vec![5.0, 10.0]); 
@@ -313,7 +309,79 @@ mod graph_test {
         graph.mul(vec![20.0]);
         graph.sub(vec![10.0]);
 
-        graph.save("testing"); 
+        let _ = graph.save("testing");
+
+        let mut node_file: Option<String> = None; 
+        let mut metadata_file: Option<String> = None; 
+
+        for entry in fs::read_dir("testing")? {
+
+            let entry = entry?;
+            let path = entry.path();
+
+            if path.is_file() {
+
+                if let Some(file_name) = path.to_str() {
+ 
+                    if file_name.contains("_nodes") {
+                        node_file = Some(file_name.to_string()); 
+                    }
+
+                    if file_name.contains("_metadata") {
+                        metadata_file = Some(file_name.to_string()); 
+                    }
+
+                }
+
+            }
+
+        }
+
+        let node_file_read = File::open(node_file.unwrap())?; 
+        let metadata_file_read = File::open(metadata_file.unwrap())?; 
+
+        let nodes: Vec<NodeSerialize<f64>> = serde_json::from_reader(
+            node_file_read
+        )?;
+
+        let mut nodes_vec: Vec<Node<f64>> = Vec::new(); 
+        for node in nodes.iter() {
+            let item = Node::load(node.clone(), graph.registry.clone())?;
+            nodes_vec.push(item); 
+        }
+
+        assert_eq!(nodes_vec.len(), graph.nodes().len());
+
+        let g_metadata: ComputationGraphMetadata = serde_json::from_reader(
+            metadata_file_read
+        )?;
+
+        assert_eq!(g_metadata.path, graph.path());
+        assert_eq!(g_metadata.curr_node_idx, graph.curr_node_idx()); 
+        assert_eq!(g_metadata.variables, graph.variables());
+        assert_eq!(g_metadata.operations, graph.operations()); 
+        Ok(())
+    }
+
+
+    #[test]
+    fn test_graph_load() {
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]);
+
+        let _ = graph.save("sample_saved_graph");
+
+        let loaded_graph: ComputationGraph<f64> = ComputationGraph::load("sample_saved_graph").unwrap();
+
+        assert_eq!(loaded_graph.nodes().len(), graph.nodes().len()); 
+        assert_eq!(loaded_graph.path(), graph.path());
+        assert_eq!(loaded_graph.variables(), graph.variables()); 
+        assert_eq!(loaded_graph.curr_node_idx(), graph.curr_node_idx());
+        assert_eq!(loaded_graph.operations(), graph.operations()); 
 
     }
 
