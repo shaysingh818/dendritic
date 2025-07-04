@@ -26,13 +26,3 @@ pub mod tensor;
 pub mod graph;
 pub mod error;
 pub mod registry; 
-
-
-use chrono::Local; 
-
-pub fn debug_log(msg: &str) {
-    #[cfg(debug_assertions)]
-    {
-        println!("[{:?}]: {}", Local::now(), msg);
-    }
-}
