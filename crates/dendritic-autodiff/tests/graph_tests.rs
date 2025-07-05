@@ -359,13 +359,15 @@ mod graph_test {
         assert_eq!(g_metadata.path, graph.path());
         assert_eq!(g_metadata.curr_node_idx, graph.curr_node_idx()); 
         assert_eq!(g_metadata.variables, graph.variables());
-        assert_eq!(g_metadata.operations, graph.operations()); 
+        assert_eq!(g_metadata.operations, graph.operations());
+
+        fs::remove_dir_all("testing")?; 
         Ok(())
     }
 
 
     #[test]
-    fn test_graph_load() {
+    fn test_graph_load() -> std::io::Result<()> {
 
         let mut graph = ComputationGraph::new();
         graph.add(vec![5.0, 10.0]); 
@@ -381,7 +383,10 @@ mod graph_test {
         assert_eq!(loaded_graph.path(), graph.path());
         assert_eq!(loaded_graph.variables(), graph.variables()); 
         assert_eq!(loaded_graph.curr_node_idx(), graph.curr_node_idx());
-        assert_eq!(loaded_graph.operations(), graph.operations()); 
+        assert_eq!(loaded_graph.operations(), graph.operations());
+
+        fs::remove_dir_all("sample_saved_graph")?; 
+        Ok(())
 
     }
 
