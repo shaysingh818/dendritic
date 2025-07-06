@@ -159,6 +159,11 @@ impl Operation<Array2<f64>> for MSE {
         let y_pred = nodes[inputs[0]].output();
         let y_true = nodes[inputs[1]].output();
 
+        debug!(
+            "{:?}, {:?}",
+            inputs[0], inputs[1]
+        ); 
+
         let diff = y_true.clone() - y_pred; 
         let squared = diff.mapv(|x| x * x); 
         let sum = squared.sum(); 

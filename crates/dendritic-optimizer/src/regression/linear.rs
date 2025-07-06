@@ -2,7 +2,9 @@ use std::fs;
 use std::fs::File; 
 use std::io::{Write, BufWriter, BufReader}; 
 
-use ndarray::Array2;
+use uuid::Uuid;
+use chrono::{Datelike, Utc};  
+use ndarray::{s, Array2};
 use indicatif::{ProgressBar, ProgressStyle}; 
 use serde::{Serialize, Deserialize}; 
 
@@ -11,6 +13,7 @@ use dendritic_autodiff::operations::loss::*;
 use dendritic_autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
 use crate::descent::DescentOptimizer; 
+
 
 pub struct LinearRegression {
 
@@ -117,7 +120,6 @@ impl DescentOptimizer for LinearRegression {
             }
         }
 
-
     }
 
     fn train(&mut self, epochs: usize) {
@@ -148,6 +150,54 @@ impl DescentOptimizer for LinearRegression {
 
     }
 
+    fn train_batch(&mut self, epochs: usize, batch_size: usize) {
+
+        self.function_definition();
+
+        let bar = ProgressBar::new(epochs.try_into().unwrap());
+        bar.set_style(ProgressStyle::default_bar()
+            .template("{bar:50} {pos}/{len}")
+            .unwrap());
+
+        let inputs = self.inputs.as_ref().expect("Inputs not defined");
+        let outputs = self.outputs.as_ref().expect("Outputs not defined");
+        let x_train = inputs.clone();
+        let y_train = outputs.clone(); 
+        let rows = x_train.nrows();
+        let num_batches = (rows + batch_size - 1) / batch_size;
+
+        for _ in 0..epochs {
+            for batch_idx in 0..num_batches { 
+                let start_idx = batch_idx * batch_size;
+                let end_idx = (start_idx + batch_size).min(rows);
+                let x = x_train.slice(s![start_idx..end_idx, ..]);
+                let y = y_train.slice(s![start_idx..end_idx, ..]);
+
+                self.graph.mut_node_output(0, x.to_owned());
+                self.graph.mut_node_output(4, y.to_owned()); 
+                self.graph.mut_node_output(5, y.to_owned());
+                self.graph.node(5).set_grad_output(y.to_owned()); 
+
+                self.graph.forward();
+                self.graph.backward(); 
+                self.parameter_update();
+            }
+            bar.inc(1); 
+        }
+    
+        bar.finish();
+
+        let loss_node = self.graph.curr_node();
+        let loss = loss_node.output();
+        println!(
+            "Loss: {:?}, Learning Rate: {:?}, Num Batches: {:?}", 
+            loss.as_slice().unwrap()[0],
+            self.learning_rate,
+            num_batches
+        );
+
+    }
+
     fn save(&self, filepath: &str) -> std::io::Result<()> {
 
         fs::create_dir_all(filepath)?;
@@ -160,7 +210,7 @@ impl DescentOptimizer for LinearRegression {
             learning_rate: self.learning_rate
         };
 
-        self.graph.save(&obj.graph_path); 
+        let _ = self.graph.save(&obj.graph_path); 
 
         let file = File::create(&file_path)?;
         let mut writer = BufWriter::new(file); 
@@ -170,6 +220,33 @@ impl DescentOptimizer for LinearRegression {
     }
 
     fn save_snapshot(&self, namespace: &str) -> std::io::Result<()> {
+
+        let now = Utc::now();
+        let (_, year) = now.year_ce();
+        let month = now.month().to_string();
+        let day = now.day().to_string();
+        let curr_year = year.to_string();
+
+        let directory_path = format!("{namespace}/snapshot/{curr_year}/{month}/{day}");
+        fs::create_dir_all(directory_path.clone())?; 
+
+        let id = Uuid::new_v4();
+        let file_path = format!("{directory_path}/{id}.json");
+
+        let obj = LinearRegressionSerialize {
+            graph_path: format!("{namespace}/linear_regression_exp"),
+            weights: self.weights.clone(), 
+            bias: self.bias.clone(),
+            learning_rate: self.learning_rate
+        };
+
+        let _ = self.graph.save(&obj.graph_path); 
+
+        let file = File::create(&file_path)?;
+        let mut writer = BufWriter::new(file); 
+        let json_string = serde_json::to_string_pretty(&obj)?;
+        writer.write_all(json_string.as_bytes())?; 
+
         Ok(())
     }
 
@@ -192,8 +269,32 @@ impl DescentOptimizer for LinearRegression {
         }) 
     }
 
-    fn load_snapshot(namespace: &str) -> Self {
-        unimplemented!();
+    fn load_snapshot(
+        namespace: &str,
+        year: &str, 
+        month: &str, 
+        day: &str,
+        snapshot_id: &str) -> Result<Self, Box<dyn std::error::Error>> {
+
+        let parameter_path = format!(
+            "{namespace}/snapshot/{year}/{month}/{day}/{snapshot_id}.json"
+        );
+
+        let obj: LinearRegressionSerialize = {
+            let file = File::open(&parameter_path)?; 
+            let reader = BufReader::new(file);
+            serde_json::from_reader(reader)?
+        };
+
+        Ok(LinearRegression {
+            graph: ComputationGraph::load(&obj.graph_path).unwrap(),
+            inputs: None, 
+            outputs: None, 
+            weights: obj.weights, 
+            bias: obj.bias,
+            learning_rate: obj.learning_rate
+        }) 
+        
     }
 
 }
