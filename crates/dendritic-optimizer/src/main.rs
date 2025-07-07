@@ -1,7 +1,9 @@
 use std::io::Write; 
 
+use rand::thread_rng;
+use rand::prelude::SliceRandom;
 use chrono::Local; 
-use ndarray::{s, arr2}; 
+use ndarray::{s, arr2, Axis}; 
 
 use dendritic_optimizer::descent::*; 
 use dendritic_optimizer::regression::linear::*;
@@ -36,30 +38,12 @@ fn main() -> std::io::Result<()> {
     ]);
 
 
-    let x_slice = x.slice(s![0..4, ..]); 
-    let y_slice = y.slice(s![0..4, ..]);
-
-    //println!("{:?}", x_slice); 
 
     let mut model = LinearRegression::new(&x, &y, 0.008).unwrap();
 
-    /*
-    model.function_definition(); 
-
-    model.graph.mut_node_output(0, x_slice.to_owned());
-    model.graph.node(0).set_grad_output(x_slice.to_owned()); 
-
-    model.graph.mut_node_output(4, y_slice.to_owned()); 
-    model.graph.mut_node_output(5, y_slice.to_owned());
-    model.graph.node(5).set_grad_output(y_slice.to_owned()); 
-
-    println!("{:?}", model.graph.nodes());
-
-    model.graph.forward();
-    model.graph.backward(); */
 
 
-    model.train_batch(1000, 3);
+    model.train_v2(3000, 3);
     //model.save_snapshot("testing")?;
 
     /*

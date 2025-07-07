@@ -2,10 +2,12 @@ use std::fs;
 use std::fs::File; 
 use std::io::{Write, BufWriter, BufReader}; 
 
+use rand::thread_rng;
+use rand::prelude::SliceRandom;
 use uuid::Uuid;
 use chrono::{Datelike, Utc};  
-use ndarray::{s, Array2};
-use indicatif::{ProgressBar, ProgressStyle}; 
+use ndarray::{s, Array2, Axis};
+use indicatif::{ProgressBar, ProgressStyle, MultiProgress}; 
 use serde::{Serialize, Deserialize}; 
 
 use dendritic_autodiff::operations::arithmetic::*; 
@@ -167,24 +169,35 @@ impl DescentOptimizer for LinearRegression {
         let num_batches = (rows + batch_size - 1) / batch_size;
 
         for _ in 0..epochs {
+
+            let mut row_indices: Vec<_> = (0..rows).collect();
+            row_indices.shuffle(&mut thread_rng());
+
+            let x_shuffled = x_train.select(Axis(0), &row_indices);
+            let y_shuffled = y_train.select(Axis(0), &row_indices);
+
             for batch_idx in 0..num_batches { 
                 let start_idx = batch_idx * batch_size;
                 let end_idx = (start_idx + batch_size).min(rows);
-                let x = x_train.slice(s![start_idx..end_idx, ..]);
-                let y = y_train.slice(s![start_idx..end_idx, ..]);
+                let x = x_shuffled.slice(s![start_idx..end_idx, ..]);
+                let y = y_shuffled.slice(s![start_idx..end_idx, ..]);
+
+                // fix this later
+                if (end_idx - start_idx) < batch_size {
+                    continue; 
+                }
 
                 self.graph.mut_node_output(0, x.to_owned());
                 self.graph.mut_node_output(4, y.to_owned()); 
                 self.graph.mut_node_output(5, y.to_owned());
-                self.graph.node(5).set_grad_output(y.to_owned()); 
 
                 self.graph.forward();
                 self.graph.backward(); 
-                self.parameter_update();
+                self.parameter_update();  
             }
             bar.inc(1); 
         }
-    
+   
         bar.finish();
 
         let loss_node = self.graph.curr_node();
@@ -194,7 +207,63 @@ impl DescentOptimizer for LinearRegression {
             loss.as_slice().unwrap()[0],
             self.learning_rate,
             num_batches
-        );
+        ); 
+
+    }
+
+    fn train_v2(&mut self, epochs: usize, batch_size: usize) {
+
+        let bar = MultiProgress::new();
+
+        self.function_definition();
+
+        let inputs = self.inputs.as_ref().expect("Inputs not defined");
+        let outputs = self.outputs.as_ref().expect("Outputs not defined");
+        let x_train = inputs.clone();
+        let y_train = outputs.clone(); 
+        let rows = x_train.nrows();
+        let num_batches = (rows + batch_size - 1) / batch_size;
+
+        for epoch_idx in 0..epochs {
+
+            let mut row_indices: Vec<_> = (0..rows).collect();
+            row_indices.shuffle(&mut thread_rng());
+
+            let x_shuffled = x_train.select(Axis(0), &row_indices);
+            let y_shuffled = y_train.select(Axis(0), &row_indices);
+
+            for batch_idx in 0..num_batches { 
+                let start_idx = batch_idx * batch_size;
+                let end_idx = (start_idx + batch_size).min(rows);
+                let x = x_shuffled.slice(s![start_idx..end_idx, ..]);
+                let y = y_shuffled.slice(s![start_idx..end_idx, ..]);
+
+                // fix this later
+                if (end_idx - start_idx) < batch_size {
+                    continue; 
+                }
+
+                self.graph.mut_node_output(0, x.to_owned());
+                self.graph.mut_node_output(4, y.to_owned()); 
+                self.graph.mut_node_output(5, y.to_owned());
+
+                self.graph.forward();
+                self.graph.backward(); 
+                self.parameter_update();  
+            }
+            
+            if epoch_idx % 1000 == 0 {
+                let loss_node = self.graph.curr_node();
+                let loss = loss_node.output();
+                println!(
+                    "\nLoss: {:?}, Learning Rate: {:?}, Epoch: {:?}", 
+                    loss.as_slice().unwrap()[0],
+                    self.learning_rate,
+                    epoch_idx
+                ); 
+            }
+        }
+
 
     }
 
