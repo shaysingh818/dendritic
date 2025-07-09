@@ -14,9 +14,6 @@ pub trait DescentOptimizer {
     /// Training cycle for mini batches or partial fitting
     fn train_batch(&mut self, epochs: usize, batch_size: usize);
 
-    /// Testing something
-    fn train_v2(&mut self, epochs: usize, batch_size: usize); 
-
     /// Save single instance of parameters to file path
     fn save(&self, filepath: &str) -> std::io::Result<()>; 
 
