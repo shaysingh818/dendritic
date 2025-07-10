@@ -1,4 +1,5 @@
 pub mod linear; 
 pub mod ridge; 
 pub mod elastic;
-pub mod lasso; 
+pub mod lasso;
+pub mod base; 

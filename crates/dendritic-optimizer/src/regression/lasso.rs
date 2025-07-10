@@ -238,15 +238,58 @@ impl DescentOptimizer for LassoRegression {
             println!(""); 
 
         }
-
-
     }
 
     fn save(&self, filepath: &str) -> std::io::Result<()> {
+
+        fs::create_dir_all(filepath)?;
+        let file_path = format!("{filepath}/parameters.json");
+
+        let obj = LassoRegressionSerialize {
+            graph_path: format!("{filepath}/lasso_regression_exp"),
+            weights: self.weights.clone(), 
+            bias: self.bias.clone(),
+            learning_rate: self.learning_rate,
+            lambda: self.lambda
+        };
+
+        let _ = self.graph.save(&obj.graph_path); 
+
+        let file = File::create(&file_path)?;
+        let mut writer = BufWriter::new(file); 
+        let json_string = serde_json::to_string_pretty(&obj)?;
+        writer.write_all(json_string.as_bytes())?; 
         Ok(())
     }
 
     fn save_snapshot(&self, namespace: &str) -> std::io::Result<()> {
+
+        let now = Utc::now();
+        let (_, year) = now.year_ce();
+        let month = now.month().to_string();
+        let day = now.day().to_string();
+        let curr_year = year.to_string();
+
+        let directory_path = format!("{namespace}/snapshot/{curr_year}/{month}/{day}");
+        fs::create_dir_all(directory_path.clone())?; 
+
+        let id = Uuid::new_v4();
+        let file_path = format!("{directory_path}/{id}.json");
+
+        let obj = LassoRegressionSerialize {
+            graph_path: format!("{namespace}/lasso_regression_exp"),
+            weights: self.weights.clone(), 
+            bias: self.bias.clone(),
+            learning_rate: self.learning_rate,
+            lambda: self.lambda
+        };
+
+        let _ = self.graph.save(&obj.graph_path); 
+
+        let file = File::create(&file_path)?;
+        let mut writer = BufWriter::new(file); 
+        let json_string = serde_json::to_string_pretty(&obj)?;
+        writer.write_all(json_string.as_bytes())?; 
         Ok(())
     }
 

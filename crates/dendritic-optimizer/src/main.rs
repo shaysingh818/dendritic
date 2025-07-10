@@ -7,6 +7,7 @@ use ndarray::{s, arr2, Axis};
 
 use dendritic_optimizer::descent::*; 
 use dendritic_optimizer::regression::lasso::*;
+use dendritic_optimizer::regression::ridge::*; 
 
 
 fn main() -> std::io::Result<()> {
@@ -35,9 +36,12 @@ fn main() -> std::io::Result<()> {
         [10.0], [12.0], [14.0], [16.0], [18.0],
         [10.0], [12.0], [14.0], [16.0], [18.0]
     ]);
-    
-    let mut model = LassoRegression::new(&x, &y, 0.001, 0.001).unwrap();
+
+    let mut model = RidgeRegression::new(&x, &y, 0.001, 0.001).unwrap();
     model.train_batch(3000, 4); 
+    
+    //let mut model = LassoRegression::new(&x, &y, 0.001, 0.001).unwrap();
+    //model.train_batch(3000, 4); 
 
     
 
