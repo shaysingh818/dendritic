@@ -1,9 +1,7 @@
 use std::io::Write; 
 
-use rand::thread_rng;
-use rand::prelude::SliceRandom;
 use chrono::Local; 
-use ndarray::{s, arr2, Axis};
+use ndarray::{arr2};
 
 use dendritic_optimizer::regression::*;
 use dendritic_optimizer::train::*;

@@ -1,7 +1,3 @@
-use ndarray::{s, Array2, Axis};
-use indicatif::{ProgressBar, ProgressStyle, MultiProgress}; 
-
-use dendritic_autodiff::graph::{ComputationGraph, GraphConstruction};
 use crate::regression::*; 
 
 

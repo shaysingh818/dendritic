@@ -7,7 +7,7 @@ use rand::prelude::SliceRandom;
 use uuid::Uuid;
 use chrono::{Datelike, Utc};  
 use ndarray::{s, Array2, Axis};
-use indicatif::{ProgressBar, ProgressStyle, MultiProgress}; 
+use indicatif::{ProgressBar, ProgressStyle}; 
 use serde::{Serialize, Deserialize}; 
 
 use dendritic_autodiff::operations::arithmetic::*; 
@@ -112,7 +112,7 @@ impl Regression {
             .template("{bar:50} {pos}/{len}")
             .unwrap());
 
-        for epoch_idx in 0..1000 {
+        for _ in 0..1000 {
 
             let mut row_indices: Vec<_> = (0..rows).collect();
             row_indices.shuffle(&mut thread_rng());
