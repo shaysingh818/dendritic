@@ -1,2 +1,2 @@
-pub mod descent; 
+pub mod train; 
 pub mod regression; 
