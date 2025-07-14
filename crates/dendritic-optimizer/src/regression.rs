@@ -659,3 +659,192 @@ impl RegressionOptimizer for Lasso {
     }
 
 }
+
+
+pub struct Elastic {
+    
+    /// Instance of linear regression structure
+    pub regression: Regression,
+
+    /// lambda parameter to regularize weights
+    pub lambda: f64,
+
+    /// alpha mixing value for regualarization
+    pub alpha: f64
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ElasticSerialize {
+
+    /// Serializable instance of regression structure
+    regression: RegressionSerialize,
+
+    /// lambda parmeter to regualrize weights
+    lambda: f64,
+
+    /// alpa mixing value as serialized
+    alpha: f64
+}
+
+
+impl Elastic {
+
+    pub fn new(
+        x: &Array2<f64>,
+        y: &Array2<f64>,
+        learning_rate: f64, 
+        lambda: f64,
+        alpha: f64) -> Result<Self, String> {
+
+        Ok(Self {
+            regression: Regression::new(x, y, learning_rate).unwrap(),
+            lambda: lambda,
+            alpha: alpha
+        })
+    }
+
+}
+
+
+impl RegressionOptimizer for Elastic {
+
+    fn parameter_update(&mut self) {
+
+        let lr = self.regression.learning_rate;
+        let w = self.regression.graph.node(1);
+        let sig_w = self.regression.graph.node(1).output().mapv(|x| x.signum());
+        let w_grad = self.lambda * (self.alpha * sig_w) + ((1.0 - self.alpha) * w.grad()); 
+        let w_new = w.output() - (w_grad * lr);
+        self.regression.graph.mut_node_output(1, w_new); 
+
+        let b = self.regression.graph.node(3);
+        let b_grad = (b.grad() * lr).sum_axis(Axis(0));
+        let b_delta = b.output() - b_grad;
+        self.regression.graph.mut_node_output(3, b_delta);
+    }
+
+    fn measure_loss(&mut self) -> f64 {
+
+        let loss_node = self.regression.graph.curr_node();
+        let loss = loss_node.output();
+        let weights = self.regression.graph.node(1).output();
+        let l1 = weights.mapv(|x| x.abs()).sum();
+        let l2 = weights.mapv(|x| (x as f64).powf(2.0)).sum();
+        let exp = self.alpha * l1 + 0.5 * (1.0 - self.alpha) * l2;
+        loss.as_slice().unwrap()[0] + (self.lambda * exp)
+    }
+
+    fn save(&self, filepath: &str) -> std::io::Result<()> {
+
+        fs::create_dir_all(filepath)?;
+        let file_path = format!("{filepath}/parameters.json");
+
+        let obj = ElasticSerialize {
+            regression: RegressionSerialize {
+                graph_path: format!("{filepath}/regression_exp"),
+                weight_dim: self.regression.weight_dim,
+                bias_dim: self.regression.bias_dim,
+                learning_rate: self.regression.learning_rate
+            },
+            lambda: self.lambda,
+            alpha: self.alpha
+        };
+
+        let _ = self.regression.graph.save(&obj.regression.graph_path); 
+        let file = File::create(&file_path)?;
+        let mut writer = BufWriter::new(file); 
+        let json_string = serde_json::to_string_pretty(&obj)?;
+        writer.write_all(json_string.as_bytes())?;
+        Ok(())
+    }
+
+    fn save_snapshot(&self, namespace: &str) -> std::io::Result<()> {
+
+        let now = Utc::now();
+        let (_, year) = now.year_ce();
+        let month = now.month().to_string();
+        let day = now.day().to_string();
+        let curr_year = year.to_string();
+
+        let directory_path = format!("{namespace}/snapshot/{curr_year}/{month}/{day}");
+        fs::create_dir_all(directory_path.clone())?; 
+
+        let id = Uuid::new_v4();
+        let file_path = format!("{directory_path}/{id}.json");
+
+        let obj = ElasticSerialize {
+            regression: RegressionSerialize {
+                graph_path: format!("{namespace}/regression_exp"),
+                weight_dim: self.regression.weight_dim,
+                bias_dim: self.regression.bias_dim,
+                learning_rate: self.regression.learning_rate
+            },
+            lambda: self.lambda,
+            alpha: self.alpha
+        };
+
+        let _ = self.regression.graph.save(&obj.regression.graph_path); 
+        let file = File::create(&file_path)?;
+        let mut writer = BufWriter::new(file); 
+        let json_string = serde_json::to_string_pretty(&obj)?;
+        writer.write_all(json_string.as_bytes())?; 
+        Ok(())
+    }
+ 
+    fn load(filepath: &str) -> Result<Self, Box<dyn std::error::Error>> {
+
+        let parameter_path = format!("{filepath}/parameters.json");
+        let obj: ElasticSerialize = {
+            let file = File::open(&parameter_path)?; 
+            let reader = BufReader::new(file);
+            serde_json::from_reader(reader)?
+        };
+
+        let reg = Regression {
+            graph: ComputationGraph::load(&obj.regression.graph_path).unwrap(),
+            weight_dim: obj.regression.weight_dim,
+            bias_dim: obj.regression.bias_dim,
+            learning_rate: obj.regression.learning_rate
+        };
+
+        Ok(Elastic {
+            regression: reg,
+            lambda: obj.lambda,
+            alpha: obj.alpha
+        }) 
+    }
+ 
+    fn load_snapshot(
+        namespace: &str,
+        year: &str,
+        month: &str,
+        day: &str,
+        snapshot_id: &str) -> Result<Self, Box<dyn std::error::Error>> {
+
+        let parameter_path = format!(
+            "{namespace}/snapshot/{year}/{month}/{day}/{snapshot_id}.json"
+        );
+
+        let obj: ElasticSerialize = {
+            let file = File::open(&parameter_path)?; 
+            let reader = BufReader::new(file);
+            serde_json::from_reader(reader)?
+        };
+
+        let reg = Regression {
+            graph: ComputationGraph::load(&obj.regression.graph_path).unwrap(),
+            weight_dim: obj.regression.weight_dim,
+            bias_dim: obj.regression.bias_dim,
+            learning_rate: obj.regression.learning_rate
+        };
+
+        Ok(Elastic {
+            regression: reg,
+            lambda: obj.lambda,
+            alpha: obj.alpha
+        })
+
+    }
+
+}
+

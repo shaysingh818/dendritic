@@ -138,4 +138,5 @@ macro_rules! impl_regression_train {
 }
 
 impl_regression_train!(Lasso); 
-impl_regression_train!(Ridge); 
+impl_regression_train!(Ridge);
+impl_regression_train!(Elastic);

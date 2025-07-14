@@ -34,8 +34,8 @@ fn main() -> std::io::Result<()> {
         [10.0], [12.0], [14.0], [16.0], [18.0]
     ]);
 
-    let mut model = Lasso::new(&x, &y, 0.001, 0.001).unwrap();
-    model.train_batch(2000, 4);
+    let mut model = Elastic::new(&x, &y, 0.001, 0.0001, 0.5).unwrap();
+    model.train_batch(3000, 4);
     println!("{:?}", model.predict(&x)); 
     //model.save("linear_testing_2").unwrap();
 
