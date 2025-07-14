@@ -1,7 +1,7 @@
 use std::io::Write; 
 
 use chrono::Local; 
-use ndarray::{arr2};
+use ndarray::{arr2, Array2};
 
 use dendritic_optimizer::regression::*;
 use dendritic_optimizer::train::*;
@@ -34,24 +34,21 @@ fn main() -> std::io::Result<()> {
         [10.0], [12.0], [14.0], [16.0], [18.0]
     ]);
 
-    let mut model = Lasso::new(&x, &y, 0.001, 0.0001).unwrap();
-    model.train_batch(3000, 4); 
-    
-    //let mut model = LassoRegression::new(&x, &y, 0.001, 0.001).unwrap();
-    //model.train_batch(3000, 4); 
+    let mut model = Lasso::new(&x, &y, 0.001, 0.001).unwrap();
+    model.train_batch(2000, 4);
+    println!("{:?}", model.predict(&x)); 
+    //model.save("linear_testing_2").unwrap();
+
 
     
 
     //model.train_batch(10000, 5);
 
-    /*
-    let mut model = LinearRegression::load("testing").unwrap();
-    let val = model.predict(&x);
-    println!("{:?}", val); 
- 
-    let mut model_2 = LinearRegression::load("testing_2").unwrap();
-    let val = model_2.predict(&x);
-    println!("{:?}", val); */
+    //let y_val: Array2<f64> = Array2::zeros((x.nrows(), 1));
+    //let mut model = Regression::load("linear_testing_2").unwrap();
+    //let val = model.predict(&x);
+    //println!("{:?}", val); 
+
 
     Ok(())
 

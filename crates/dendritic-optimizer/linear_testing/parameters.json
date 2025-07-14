@@ -1,0 +1,12 @@
+{
+  "graph_path": "linear_testing/regression_exp",
+  "weight_dim": [
+    3,
+    1
+  ],
+  "bias_dim": [
+    1,
+    1
+  ],
+  "learning_rate": 0.001
+}

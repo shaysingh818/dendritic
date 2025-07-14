@@ -160,11 +160,11 @@ impl Operation<Array2<f64>> for MSE {
         let y_true = nodes[inputs[1]].output();
 
         debug!(
-            "{:?}, {:?}",
-            inputs[0], inputs[1]
-        ); 
+            "MSE shape comparison: {:?} {:?}",
+            y_true.shape(), y_pred.shape()
+        );
 
-        let diff = y_true.clone() - y_pred; 
+        let diff = y_true.clone() - y_pred.clone();
         let squared = diff.mapv(|x| x * x); 
         let sum = squared.sum(); 
         let val = sum * (1.0/y_true.len() as f64);

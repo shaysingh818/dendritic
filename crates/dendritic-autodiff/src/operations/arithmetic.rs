@@ -95,7 +95,7 @@ impl Operation<f64> for Add {
         debug!(
             "(ADD SCALAR) Performing forward pass on node index: {:?}",
             curr_idx
-        ); 
+        );
 
         let inputs = nodes[curr_idx].inputs();
         nodes[inputs[0]].output() + nodes[inputs[1]].output()
@@ -343,7 +343,7 @@ impl Operation<Array2<f64>> for Mul {
 
         let inputs = nodes[curr_idx].inputs();
         let lhs = nodes[inputs[0]].output(); 
-        let rhs = nodes[inputs[1]].output(); 
+        let rhs = nodes[inputs[1]].output();
         lhs.dot(&rhs)
     }
 

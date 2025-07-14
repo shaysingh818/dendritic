@@ -1,3 +1,4 @@
+use ndarray::{Array2}; 
 use crate::regression::*; 
 
 
@@ -6,6 +7,8 @@ pub trait RegressionTrain {
     fn train(&mut self, epochs: usize);
 
     fn train_batch(&mut self, epochs: usize, batch_size: usize);
+
+    fn predict(&mut self, x: &Array2<f64>) -> Array2<f64>; 
 
 }
 
@@ -56,6 +59,16 @@ impl RegressionTrain for Regression {
             println!(""); 
         }
 
+    }
+
+    fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> {
+
+        let y = Array2::zeros((x.nrows(), 1));
+        self.set_input(x);
+        self.set_output(&y);
+
+        self.graph.forward();
+        self.graph.node(4).output()
     }
 
 
@@ -114,6 +127,9 @@ macro_rules! impl_regression_train {
 
             }
 
+            fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> {
+                self.regression.predict(&x.to_owned())
+            }
 
         }
 

@@ -82,6 +82,23 @@ impl Regression {
         self.learning_rate
     }
 
+    pub fn input(&self) -> Array2<f64> {
+        self.graph.node(0).output()
+    }
+
+    pub fn output(&self) -> Array2<f64> {
+        self.graph.node(5).output()
+    }
+
+    pub fn set_input(&mut self, x: &Array2<f64>) {
+        self.graph.mut_node_output(0, x.to_owned());
+    }
+
+    pub fn set_output(&mut self, y: &Array2<f64>) {
+        self.graph.mut_node_output(4, y.to_owned());
+        self.graph.mut_node_output(5, y.to_owned());
+    }
+
     pub fn fit(&mut self, epochs: usize) {
 
         let bar = ProgressBar::new(epochs.try_into().unwrap());
@@ -131,9 +148,8 @@ impl Regression {
                     continue; 
                 }
 
-                self.graph.mut_node_output(0, x.to_owned());
-                self.graph.mut_node_output(4, y.to_owned()); 
-                self.graph.mut_node_output(5, y.to_owned());
+                self.set_input(&x.to_owned());
+                self.set_output(&y.to_owned());
 
                 self.graph.forward();
                 self.graph.backward(); 
@@ -183,13 +199,15 @@ impl RegressionOptimizer for Regression {
 
     fn parameter_update(&mut self) {
 
-        for var_idx in self.graph.parameters() {
-            let var = self.graph.node(var_idx);
-            let grad = var.grad() * self.learning_rate;
-            let delta = var.output() - grad;
-            self.graph.mut_node_output(var_idx, delta.clone());
+        let w = self.graph.node(1);
+        let w_grad = w.grad() * self.learning_rate;
+        let w_delta = w.output() - w_grad;
+        self.graph.mut_node_output(1, w_delta); 
 
-        }
+        let b = self.graph.node(3);
+        let b_grad = (b.grad() * self.learning_rate).sum_axis(Axis(0));
+        let b_delta = b.output() - b_grad;
+        self.graph.mut_node_output(3, b_delta); 
     }
 
     fn measure_loss(&mut self) -> f64 {
@@ -335,13 +353,14 @@ impl RegressionOptimizer for Ridge {
 
     fn parameter_update(&mut self) {
 
+        let lr = self.regression.learning_rate;
         let w = self.regression.graph.node(1);
         let w_grad = w.grad() + self.lambda * 2.0 * w.output();
-        let w_delta = w.output() - self.regression.learning_rate * w_grad;
+        let w_delta = w.output() - lr * w_grad;
         self.regression.graph.mut_node_output(1, w_delta); 
 
         let b = self.regression.graph.node(3);
-        let b_grad = b.grad() * self.regression.learning_rate;
+        let b_grad = (b.grad() * lr).sum_axis(Axis(0));
         let b_delta = b.output() - b_grad;
         self.regression.graph.mut_node_output(3, b_delta); 
     }
@@ -508,14 +527,15 @@ impl RegressionOptimizer for Lasso {
 
     fn parameter_update(&mut self) {
 
+        let lr = self.regression.learning_rate;
         let w = self.regression.graph.node(1);
         let sig_w = self.regression.graph.node(1).output().mapv(|x| x.signum());
         let w_grad = w.clone().grad() + (self.lambda * sig_w);
-        let w_new = w.output() - (w_grad * self.regression.learning_rate);
+        let w_new = w.output() - (w_grad * lr);
         self.regression.graph.mut_node_output(1, w_new); 
 
         let b = self.regression.graph.node(3);
-        let b_grad = b.grad() * self.regression.learning_rate;
+        let b_grad = (b.grad() * lr).sum_axis(Axis(0));
         let b_delta = b.output() - b_grad;
         self.regression.graph.mut_node_output(3, b_delta);  
 
