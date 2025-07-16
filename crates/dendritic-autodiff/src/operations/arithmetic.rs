@@ -157,7 +157,7 @@ impl Operation<Array2<f64>> for Add {
 
         match upstream.len() {
             1 => {
-                let upstream_grad = nodes[upstream[0]].grad(); 
+                let upstream_grad = nodes[upstream[0]].grad();
                 nodes[curr_idx].set_grad_output(upstream_grad.clone());
                 nodes[inputs[0]].set_grad_output(upstream_grad.clone()); 
                 nodes[inputs[1]].set_grad_output(upstream_grad.clone());

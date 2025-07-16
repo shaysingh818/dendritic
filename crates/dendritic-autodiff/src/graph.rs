@@ -92,6 +92,11 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
         self.nodes[idx].set_output(val);
     }
 
+    /// Set output of specific node value and reference by index
+    pub fn mut_node_operation(&mut self, idx: usize, op: Box<dyn Operation<T>>) {
+        self.nodes[idx].set_operation(op);
+    }
+
     /// Get latest node created in the computation graph
     pub fn curr_node(&self) -> Node<T> {
         self.nodes[self.curr_node_idx as usize].clone()

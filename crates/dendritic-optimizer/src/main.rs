@@ -3,6 +3,9 @@ use std::io::Write;
 use chrono::Local; 
 use ndarray::{arr2, Array2};
 
+
+use dendritic_autodiff::operations::loss::*; 
+use dendritic_optimizer::classification::*; 
 use dendritic_optimizer::regression::*;
 use dendritic_optimizer::train::*;
 
@@ -16,38 +19,71 @@ fn main() -> std::io::Result<()> {
         writeln!(buf, "{}:{} {}", log_time, record.level(), record.args())
     }).init();
 
+    // binary logstic data
     let x = arr2(&[
-        [1.0, 2.0, 3.0],
-        [2.0, 3.0, 4.0],
-        [3.0, 4.0, 5.0],
-        [4.0, 5.0, 6.0],
-        [5.0, 6.0, 7.0],
-        [1.0, 2.0, 3.0],
-        [2.0, 3.0, 4.0],
-        [3.0, 4.0, 5.0],
-        [4.0, 5.0, 6.0],
-        [5.0, 6.0, 7.0]
+        [1.0, 2.0],
+        [2.0, 1.0],
+        [1.5, 1.8],
+        [3.0, 3.2],
+        [2.8, 3.0],
+        [5.0, 5.5],
+        [6.0, 5.8],
+        [5.5, 6.0],
+        [6.2, 5.9],
+        [7.0, 6.5]
     ]);
 
     let y = arr2(&[
-        [10.0], [12.0], [14.0], [16.0], [18.0],
-        [10.0], [12.0], [14.0], [16.0], [18.0]
+        [0.0],
+        [0.0],
+        [0.0],
+        [0.0],
+        [0.0],
+        [1.0],
+        [1.0],
+        [1.0],
+        [1.0],
+        [1.0]
     ]);
 
-    let mut model = Elastic::new(&x, &y, 0.001, 0.0001, 0.5).unwrap();
-    model.train_batch(3000, 4);
-    println!("{:?}", model.predict(&x)); 
-    //model.save("linear_testing_2").unwrap();
+    // multi class
+    let x1 = arr2(&[
+        [1.0, 2.0],
+        [1.5, 1.8],
+        [2.0, 1.0],   // Class 0
+        [4.0, 4.5],
+        [4.5, 4.8],
+        [5.0, 5.2],   // Class 1
+        [7.0, 7.5],
+        [7.5, 8.0],
+        [8.0, 8.5],   // Class 2
+    ]);
 
+    let y1 = arr2(&[
+        [0.0],
+        [0.0],
+        [0.0],
+        [1.0],
+        [1.0],
+        [1.0],
+        [2.0],
+        [2.0],
+        [2.0]
+    ]);
 
-    
+    let mut model = Logistic::new(&x, &y, 0.01).unwrap();
 
-    //model.train_batch(10000, 5);
+    for _ in 0..1000 {
+        model.graph.forward();
+        model.graph.backward();
+        model.parameter_update();
 
-    //let y_val: Array2<f64> = Array2::zeros((x.nrows(), 1));
-    //let mut model = Regression::load("linear_testing_2").unwrap();
-    //let val = model.predict(&x);
-    //println!("{:?}", val); 
+        let loss = model.measure_loss();
+        println!("LOSS: {:?}", loss); 
+    }
+
+    println!("{:?}", model.graph.node(5).output()); 
+
 
 
     Ok(())

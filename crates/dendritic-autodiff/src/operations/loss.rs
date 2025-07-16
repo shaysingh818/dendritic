@@ -258,7 +258,7 @@ impl Operation<Array2<f64>> for BinaryCrossEntropy {
         curr_idx: usize) -> Array2<f64> {
 
         debug!(
-            "Performing forward MSE on node index: {:?}",
+            "Performing forward BCE on node index: {:?}",
             curr_idx
         ); 
 
@@ -276,6 +276,7 @@ impl Operation<Array2<f64>> for BinaryCrossEntropy {
             idx += 1;
         } 
 
+        result /= y_true.len() as f64; 
         Array2::from_elem((1, 1), result) 
     }
 
@@ -293,7 +294,18 @@ impl Operation<Array2<f64>> for BinaryCrossEntropy {
         let inputs = nodes[curr_idx].inputs();
         let y_pred = nodes[inputs[0]].output(); 
         let y_true = nodes[inputs[1]].output();
-        let grad = y_pred - y_true;
+
+        let epsilon = 1e-7;
+        let mut grad = Array2::<f64>::zeros(y_pred.raw_dim());
+
+        for ((g, &y_t), &y_p_raw) in grad.iter_mut()
+            .zip(y_true.iter())
+            .zip(y_pred.iter()) 
+        {
+            let y_p = y_p_raw.clamp(epsilon, 1.0 - epsilon);
+            *g = -(y_t / y_p) + (1.0 - y_t) / (1.0 - y_p);
+        }
+
         nodes[curr_idx].set_grad_output(grad); 
 
         debug!(

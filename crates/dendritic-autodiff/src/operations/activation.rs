@@ -98,6 +98,7 @@ impl Operation<Array2<f64>> for Sigmoid {
                 );
 
                 let grad = upstream * sig;
+                nodes[curr_idx].set_grad_output(grad.clone());
                 nodes[inputs[0]].set_grad_output(grad.clone());
             },
             _ => {

@@ -84,6 +84,11 @@ impl<T: Clone + Default> Node<T> {
         self.value.grad().clone()
     }
 
+    /// Get operation trait associated with node
+    pub fn operation(&self) -> Box<dyn Operation<T>> {
+        self.operation.clone()
+    }
+
     /// Set output attribute of node structure
     pub fn set_output(&mut self, val: T) {
         self.value.set_value(val);
@@ -94,9 +99,9 @@ impl<T: Clone + Default> Node<T> {
         self.value.set_grad(val); 
     }
 
-    /// Get operation trait associated with node
-    pub fn operation(&self) -> Box<dyn Operation<T>> {
-        self.operation.clone()
+    /// Set operation for specific node shared behavior
+    pub fn set_operation(&mut self, op: Box<dyn Operation<T>>) {
+        self.operation = op; 
     }
 
     /// Perform forward pass on current node
