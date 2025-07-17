@@ -72,17 +72,10 @@ fn main() -> std::io::Result<()> {
     ]);
 
     let mut model = Logistic::new(&x, &y, 0.01).unwrap();
-
-    for _ in 0..1000 {
-        model.graph.forward();
-        model.graph.backward();
-        model.parameter_update();
-
-        let loss = model.measure_loss();
-        println!("LOSS: {:?}", loss); 
-    }
-
-    println!("{:?}", model.graph.node(5).output()); 
+    model.train_batch(3000, 4); 
+    //model.train(1000); 
+    let pred = model.predict(&x); 
+    println!("{:?}", pred); 
 
 
 

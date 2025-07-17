@@ -90,6 +90,10 @@ impl Regression {
         self.graph.node(5).output()
     }
 
+    pub fn predicted_output(&self) -> Array2<f64> {
+        self.graph.node(4).output()
+    }
+
     pub fn set_input(&mut self, x: &Array2<f64>) {
         self.graph.mut_node_output(0, x.to_owned());
     }
@@ -97,70 +101,6 @@ impl Regression {
     pub fn set_output(&mut self, y: &Array2<f64>) {
         self.graph.mut_node_output(4, y.to_owned());
         self.graph.mut_node_output(5, y.to_owned());
-    }
-
-    pub fn fit(&mut self, epochs: usize) {
-
-        let bar = ProgressBar::new(epochs.try_into().unwrap());
-        bar.set_style(ProgressStyle::default_bar()
-            .template("{bar:50} {pos}/{len}")
-            .unwrap());
-
-        for _ in 0..epochs {
-            self.graph.forward();
-            self.graph.backward(); 
-            self.parameter_update();
-            bar.inc(1); 
-        }
-
-        bar.finish();
-    }
-
-    pub fn fit_batch(
-        &mut self, 
-        x_train: Array2<f64>, 
-        y_train: Array2<f64>,
-        batch_size: usize,
-        num_batches: usize,
-        rows: usize) {
-
-        let bar = ProgressBar::new(1000);
-        bar.set_style(ProgressStyle::default_bar()
-            .template("{bar:50} {pos}/{len}")
-            .unwrap());
-
-        for _ in 0..1000 {
-
-            let mut row_indices: Vec<_> = (0..rows).collect();
-            row_indices.shuffle(&mut thread_rng());
-
-            let x_shuffled = x_train.select(Axis(0), &row_indices);
-            let y_shuffled = y_train.select(Axis(0), &row_indices);
-
-            for batch_idx in 0..num_batches { 
-                let start_idx = batch_idx * batch_size;
-                let end_idx = (start_idx + batch_size).min(rows);
-                let x = x_shuffled.slice(s![start_idx..end_idx, ..]);
-                let y = y_shuffled.slice(s![start_idx..end_idx, ..]);
-
-                // fix this later
-                if (end_idx - start_idx) < batch_size {
-                    continue; 
-                }
-
-                self.set_input(&x.to_owned());
-                self.set_output(&y.to_owned());
-
-                self.graph.forward();
-                self.graph.backward(); 
-                self.parameter_update();
-            }
-            bar.inc(1); 
-        }
-
-        bar.finish(); 
-
-
     }
 
 }
@@ -346,6 +286,18 @@ impl Ridge {
         })
     }
 
+    pub fn input(&self) -> Array2<f64> {
+        self.regression.input()
+    }
+
+    pub fn output(&self) -> Array2<f64> {
+        self.regression.output()
+    }
+
+    pub fn predicted_output(&self) -> Array2<f64> {
+        self.regression.predicted_output()
+    }
+
 }
 
 
@@ -518,6 +470,18 @@ impl Lasso {
             regression: Regression::new(x, y, learning_rate).unwrap(),
             lambda: lambda
         })
+    }
+
+    pub fn input(&self) -> Array2<f64> {
+        self.regression.input()
+    }
+
+    pub fn output(&self) -> Array2<f64> {
+        self.regression.output()
+    }
+
+    pub fn predicted_output(&self) -> Array2<f64> {
+        self.regression.predicted_output()
     }
 
 }
@@ -701,6 +665,18 @@ impl Elastic {
             lambda: lambda,
             alpha: alpha
         })
+    }
+
+    pub fn input(&self) -> Array2<f64> {
+        self.regression.input()
+    }
+
+    pub fn output(&self) -> Array2<f64> {
+        self.regression.output()
+    }
+
+    pub fn predicted_output(&self) -> Array2<f64> {
+        self.regression.predicted_output()
     }
 
 }

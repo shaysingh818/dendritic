@@ -92,14 +92,12 @@ impl Operation<Array2<f64>> for Sigmoid {
 
                 let upstream = nodes[upstream[0]].grad();
                 let input = nodes[inputs[0]].output();
+                let sig_output = nodes[curr_idx].output();
+                let sig_deriv = sig_output.mapv(|s| s * (1.0 - s));
+                let grad = upstream * &sig_deriv;
 
-                let sig: Array2<f64> = input.mapv(
-                    |x| sigmoid(x) * (1.0 - sigmoid(x))
-                );
-
-                let grad = upstream * sig;
                 nodes[curr_idx].set_grad_output(grad.clone());
-                nodes[inputs[0]].set_grad_output(grad.clone());
+                nodes[inputs[0]].set_grad_output(grad.clone()); 
             },
             _ => {
                 panic!("Sigmoid must only have 1 input"); 

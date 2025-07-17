@@ -90,6 +90,10 @@ impl Logistic {
     }
 
     pub fn output(&self) -> Array2<f64> {
+        self.graph.node(6).output()
+    }
+
+    pub fn predicted_output(&self) -> Array2<f64> {
         self.graph.node(5).output()
     }
 
@@ -98,8 +102,8 @@ impl Logistic {
     }
 
     pub fn set_output(&mut self, y: &Array2<f64>) {
-        self.graph.mut_node_output(5, y.to_owned());
         self.graph.mut_node_output(6, y.to_owned());
+        self.graph.mut_node_output(7, y.to_owned());
     }
 
     pub fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
@@ -129,7 +133,7 @@ impl RegressionOptimizer for Logistic {
     }
 
     fn measure_loss(&mut self) -> f64 {
-
+        
         let loss_node = self.graph.curr_node();
         let loss = loss_node.output();
         loss.as_slice().unwrap()[0]
