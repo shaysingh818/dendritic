@@ -3,7 +3,7 @@ use std::io::Write;
 use chrono::Local; 
 use ndarray::{arr2, Array2};
 
-
+use dendritic_autodiff::operations::activation::*; 
 use dendritic_autodiff::operations::loss::*; 
 use dendritic_optimizer::classification::*; 
 use dendritic_optimizer::regression::*;
@@ -60,22 +60,28 @@ fn main() -> std::io::Result<()> {
     ]);
 
     let y1 = arr2(&[
-        [0.0],
-        [0.0],
-        [0.0],
-        [1.0],
-        [1.0],
-        [1.0],
-        [2.0],
-        [2.0],
-        [2.0]
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0],
     ]);
 
-    let mut model = Logistic::new(&x, &y, 0.01).unwrap();
-    model.train_batch(3000, 4); 
+
+    let mut model = Logistic::new(&x1, &y1, true, 0.01).unwrap();
+
+    model.graph.forward(); 
+    //println!("{:?}", model.graph.node(2)); 
+
+    //model.train(1000);  
+    //println!("{:?}", model.predicted()); 
     //model.train(1000); 
-    let pred = model.predict(&x); 
-    println!("{:?}", pred); 
+
+    println!("{:?}", model.graph.nodes()); 
 
 
 

@@ -78,31 +78,6 @@ impl Regression {
         Ok(regression)
     }
 
-    pub fn learning_rate(&self) -> f64 {
-        self.learning_rate
-    }
-
-    pub fn input(&self) -> Array2<f64> {
-        self.graph.node(0).output()
-    }
-
-    pub fn output(&self) -> Array2<f64> {
-        self.graph.node(5).output()
-    }
-
-    pub fn predicted_output(&self) -> Array2<f64> {
-        self.graph.node(4).output()
-    }
-
-    pub fn set_input(&mut self, x: &Array2<f64>) {
-        self.graph.mut_node_output(0, x.to_owned());
-    }
-
-    pub fn set_output(&mut self, y: &Array2<f64>) {
-        self.graph.mut_node_output(4, y.to_owned());
-        self.graph.mut_node_output(5, y.to_owned());
-    }
-
 }
 
 /// Trait for shared methods across different types of regression models
@@ -131,6 +106,26 @@ pub trait RegressionOptimizer {
         month: &str,
         day: &str,
         snapshot_id: &str) -> Result<Self, Box<dyn std::error::Error>> where Self: Sized;
+
+}
+
+
+pub trait RegressionModel {
+
+    /// Inputs fed to regression model
+    fn input(&self) -> Array2<f64>;
+
+    /// True labels of prediction
+    fn output(&self) -> Array2<f64>; 
+
+    /// Predicted output based on parameters of model
+    fn predicted(&self) -> Array2<f64>;
+
+    /// Set inputs for regression model
+    fn set_input(&mut self, x: &Array2<f64>);
+
+    /// Set true labels for regression model
+    fn set_output(&mut self, y: &Array2<f64>); 
 
 }
 
@@ -284,18 +279,6 @@ impl Ridge {
             regression: Regression::new(x, y, learning_rate).unwrap(),
             lambda: lambda
         })
-    }
-
-    pub fn input(&self) -> Array2<f64> {
-        self.regression.input()
-    }
-
-    pub fn output(&self) -> Array2<f64> {
-        self.regression.output()
-    }
-
-    pub fn predicted_output(&self) -> Array2<f64> {
-        self.regression.predicted_output()
     }
 
 }
@@ -470,18 +453,6 @@ impl Lasso {
             regression: Regression::new(x, y, learning_rate).unwrap(),
             lambda: lambda
         })
-    }
-
-    pub fn input(&self) -> Array2<f64> {
-        self.regression.input()
-    }
-
-    pub fn output(&self) -> Array2<f64> {
-        self.regression.output()
-    }
-
-    pub fn predicted_output(&self) -> Array2<f64> {
-        self.regression.predicted_output()
     }
 
 }
@@ -667,18 +638,6 @@ impl Elastic {
         })
     }
 
-    pub fn input(&self) -> Array2<f64> {
-        self.regression.input()
-    }
-
-    pub fn output(&self) -> Array2<f64> {
-        self.regression.output()
-    }
-
-    pub fn predicted_output(&self) -> Array2<f64> {
-        self.regression.predicted_output()
-    }
-
 }
 
 
@@ -823,4 +782,67 @@ impl RegressionOptimizer for Elastic {
     }
 
 }
+
+
+impl RegressionModel for Regression {
+
+    fn input(&self) -> Array2<f64> {
+        self.graph.node(0).output()
+    }
+
+    fn output(&self) -> Array2<f64> {
+        self.graph.node(5).output()
+    }
+
+    fn predicted(&self) -> Array2<f64> {
+        self.graph.node(4).output()
+    }
+
+    fn set_input(&mut self, x: &Array2<f64>) {
+        self.graph.mut_node_output(0, x.to_owned());
+    }
+
+    fn set_output(&mut self, y: &Array2<f64>) {
+        self.graph.mut_node_output(4, y.to_owned());
+        self.graph.mut_node_output(5, y.to_owned());
+    }
+}
+
+
+macro_rules! impl_regression_model {
+
+    ($t:ty) => {
+
+        impl RegressionModel for $t {
+
+            fn input(&self) -> Array2<f64> {
+                self.regression.graph.node(0).output()
+            }
+
+            fn output(&self) -> Array2<f64> {
+                self.regression.graph.node(5).output()
+            }
+
+            fn predicted(&self) -> Array2<f64> {
+                self.regression.graph.node(4).output()
+            }
+
+            fn set_input(&mut self, x: &Array2<f64>) {
+                self.regression.graph.mut_node_output(0, x.to_owned());
+            }
+
+            fn set_output(&mut self, y: &Array2<f64>) {
+                self.regression.graph.mut_node_output(4, y.to_owned());
+                self.regression.graph.mut_node_output(5, y.to_owned());
+            }
+
+        }
+
+    }
+
+}
+
+impl_regression_model!(Ridge);
+impl_regression_model!(Lasso);
+impl_regression_model!(Elastic);
 

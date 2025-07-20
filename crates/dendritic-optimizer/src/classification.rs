@@ -31,7 +31,10 @@ pub struct Logistic {
     pub bias_dim: (usize, usize),
 
     /// Learning rate to control how fast to decrease
-    pub learning_rate: f64
+    pub learning_rate: f64,
+
+    /// Flag for multi or binary classification
+    pub multi_class: bool
 }
 
 
@@ -48,7 +51,10 @@ pub struct LogisticSerialize {
     pub bias_dim: (usize, usize),
 
     /// Learning rate to control how fast to decrease
-    pub learning_rate: f64
+    pub learning_rate: f64,
+
+    /// Serialized flag for multi or binary classification
+    pub multi_class: bool
 }
 
 
@@ -57,13 +63,20 @@ impl Logistic {
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,
+        multi_class: bool,
         learning_rate: f64) -> Result<Self, String> {
 
+        let mut weight_dim: (usize, usize) = (x.shape()[1], 1);
+        if multi_class {
+            weight_dim = (x.shape()[1], y.shape()[1]);
+        }
+            
         let mut regression = Logistic {
             graph: ComputationGraph::new(),
-            weight_dim: (x.shape()[1], 1),
+            weight_dim: weight_dim,
             bias_dim: (1, 1),
-            learning_rate: learning_rate
+            learning_rate: learning_rate,
+            multi_class: multi_class
         };
 
         regression.graph.mul(
@@ -77,43 +90,55 @@ impl Logistic {
             vec![Array2::zeros(regression.bias_dim)]
         );
 
-        regression.graph.sigmoid();
-        regression.graph.bce(y.clone()); 
+        if regression.multi_class {
+            regression.graph.cce(y.clone()); 
+        } else {
+            regression.graph.sigmoid();
+            regression.graph.bce(y.clone()); 
+        }
 
         regression.graph.add_parameter(1);
         regression.graph.add_parameter(3);
         Ok(regression)
     }
 
-    pub fn input(&self) -> Array2<f64> {
+}
+
+impl RegressionModel for Logistic {
+
+    fn input(&self) -> Array2<f64> {
         self.graph.node(0).output()
     }
 
-    pub fn output(&self) -> Array2<f64> {
-        self.graph.node(6).output()
+    fn output(&self) -> Array2<f64> {
+        if self.multi_class {
+            self.graph.node(5).output()
+        } else {
+            self.graph.node(6).output()
+        }
     }
 
-    pub fn predicted_output(&self) -> Array2<f64> {
-        self.graph.node(5).output()
+    fn predicted(&self) -> Array2<f64> {
+        if self.multi_class {
+            self.graph.node(4).output()
+        } else {
+            self.graph.node(5).output()
+        }
     }
 
-    pub fn set_input(&mut self, x: &Array2<f64>) {
+    fn set_input(&mut self, x: &Array2<f64>) {
         self.graph.mut_node_output(0, x.to_owned());
     }
 
-    pub fn set_output(&mut self, y: &Array2<f64>) {
-        self.graph.mut_node_output(6, y.to_owned());
-        self.graph.mut_node_output(7, y.to_owned());
+    fn set_output(&mut self, y: &Array2<f64>) {
+        if self.multi_class {
+            self.graph.mut_node_output(4, y.to_owned());
+            self.graph.mut_node_output(5, y.to_owned());
+        } else {
+            self.graph.mut_node_output(6, y.to_owned());
+            self.graph.mut_node_output(7, y.to_owned());
+        }
     }
-
-    pub fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
-        self.graph.mut_node_operation(7, op); 
-    }
-
-    pub fn set_activation(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
-        self.graph.mut_node_operation(5, op); 
-    }
-
 }
 
 
@@ -148,7 +173,8 @@ impl RegressionOptimizer for Logistic {
             graph_path: format!("{filepath}/regression_exp"),
             weight_dim: self.weight_dim,
             bias_dim: self.bias_dim,
-            learning_rate: self.learning_rate
+            learning_rate: self.learning_rate,
+            multi_class: self.multi_class
         };
 
         let _ = self.graph.save(&obj.graph_path); 
@@ -178,7 +204,8 @@ impl RegressionOptimizer for Logistic {
             graph_path: format!("{namespace}/regression_exp"),
             weight_dim: self.weight_dim,
             bias_dim: self.bias_dim,
-            learning_rate: self.learning_rate
+            learning_rate: self.learning_rate,
+            multi_class: self.multi_class
         };
 
         let _ = self.graph.save(&obj.graph_path); 
@@ -202,7 +229,8 @@ impl RegressionOptimizer for Logistic {
             graph: ComputationGraph::load(&obj.graph_path).unwrap(),
             weight_dim: obj.weight_dim,
             bias_dim: obj.bias_dim,
-            learning_rate: obj.learning_rate
+            learning_rate: obj.learning_rate,
+            multi_class: obj.multi_class
         }) 
     }
  
@@ -227,8 +255,11 @@ impl RegressionOptimizer for Logistic {
             graph: ComputationGraph::load(&obj.graph_path).unwrap(),
             weight_dim: obj.weight_dim,
             bias_dim: obj.bias_dim,
-            learning_rate: obj.learning_rate
+            learning_rate: obj.learning_rate,
+            multi_class: obj.multi_class
         })
     }
 
 }
+
+

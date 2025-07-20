@@ -372,7 +372,6 @@ impl Operation<Array2<f64>> for Mul {
                 let upstream = nodes[upstream[0]].grad();
                 let rhs_grad = upstream.dot(&rhs.t());
                 let lhs_grad = lhs.t().dot(&upstream);
-
                 nodes[inputs[0]].set_grad_output(rhs_grad); 
                 nodes[inputs[1]].set_grad_output(lhs_grad);
             },

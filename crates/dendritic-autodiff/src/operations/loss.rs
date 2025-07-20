@@ -1,4 +1,4 @@
-use ndarray::Array2;
+use ndarray::{Axis, Array2};
 use log::debug; 
 
 use crate::operations::base::*;
@@ -14,6 +14,9 @@ pub trait LossFunction<T> {
 
     /// Binary cross entropy
     fn bce(&mut self, val: T) -> &mut ComputationGraph<T>;
+
+    /// Categorical cross entropy
+    fn cce(&mut self, val: T) -> &mut ComputationGraph<T>;
 
     /// Default function for no loss function provided
     fn default(&mut self) -> &mut ComputationGraph<T>;
@@ -32,6 +35,10 @@ macro_rules! loss_funcs {
 
             fn bce(&mut self, val: $t) -> &mut ComputationGraph<$t> {
                 self.unary(val, Box::new(BinaryCrossEntropy))
+            }
+
+            fn cce(&mut self, val: $t) -> &mut ComputationGraph<$t> {
+                self.unary(val, Box::new(CategoricalCrossEntropy))
             }
 
             fn default(&mut self) -> &mut ComputationGraph<$t> {
@@ -265,6 +272,9 @@ impl Operation<Array2<f64>> for BinaryCrossEntropy {
         let inputs = nodes[curr_idx].inputs();
         let y_pred = nodes[inputs[0]].output(); 
         let y_true = nodes[inputs[1]].output();
+        if y_pred.shape() != y_true.shape() {
+            panic!("Value shapes for binary cross entropy not equal");
+        }
 
         // shape validation
         let mut idx = 0; 
@@ -335,6 +345,100 @@ impl Operation<f64> for BinaryCrossEntropy {
         _curr_idx: usize) {
 
         debug!("BCE for scalar values not implemented yet..");
+        unimplemented!();
+
+    }
+}
+
+
+#[derive(Clone, Debug)]
+pub struct CategoricalCrossEntropy;
+
+
+impl Operation<Array2<f64>> for CategoricalCrossEntropy {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) -> Array2<f64> {
+
+        let inputs = nodes[curr_idx].inputs();
+        let logits = nodes[inputs[0]].output(); 
+        let y_true = nodes[inputs[1]].output();
+
+        debug!("INPUTS: {:?}", inputs); 
+
+        // do softmax on y_pred
+        let softmax = logits.map_axis(Axis(1), |row| {
+            let max = row.fold(f64::NEG_INFINITY, |a, &b| a.max(b));
+            let shifted = row.mapv(|x| x - max);
+            let exp = shifted.mapv(|x| x.exp());
+            let sum = exp.sum();
+            exp.mapv(|x| x / sum)
+        });
+
+        debug!("OUT: {:?}", softmax); 
+
+        // calculate loss
+        let mut loss = 0.0;
+        /*
+        for ((i, j), y) in y_true.indexed_iter() {
+            let diff = -y * softmax[[i, j]].ln();
+            loss += diff; 
+        } */
+
+        debug!("Performing forward CCE on node: {:?}", curr_idx); 
+        let total_loss = loss / y_true.len() as f64;
+        Array2::from_elem((1, 1), total_loss) 
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) {
+
+        let inputs = nodes[curr_idx].inputs();
+        let y_pred = nodes[inputs[0]].output(); 
+        let y_true = nodes[inputs[1]].output();
+        let n = y_true.clone().len();
+
+        /*
+        if y_pred.shape() != y_true.shape() {
+            panic!("Value shapes for categorical cross entropy not equal");
+        } */ 
+
+        let new_y = y_true.clone() * y_pred;
+        let exp = new_y.mapv(|x| x.exp());
+        let sum = exp.sum();
+        let softmax = exp.mapv(|x| x / sum);
+
+        // subtract y_pred from y_true
+        let grad = softmax - y_true;
+
+        nodes[curr_idx].set_grad_output(grad.clone());
+        nodes[inputs[0]].set_grad_output(grad);
+    }
+}
+
+
+impl Operation<f64> for CategoricalCrossEntropy {
+
+    fn forward(
+        &self, 
+        _nodes: &Vec<Node<f64>>, 
+        _curr_idx: usize) -> f64 {
+
+        debug!("CCE for scalar values not implemented yet..");
+        unimplemented!();
+
+    }
+
+    fn backward(
+        &self, 
+        _nodes: &mut Vec<Node<f64>>, 
+        _curr_idx: usize) {
+
+        debug!("CCE for scalar values not implemented yet..");
         unimplemented!();
 
     }

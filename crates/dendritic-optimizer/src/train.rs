@@ -32,7 +32,6 @@ pub trait RegressionFit {
 
 }
 
-
 macro_rules! impl_fit {
 
     ($t:ty) => {
@@ -169,7 +168,7 @@ macro_rules! train {
                 self.set_output(&y);
 
                 self.graph.forward();
-                self.predicted_output()
+                self.predicted()
             }
 
         }

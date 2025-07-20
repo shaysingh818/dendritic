@@ -133,68 +133,43 @@ fn main() {
         writeln!(buf, "{}:{} {}", log_time, record.level(), record.args())
     }).init();
 
+    let b1 = Array2::<f64>::ones((1, 1));
+    let w1 = Array2::<f64>::zeros((2, 1));
 
-    /*
-    let lr: f64 = 0.01;
-    let w1 = Array2::<f64>::zeros((2, 3));
-    let b1 = Array2::<f64>::zeros((1, 3));
-    let w2 = Array2::<f64>::zeros((3, 1));
-    let b2 = Array2::<f64>::zeros((1, 1));
-
-    let x = arr2(&[
-        [0.0, 0.0],
-        [1.0, 1.0],
-        [1.0, 0.0],
-        [0.0, 1.0]
+    // multi class
+    let x1 = arr2(&[
+        [1.0, 2.0],
+        [1.5, 1.8],
+        [2.0, 1.0],   // Class 0
+        [4.0, 4.5],
+        [4.5, 4.8],
+        [5.0, 5.2],   // Class 1
+        [7.0, 7.5],
+        [7.5, 8.0],
+        [8.0, 8.5],   // Class 2
     ]);
 
-    let y = arr2(&[[0.0],[0.0],[1.0],[1.0]]);
+    let y1 = arr2(&[
+        [0.0],
+        [0.0],
+        [0.0],
+        [1.0],
+        [1.0],
+        [1.0],
+        [2.0],
+        [2.0],
+        [2.0]
+    ]);
+    
 
     let mut graph = ComputationGraph::new();
 
-    //layer 1
-    graph.mul(vec![x, w1]); 
+    graph.mul(vec![x1, w1]); 
     graph.add(vec![b1]);
-    graph.sigmoid();
+    graph.softmax();
+    graph.cce(y1); 
 
-    // layer 2
-    graph.mul(vec![w2]); 
-    graph.add(vec![b2]);
-    graph.sigmoid(); 
-
-    // loss
-    graph.mse(y.clone());
-
-    // indicate which nodes are parameters
-    graph.add_parameter(1); 
-    graph.add_parameter(3); 
-    graph.add_parameter(6); 
-    graph.add_parameter(8);
-
-    graph.save("nn_module"); */
-
-    let lr: f64 = 0.01;
-    let mut graph: ComputationGraph<Array2<f64>> = ComputationGraph::load("nn_module").unwrap(); 
-
-    for _epoch in 0..1000 {
-        
-        graph.forward();
-
-        let loss_node = graph.curr_node();
-        let loss = loss_node.output();
-        println!("Loss: {:?}", loss.as_slice().unwrap()); 
-
-        graph.backward();
-
-        for var_idx in graph.parameters() {
-            let var = graph.node(var_idx);
-            let grad = var.grad() * (lr as f64);
-            let delta = var.output() - grad;
-            graph.mut_node_output(var_idx, delta.clone());
-        }
-
-    }
-    
+    graph.forward(); 
 
 
 }
