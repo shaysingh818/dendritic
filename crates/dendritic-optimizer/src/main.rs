@@ -1,7 +1,7 @@
 use std::io::Write; 
 
 use chrono::Local; 
-use ndarray::{arr2, Array2};
+use ndarray::{arr2, Array2, Axis};
 
 use dendritic_autodiff::operations::activation::*; 
 use dendritic_autodiff::operations::loss::*; 
@@ -74,14 +74,28 @@ fn main() -> std::io::Result<()> {
 
     let mut model = Logistic::new(&x1, &y1, true, 0.01).unwrap();
 
-    model.graph.forward(); 
+    model.train(2000); 
     //println!("{:?}", model.graph.node(2)); 
 
     //model.train(1000);  
-    //println!("{:?}", model.predicted()); 
+    let softmax = model.predicted();
+    let output: Vec<_>  = softmax
+        .axis_iter(Axis(0)) // iterate over rows
+        .map(|row| {
+            let (predicted_idx, &prob) = row
+                .iter()
+                .enumerate()
+                .max_by(|a, b| a.1.partial_cmp(b.1).unwrap())
+                .unwrap();
+            (predicted_idx, prob)
+        })
+        .collect();
+
+    println!("{:?}", output); 
+    
+
     //model.train(1000); 
 
-    println!("{:?}", model.graph.nodes()); 
 
 
 

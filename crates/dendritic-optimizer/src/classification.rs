@@ -2,6 +2,7 @@ use std::fs;
 use std::fs::File; 
 use std::io::{Write, BufWriter, BufReader}; 
 
+use log::debug; 
 use rand::thread_rng;
 use rand::prelude::SliceRandom;
 use uuid::Uuid;
@@ -9,7 +10,6 @@ use chrono::{Datelike, Utc};
 use ndarray::{s, Array2, Axis};
 use indicatif::{ProgressBar, ProgressStyle}; 
 use serde::{Serialize, Deserialize}; 
-
 
 use dendritic_autodiff::operations::base::*; 
 use dendritic_autodiff::operations::arithmetic::*; 
@@ -120,7 +120,7 @@ impl RegressionModel for Logistic {
 
     fn predicted(&self) -> Array2<f64> {
         if self.multi_class {
-            self.graph.node(4).output()
+            self.graph.node(5).grad()
         } else {
             self.graph.node(5).output()
         }

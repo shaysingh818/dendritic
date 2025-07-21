@@ -1,4 +1,4 @@
-use ndarray::{Axis, Array2};
+use ndarray::{Axis, Array2, stack};
 use log::debug; 
 
 use crate::operations::base::*;
@@ -368,28 +368,30 @@ impl Operation<Array2<f64>> for CategoricalCrossEntropy {
 
         debug!("INPUTS: {:?}", inputs); 
 
-        // do softmax on y_pred
-        let softmax = logits.map_axis(Axis(1), |row| {
-            let max = row.fold(f64::NEG_INFINITY, |a, &b| a.max(b));
-            let shifted = row.mapv(|x| x - max);
-            let exp = shifted.mapv(|x| x.exp());
-            let sum = exp.sum();
-            exp.mapv(|x| x / sum)
-        });
+        let softmax_samples: Vec<_> = logits
+            .axis_iter(Axis(0))
+            .map(|row| {
+                let max = row.fold(f64::NEG_INFINITY, |a, &b| a.max(b));
+                let exp = row.mapv(|x| (x - max).exp());
+                let sum = exp.sum();
+                exp.mapv(|x| x / sum)
+            })
+            .collect();
 
-        debug!("OUT: {:?}", softmax); 
+        let views: Vec<_> = softmax_samples.iter().map(|r| r.view()).collect();
+        let softmax = stack(Axis(0), &views).unwrap();
 
         // calculate loss
         let mut loss = 0.0;
-        /*
         for ((i, j), y) in y_true.indexed_iter() {
             let diff = -y * softmax[[i, j]].ln();
             loss += diff; 
-        } */
+        }
 
-        debug!("Performing forward CCE on node: {:?}", curr_idx); 
-        let total_loss = loss / y_true.len() as f64;
-        Array2::from_elem((1, 1), total_loss) 
+        debug!("Performing forward CCE on node: {:?}", curr_idx);
+        let batch_size = y_true.nrows() as f64; 
+        let total_loss = loss / batch_size;
+        Array2::from_elem((1, 1), total_loss)
     }
 
     fn backward(
@@ -398,25 +400,32 @@ impl Operation<Array2<f64>> for CategoricalCrossEntropy {
         curr_idx: usize) {
 
         let inputs = nodes[curr_idx].inputs();
-        let y_pred = nodes[inputs[0]].output(); 
+        let logits = nodes[inputs[0]].output(); 
         let y_true = nodes[inputs[1]].output();
         let n = y_true.clone().len();
 
-        /*
-        if y_pred.shape() != y_true.shape() {
+        if logits.shape() != y_true.shape() {
             panic!("Value shapes for categorical cross entropy not equal");
-        } */ 
+        }  
 
-        let new_y = y_true.clone() * y_pred;
-        let exp = new_y.mapv(|x| x.exp());
-        let sum = exp.sum();
-        let softmax = exp.mapv(|x| x / sum);
+        let softmax_samples: Vec<_> = logits
+            .axis_iter(Axis(0))
+            .map(|row| {
+                let max = row.fold(f64::NEG_INFINITY, |a, &b| a.max(b));
+                let exp = row.mapv(|x| (x - max).exp());
+                let sum = exp.sum();
+                exp.mapv(|x| x / sum)
+            })
+            .collect();
+
+        let views: Vec<_> = softmax_samples.iter().map(|r| r.view()).collect();
+        let softmax = stack(Axis(0), &views).unwrap();
 
         // subtract y_pred from y_true
-        let grad = softmax - y_true;
+        let grad = softmax.clone() - y_true;
 
         nodes[curr_idx].set_grad_output(grad.clone());
-        nodes[inputs[0]].set_grad_output(grad);
+        nodes[inputs[1]].set_grad_output(softmax); // opened issue for how to solve this later on
     }
 }
 
