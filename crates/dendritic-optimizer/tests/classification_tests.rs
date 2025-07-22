@@ -115,7 +115,9 @@ mod classification_test {
         ).unwrap(); 
         let output = loaded.predict(&x1);
         let class_predictions = output.column(0); 
-        assert_eq!(class_predictions, expected); 
+        assert_eq!(class_predictions, expected);
+
+        fs::remove_dir_all("data/multiclass_logistic")?; 
         Ok(())
     }
 
