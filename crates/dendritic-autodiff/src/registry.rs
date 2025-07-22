@@ -34,11 +34,15 @@ macro_rules! default_ops {
                 self.register("Tanh", Box::new(Tanh)); 
                 self.register("Sigmoid", Box::new(Sigmoid)); 
 
-                // default activation operations
+                // default loss functions
                 self.register("MSE", Box::new(MSE)); 
                 self.register(
                     "BinaryCrossEntropy", 
                     Box::new(BinaryCrossEntropy)
+                );
+                self.register(
+                    "CategoricalCrossEntropy", 
+                    Box::new(CategoricalCrossEntropy)
                 );
                 self.register(
                     "DefaultLossFunction", 

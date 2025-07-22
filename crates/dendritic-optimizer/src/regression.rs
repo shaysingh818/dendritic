@@ -118,14 +118,14 @@ pub trait RegressionModel {
     /// True labels of prediction
     fn output(&self) -> Array2<f64>; 
 
-    /// Predicted output based on parameters of model
-    fn predicted(&self) -> Array2<f64>;
-
     /// Set inputs for regression model
     fn set_input(&mut self, x: &Array2<f64>);
 
     /// Set true labels for regression model
     fn set_output(&mut self, y: &Array2<f64>); 
+
+    /// Predicted output based on parameters of model
+    fn predicted(&self) -> Array2<f64>;
 
 }
 

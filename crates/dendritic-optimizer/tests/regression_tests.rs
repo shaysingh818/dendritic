@@ -1,6 +1,6 @@
 
 #[cfg(test)]
-mod graph_test {
+mod regression_test {
 
     use std::fs;
     use std::fs::File;

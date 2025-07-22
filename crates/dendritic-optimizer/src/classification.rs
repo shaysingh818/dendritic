@@ -120,7 +120,20 @@ impl RegressionModel for Logistic {
 
     fn predicted(&self) -> Array2<f64> {
         if self.multi_class {
-            self.graph.node(5).grad()
+            let mut row_idx = 0;
+            let mut predictions = Array2::zeros((self.output().nrows(), 2));
+            let softmax = self.graph.node(5).grad();
+            for row in softmax.axis_iter(Axis(0)) {
+                let (predicted_idx, &prob) = row
+                    .iter()
+                    .enumerate()
+                    .max_by(|a, b| a.1.partial_cmp(b.1).unwrap())
+                    .unwrap();
+                predictions[[row_idx, 0]] = predicted_idx as f64;
+                predictions[[row_idx, 1]] = prob;
+                row_idx += 1; 
+            }
+            predictions
         } else {
             self.graph.node(5).output()
         }

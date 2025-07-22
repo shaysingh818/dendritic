@@ -163,11 +163,12 @@ macro_rules! train {
 
             fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> {
 
-                let y = Array2::zeros((x.nrows(), 1));
+                let y = Array2::zeros((x.nrows(), self.output().shape()[1]));
                 self.set_input(x);
                 self.set_output(&y);
 
                 self.graph.forward();
+                self.graph.backward(); 
                 self.predicted()
             }
 
