@@ -9,6 +9,22 @@ use dendritic_optimizer::classification::*;
 use dendritic_optimizer::regression::*;
 use dendritic_optimizer::train::*;
 
+pub fn load_data() -> (Array2<f64>, Array2<f64>) {
+
+    let x = arr2(&[
+        [1.0, 2.0, 3.0],
+        [2.0, 3.0, 4.0],
+        [3.0, 4.0, 5.0],
+        [4.0, 5.0, 6.0],
+        [5.0, 6.0, 7.0]
+    ]);
+
+    let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
+
+    (x, y)
+}
+
+
 
 fn main() -> std::io::Result<()> {
 
@@ -19,89 +35,56 @@ fn main() -> std::io::Result<()> {
         writeln!(buf, "{}:{} {}", log_time, record.level(), record.args())
     }).init();
 
-    // binary logstic data
-    let x = arr2(&[
-        [1.0, 2.0],
-        [2.0, 1.0],
-        [1.5, 1.8],
-        [3.0, 3.2],
-        [2.8, 3.0],
-        [5.0, 5.5],
-        [6.0, 5.8],
-        [5.5, 6.0],
-        [6.2, 5.9],
-        [7.0, 6.5]
-    ]);
-
-    let y = arr2(&[
-        [0.0],
-        [0.0],
-        [0.0],
-        [0.0],
-        [0.0],
-        [1.0],
-        [1.0],
-        [1.0],
-        [1.0],
-        [1.0]
-    ]);
-
-    // multi class
-    let x1 = arr2(&[
-        [1.0, 2.0],
-        [1.5, 1.8],
-        [2.0, 1.0],   // Class 0
-        [4.0, 4.5],
-        [4.5, 4.8],
-        [5.0, 5.2],   // Class 1
-        [7.0, 7.5],
-        [7.5, 8.0],
-        [8.0, 8.5],   // Class 2
-    ]);
 
 
-    let x2 = arr2(&[
-        [1.0, 2.0],
-        [1.5, 1.8],
-        [2.0, 1.0],   // Class 0
-        [7.0, 7.5],
-        [7.5, 8.0],
-        [8.0, 8.5],   // Class 2
-        [4.0, 4.5],
-        [4.5, 4.8],
-        [5.0, 5.2]   // Class 1
-    ]);
+    // nesterov momentum
+    let lr = 0.001; // learning rate
+    let B = 0.9; // momentum factor
+    let mut v_w = Array2::zeros((3, 1)); // velocity for weights
+    let mut v_b = Array2::zeros((1,1)); // velocity for biases
+    let (x, y) = load_data(); 
+    
+    let mut model = Regression::new(&x, &y, lr).unwrap();
+    
+    for _ in 0..250 {
 
-    let y1 = arr2(&[
-        [1.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 0.0, 1.0],
-        [0.0, 0.0, 1.0],
-        [0.0, 0.0, 1.0],
-    ]);
+        model.graph.forward(); 
+        model.graph.backward();
 
+        let mut w = model.graph.node(1); 
+        let mut b = model.graph.node(3); 
 
-    let mut model = Logistic::new(&x1, &y1, true, 0.01).unwrap();
-    model.train(2000);
+        // factor in velocity
+        let w_lookahead = w.output() - (B * v_w.clone()); 
+        let b_lookahead = b.output() - (B * v_b.clone()); 
 
-    let results = model.predict(&x1); 
-    println!("{:?}", results.column(0)); 
-    //println!("{:?}", model.predicted()); 
+        model.graph.mut_node_output(1, w_lookahead);
+        model.graph.mut_node_output(3, b_lookahead);
+
+        let w_grad = w.grad() * lr; 
+        let b_grad = (b.grad() * lr).sum_axis(Axis(0));
+
+        v_w = w_grad + (B * v_w); 
+        v_b = b_grad + (B * v_b);
+
+        let new_w = w.output() - v_w.clone(); 
+        let new_b = b.output() - v_b.clone();
+
+        model.graph.mut_node_output(1, new_w); 
+        model.graph.mut_node_output(3, new_b);
+
+        let loss_total = model.measure_loss();
+        println!(
+            "\nLoss: {:?}", 
+            loss_total
+        );
+
+    }
+
+    println!("{:?}", model.predicted()); 
     
 
-
-
-
-
-
-    //model.train(1000); 
-
-
-
+    
 
     Ok(())
 
