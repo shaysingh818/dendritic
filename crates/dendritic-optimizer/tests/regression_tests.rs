@@ -7,8 +7,12 @@ mod regression_test {
 
     use ndarray::arr2;
 
+    use dendritic_optimizer::model::*; 
     use dendritic_optimizer::train::*; 
-    use dendritic_optimizer::regression::*;
+    use dendritic_optimizer::regression::sgd::*;
+    use dendritic_optimizer::regression::elastic::*;
+    use dendritic_optimizer::regression::lasso::*;
+    use dendritic_optimizer::regression::ridge::*;
 
     #[test]
     fn test_linear() -> std::io::Result<()> {
@@ -23,7 +27,7 @@ mod regression_test {
 
         let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
 
-        let mut model = Regression::new(&x, &y, 0.001).unwrap();
+        let mut model = SGD::new(&x, &y, 0.001).unwrap();
 
         assert_eq!(model.weight_dim, (3, 1));
         assert_eq!(model.bias_dim, (1, 1));
@@ -34,7 +38,7 @@ mod regression_test {
         model.train(1000);
         model.save("data/linear")?;
 
-        let mut loaded_model = Regression::load("data/linear").unwrap();
+        let mut loaded_model = SGD::load("data/linear").unwrap();
         let output = loaded_model.predict(&x);
         let diff = output - y; 
         assert_eq!(diff.sum() < 0.2, true);
@@ -59,12 +63,12 @@ mod regression_test {
 
         let mut model = Ridge::new(&x, &y, 0.001, 0.001).unwrap();
 
-        assert_eq!(model.regression.weight_dim, (3, 1));
-        assert_eq!(model.regression.bias_dim, (1, 1));
-        assert_eq!(model.regression.learning_rate, 0.001);
+        assert_eq!(model.sgd.weight_dim, (3, 1));
+        assert_eq!(model.sgd.bias_dim, (1, 1));
+        assert_eq!(model.sgd.learning_rate, 0.001);
         assert_eq!(model.lambda, 0.001);
-        assert_eq!(model.regression.input(), x); 
-        assert_eq!(model.regression.output(), y); 
+        assert_eq!(model.sgd.input(), x); 
+        assert_eq!(model.sgd.output(), y); 
 
         model.train(1000);
         model.save("data/ridge")?;
@@ -94,17 +98,17 @@ mod regression_test {
 
         let mut model = Lasso::new(&x, &y, 0.001, 0.001).unwrap();
 
-        assert_eq!(model.regression.weight_dim, (3, 1));
-        assert_eq!(model.regression.bias_dim, (1, 1));
-        assert_eq!(model.regression.learning_rate, 0.001);
+        assert_eq!(model.sgd.weight_dim, (3, 1));
+        assert_eq!(model.sgd.bias_dim, (1, 1));
+        assert_eq!(model.sgd.learning_rate, 0.001);
         assert_eq!(model.lambda, 0.001);
-        assert_eq!(model.regression.input(), x); 
-        assert_eq!(model.regression.output(), y); 
+        assert_eq!(model.sgd.input(), x); 
+        assert_eq!(model.sgd.output(), y); 
 
         model.train(1000);
         model.save("data/lasso")?;
 
-        let mut loaded_model = Ridge::load("data/lasso").unwrap();
+        let mut loaded_model = Lasso::load("data/lasso").unwrap();
         let output = loaded_model.predict(&x);
         let diff = output - y; 
         assert_eq!(diff.sum() < 0.2, true);
@@ -128,18 +132,18 @@ mod regression_test {
 
         let mut model = Elastic::new(&x, &y, 0.001, 0.001, 0.5).unwrap();
 
-        assert_eq!(model.regression.weight_dim, (3, 1));
-        assert_eq!(model.regression.bias_dim, (1, 1));
-        assert_eq!(model.regression.learning_rate, 0.001);
+        assert_eq!(model.sgd.weight_dim, (3, 1));
+        assert_eq!(model.sgd.bias_dim, (1, 1));
+        assert_eq!(model.sgd.learning_rate, 0.001);
         assert_eq!(model.lambda, 0.001);
         assert_eq!(model.alpha, 0.5);
-        assert_eq!(model.regression.input(), x); 
-        assert_eq!(model.regression.output(), y); 
+        assert_eq!(model.sgd.input(), x); 
+        assert_eq!(model.sgd.output(), y); 
 
         model.train(1000);
         model.save("data/elastic")?;
 
-        let mut loaded_model = Ridge::load("data/elastic").unwrap();
+        let mut loaded_model = Elastic::load("data/elastic").unwrap();
         let output = loaded_model.predict(&x);
         let diff = output - y; 
         assert_eq!(diff.sum() < 0.2, true);

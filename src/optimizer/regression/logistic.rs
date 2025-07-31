@@ -16,7 +16,8 @@ use dendritic_autodiff::operations::arithmetic::*;
 use dendritic_autodiff::operations::loss::*;
 use dendritic_autodiff::operations::activation::*;
 use dendritic_autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
-use crate::regression::*; 
+
+use crate::model::*;
 
 
 pub struct Logistic {
@@ -66,12 +67,18 @@ impl Logistic {
         multi_class: bool,
         learning_rate: f64) -> Result<Self, String> {
 
+        if learning_rate < 0.0 || learning_rate > 1.0 {
+            return Err(
+                "Learning rate must be between 0 and 1".to_string()
+            );
+        }
+
         let mut weight_dim: (usize, usize) = (x.shape()[1], 1);
         if multi_class {
             weight_dim = (x.shape()[1], y.shape()[1]);
         }
             
-        let mut regression = Logistic {
+        let mut log = Logistic {
             graph: ComputationGraph::new(),
             weight_dim: weight_dim,
             bias_dim: (1, 1),
@@ -79,33 +86,26 @@ impl Logistic {
             multi_class: multi_class
         };
 
-        regression.graph.mul(
-            vec![
-                x.clone(), 
-                Array2::zeros(regression.weight_dim)
-            ]
-        );
+        log.graph.mul(vec![x.clone(), Array2::zeros(log.weight_dim)]);
+        log.graph.add(vec![Array2::zeros(log.bias_dim)]);
 
-        regression.graph.add(
-            vec![Array2::zeros(regression.bias_dim)]
-        );
-
-        if regression.multi_class {
-            regression.graph.cce(y.clone()); 
+        if log.multi_class {
+            log.graph.cce(y.clone()); 
         } else {
-            regression.graph.sigmoid();
-            regression.graph.bce(y.clone()); 
+            log.graph.sigmoid();
+            log.graph.bce(y.clone()); 
         }
 
-        regression.graph.add_parameter(1);
-        regression.graph.add_parameter(3);
-        Ok(regression)
+        log.graph.add_parameter(1);
+        log.graph.add_parameter(3);
+        Ok(log)
     }
 
 }
 
-impl RegressionModel for Logistic {
 
+impl Model for Logistic {
+    
     fn input(&self) -> Array2<f64> {
         self.graph.node(0).output()
     }
@@ -115,6 +115,20 @@ impl RegressionModel for Logistic {
             self.graph.node(5).output()
         } else {
             self.graph.node(6).output()
+        }
+    }
+
+    fn set_input(&mut self, x: &Array2<f64>) {
+        self.graph.mut_node_output(0, x.to_owned());
+    }
+
+    fn set_output(&mut self, y: &Array2<f64>) {
+        if self.multi_class {
+            self.graph.mut_node_output(4, y.to_owned());
+            self.graph.mut_node_output(5, y.to_owned());
+        } else {
+            self.graph.mut_node_output(6, y.to_owned());
+            self.graph.mut_node_output(7, y.to_owned());
         }
     }
 
@@ -139,25 +153,19 @@ impl RegressionModel for Logistic {
         }
     }
 
-    fn set_input(&mut self, x: &Array2<f64>) {
-        self.graph.mut_node_output(0, x.to_owned());
+    fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> { 
+        self.set_input(x);
+        self.graph.forward();
+        self.predicted()
     }
 
-    fn set_output(&mut self, y: &Array2<f64>) {
-        if self.multi_class {
-            self.graph.mut_node_output(4, y.to_owned());
-            self.graph.mut_node_output(5, y.to_owned());
-        } else {
-            self.graph.mut_node_output(6, y.to_owned());
-            self.graph.mut_node_output(7, y.to_owned());
-        }
+    fn loss(&mut self) -> f64 {
+        let loss_node = self.graph.curr_node();
+        let loss = loss_node.output();
+        loss.as_slice().unwrap()[0]
     }
-}
 
-
-impl RegressionOptimizer for Logistic {
-
-    fn parameter_update(&mut self) {
+    fn update_parameters(&mut self) {
 
         let w = self.graph.node(1);
         let w_grad = w.grad() * self.learning_rate;
@@ -170,12 +178,10 @@ impl RegressionOptimizer for Logistic {
         self.graph.mut_node_output(3, b_delta); 
     }
 
-    fn measure_loss(&mut self) -> f64 {
-        
-        let loss_node = self.graph.curr_node();
-        let loss = loss_node.output();
-        loss.as_slice().unwrap()[0]
-    }
+}
+
+
+impl ModelSerialize for Logistic {
 
     fn save(&self, filepath: &str) -> std::io::Result<()> {
 
@@ -274,5 +280,3 @@ impl RegressionOptimizer for Logistic {
     }
 
 }
-
-

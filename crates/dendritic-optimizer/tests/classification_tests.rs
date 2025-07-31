@@ -7,9 +7,9 @@ mod classification_test {
 
     use ndarray::{arr2, Array1};
 
+    use dendritic_optimizer::model::*; 
     use dendritic_optimizer::train::*;
-    use dendritic_optimizer::regression::*; 
-    use dendritic_optimizer::classification::*;
+    use dendritic_optimizer::regression::logistic::*; 
  
     #[test]
     fn test_binary_classification() -> std::io::Result<()> {

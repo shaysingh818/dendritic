@@ -64,6 +64,7 @@ impl Logistic {
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,
+        multi_class: bool,
         learning_rate: f64) -> Result<Self, String> {
 
         if learning_rate < 0.0 || learning_rate > 1.0 {
@@ -117,6 +118,20 @@ impl Model for Logistic {
         }
     }
 
+    fn set_input(&mut self, x: &Array2<f64>) {
+        self.graph.mut_node_output(0, x.to_owned());
+    }
+
+    fn set_output(&mut self, y: &Array2<f64>) {
+        if self.multi_class {
+            self.graph.mut_node_output(4, y.to_owned());
+            self.graph.mut_node_output(5, y.to_owned());
+        } else {
+            self.graph.mut_node_output(6, y.to_owned());
+            self.graph.mut_node_output(7, y.to_owned());
+        }
+    }
+
     fn predicted(&self) -> Array2<f64> {
         if self.multi_class {
             let mut row_idx = 0;
@@ -138,18 +153,10 @@ impl Model for Logistic {
         }
     }
 
-    fn set_input(&mut self, x: &Array2<f64>) {
-        self.graph.mut_node_output(0, x.to_owned());
-    }
-
-    fn set_output(&mut self, y: &Array2<f64>) {
-        if self.multi_class {
-            self.graph.mut_node_output(4, y.to_owned());
-            self.graph.mut_node_output(5, y.to_owned());
-        } else {
-            self.graph.mut_node_output(6, y.to_owned());
-            self.graph.mut_node_output(7, y.to_owned());
-        }
+    fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> { 
+        self.set_input(x);
+        self.graph.forward();
+        self.predicted()
     }
 
     fn loss(&mut self) -> f64 {
@@ -185,7 +192,8 @@ impl ModelSerialize for Logistic {
             graph_path: format!("{filepath}/regression_exp"),
             weight_dim: self.weight_dim,
             bias_dim: self.bias_dim,
-            learning_rate: self.learning_rate
+            learning_rate: self.learning_rate,
+            multi_class: self.multi_class
         };
 
         let _ = self.graph.save(&obj.graph_path); 
@@ -215,7 +223,8 @@ impl ModelSerialize for Logistic {
             graph_path: format!("{namespace}/regression_exp"),
             weight_dim: self.weight_dim,
             bias_dim: self.bias_dim,
-            learning_rate: self.learning_rate
+            learning_rate: self.learning_rate,
+            multi_class: self.multi_class
         };
 
         let _ = self.graph.save(&obj.graph_path); 
@@ -239,7 +248,8 @@ impl ModelSerialize for Logistic {
             graph: ComputationGraph::load(&obj.graph_path).unwrap(),
             weight_dim: obj.weight_dim,
             bias_dim: obj.bias_dim,
-            learning_rate: obj.learning_rate
+            learning_rate: obj.learning_rate,
+            multi_class: obj.multi_class
         }) 
     }
  
@@ -264,7 +274,8 @@ impl ModelSerialize for Logistic {
             graph: ComputationGraph::load(&obj.graph_path).unwrap(),
             weight_dim: obj.weight_dim,
             bias_dim: obj.bias_dim,
-            learning_rate: obj.learning_rate
+            learning_rate: obj.learning_rate,
+            multi_class: obj.multi_class
         })
     }
 
