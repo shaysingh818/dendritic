@@ -8,7 +8,9 @@ use dendritic_autodiff::operations::loss::*;
 use dendritic_optimizer::regression::logistic::*; 
 use dendritic_optimizer::regression::sgd::*;
 use dendritic_optimizer::train::*;
-use dendritic_optimizer::model::*; 
+use dendritic_optimizer::model::*;
+use dendritic_optimizer::optimizers::*; 
+use dendritic_optimizer::optimizers::Optimizer;
 
 pub fn load_data() -> (Array2<f64>, Array2<f64>) {
 
@@ -295,7 +297,21 @@ pub fn adam() {
 
 fn main() -> std::io::Result<()> {
 
-    adagrad(); 
+    //adagrad();
+
+    let (x, y) = load_data();
+    let mut model = SGD::new(&x, &y, 0.01).unwrap();
+    let mut optimizer = Adam::default(
+        model.learning_rate,
+        model.graph.parameters(),
+        model.graph.nodes()
+    );
+
+    for _ in 0..1 {
+        model.graph.forward(); 
+        model.graph.backward();
+        optimizer.step(&mut model.graph);
+    }
 
     Ok(())
 
