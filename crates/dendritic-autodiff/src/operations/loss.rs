@@ -273,7 +273,10 @@ impl Operation<Array2<f64>> for BinaryCrossEntropy {
         let y_pred = nodes[inputs[0]].output(); 
         let y_true = nodes[inputs[1]].output();
         if y_pred.shape() != y_true.shape() {
-            panic!("Value shapes for binary cross entropy not equal");
+            panic!(
+                "Value shapes for binary cross entropy not equal {:?} != {:?}",
+                y_pred.shape(), y_true.shape()
+            );
         }
 
         // shape validation

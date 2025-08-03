@@ -100,7 +100,7 @@ impl Model for Ridge {
         self.sgd.graph.mut_node_output(1, w_delta); 
 
         let b = self.sgd.graph.node(3);
-        let b_grad = (b.grad() * lr).sum_axis(Axis(0));
+        let b_grad = b.grad() * lr;
         let b_delta = b.output() - b_grad;
         self.sgd.graph.mut_node_output(3, b_delta); 
     }

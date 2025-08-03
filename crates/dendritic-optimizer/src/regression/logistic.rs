@@ -153,7 +153,8 @@ impl Model for Logistic {
         }
     }
 
-    fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> { 
+    fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> {
+        self.set_output(&Array2::zeros((x.nrows(), self.output().dim().1)));
         self.set_input(x);
         self.graph.forward();
         self.predicted()
@@ -173,7 +174,7 @@ impl Model for Logistic {
         self.graph.mut_node_output(1, w_delta); 
 
         let b = self.graph.node(3);
-        let b_grad = (b.grad() * self.learning_rate).sum_axis(Axis(0));
+        let b_grad = b.grad() * self.learning_rate;
         let b_delta = b.output() - b_grad;
         self.graph.mut_node_output(3, b_delta); 
     }

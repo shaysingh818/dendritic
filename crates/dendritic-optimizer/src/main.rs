@@ -27,6 +27,67 @@ pub fn load_data() -> (Array2<f64>, Array2<f64>) {
     (x, y)
 }
 
+pub fn load_multi_class() -> (Array2<f64>, Array2<f64>) {
+
+    let x1 = arr2(&[
+        [1.0, 2.0],
+        [1.5, 1.8],
+        [2.0, 1.0],   // Class 0
+        [4.0, 4.5],
+        [4.5, 4.8],
+        [5.0, 5.2],   // Class 1
+        [7.0, 7.5],
+        [7.5, 8.0],
+        [8.0, 8.5],   // Class 2
+    ]);
+
+    let y1 = arr2(&[
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0],
+    ]);
+
+    (x1, y1)
+}
+
+pub fn load_binary_data() -> (Array2<f64>, Array2<f64>) {
+
+    let x = arr2(&[
+        [1.0, 2.0],
+        [2.0, 1.0],
+        [1.5, 1.8],
+        [3.0, 3.2],
+        [2.8, 3.0],
+        [5.0, 5.5],
+        [6.0, 5.8],
+        [5.5, 6.0],
+        [6.2, 5.9],
+        [7.0, 6.5]
+    ]);
+
+    let y = arr2(&[
+        [0.0],
+        [0.0],
+        [0.0],
+        [0.0],
+        [0.0],
+        [1.0],
+        [1.0],
+        [1.0],
+        [1.0],
+        [1.0]
+    ]);
+
+    (x, y)
+}
+
+
 
 pub fn nesterov() {
 
@@ -55,7 +116,7 @@ pub fn nesterov() {
         model.graph.mut_node_output(3, b_lookahead);
 
         let w_grad = w.grad() * lr; 
-        let b_grad = (b.grad() * lr).sum_axis(Axis(0));
+        let b_grad = b.grad() * lr;
 
         v_w = w_grad + (B * v_w); 
         v_b = b_grad + (B * v_b);
@@ -96,7 +157,7 @@ pub fn adagrad() {
         let mut w = model.graph.node(1); 
         let mut b = model.graph.node(3);
         let w_grad = w.grad();
-        let b_grad = b.grad().sum_axis(Axis(0)).into_shape((1, 1)).unwrap(); 
+        let b_grad = b.grad();
 
         // square the params
         let w_grad_squared = w_grad.mapv(|x| x * x); 
@@ -145,7 +206,7 @@ pub fn rmsprop() {
         let mut b = model.graph.node(3);
 
         let w_grad = w.grad();
-        let b_grad = b.grad().sum_axis(Axis(0)).into_shape((1, 1)).unwrap(); 
+        let b_grad = b.grad(); 
 
         // square the params
         let w_grad_squared = w_grad.mapv(|x| x * x); 
@@ -200,7 +261,7 @@ pub fn adadelta() {
         let mut b = model.graph.node(3);
 
         let w_grad = w.grad();
-        let b_grad = b.grad().sum_axis(Axis(0)).into_shape((1, 1)).unwrap(); 
+        let b_grad = b.grad(); 
 
         // square the params
         let w_grad_squared = w_grad.mapv(|x| x * x); 
@@ -258,7 +319,7 @@ pub fn adam() {
         let mut b = model.graph.node(3);
 
         let w_grad = w.grad();
-        let b_grad = b.grad().sum_axis(Axis(0)).into_shape((1, 1)).unwrap(); 
+        let b_grad = b.grad(); 
 
         let w_grad_squared = w_grad.mapv(|x| x * x); 
         let b_grad_squared = b_grad.mapv(|x| x * x);
@@ -297,20 +358,20 @@ pub fn adam() {
 
 fn main() -> std::io::Result<()> {
 
-    //adagrad();
-
     let (x, y) = load_data();
-    let mut model = SGD::new(&x, &y, 0.01).unwrap();
-    let mut optimizer = Adam::default(
-        model.learning_rate,
-        model.graph.parameters(),
-        model.graph.nodes()
-    );
+    let mut model = SGD::new(&x, &y, 0.5).unwrap();
+    let mut optimizer = Adagrad::default(&model);
 
-    for _ in 0..1 {
+    for _ in 0..500 {
         model.graph.forward(); 
         model.graph.backward();
-        optimizer.step(&mut model.graph);
+        optimizer.step(&mut model);
+
+        let loss_total = model.loss();
+        println!(
+            "\nLoss: {:?}", 
+            loss_total
+        );
     }
 
     Ok(())
