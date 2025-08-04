@@ -5,7 +5,9 @@ use chrono::{Datelike, Utc};
 use indicatif::{ProgressBar, ProgressStyle}; 
 use ndarray::{s, Array2, Axis}; 
 
+
 use crate::model::*;
+use crate::optimizers::Optimizer;
 use crate::regression::elastic::*; 
 use crate::regression::lasso::*; 
 use crate::regression::ridge::*; 
@@ -18,6 +20,23 @@ pub trait Trainable {
     fn train(&mut self, epochs: usize);
 
     fn train_batch(&mut self, epochs: usize, batch_size: usize);
+
+}
+
+pub trait OptimizerTrain {
+
+    fn fit_v1<O: Optimizer>(
+        &mut self, 
+        epochs: usize, 
+        optimizer: Option<&mut O>
+    );
+
+    fn train_v1<O: Optimizer>(
+        &mut self, 
+        epochs: usize, 
+        batch_size: Option<usize>,
+        optimizer: Option<&mut O>
+    );
 
 }
 
@@ -252,5 +271,45 @@ macro_rules! impl_regression_extension_train {
 impl_regression_extension_train!(Lasso); 
 impl_regression_extension_train!(Ridge);
 impl_regression_extension_train!(Elastic);
+
+
+impl OptimizerTrain for SGD {
+
+    fn fit_v1<O: Optimizer>(&mut self, epochs: usize, optimizer: Option<&mut O>) {
+
+        let bar = ProgressBar::new(epochs.try_into().unwrap());
+        bar.set_style(ProgressStyle::default_bar()
+            .template("{bar:50} {pos}/{len}")
+            .unwrap());
+
+        let mut opt = optimizer.unwrap();
+
+        for _ in 0..epochs {
+            self.graph.forward();
+            self.graph.backward();
+            opt.step(self);
+            bar.inc(1); 
+        }
+
+        bar.finish();
+
+    }
+
+    fn train_v1<O: Optimizer>(
+        &mut self, 
+        epoch: usize, 
+        batch_size: Option<usize>,
+        optimizer: Option<&mut O>) {
+
+        self.fit_v1(epoch, optimizer);
+        let total_loss = self.loss();
+        println!(
+            "Loss: {:?}, Learning Rate: {:?}", 
+            total_loss,
+            self.learning_rate
+        );
+    }
+
+}
 
 

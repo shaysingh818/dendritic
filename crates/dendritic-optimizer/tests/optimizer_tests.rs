@@ -164,23 +164,31 @@ mod optimizer_tests {
     #[test]
     fn test_adam() -> std::io::Result<()> {
 
-        let alpha = 0.9; // higher learning rate
+        let alpha = 0.1; // higher learning rate
         let (x, y) = load_sample_data();
         let mut model = SGD::new(&x, &y, alpha).unwrap();
         let mut optimizer = Adam::default(&model);
 
-        assert_eq!(optimizer.y_s, 0.95);
-        assert_eq!(optimizer.y_x, 0.95);
+        assert_eq!(optimizer.alpha, alpha);
         assert_eq!(optimizer.epsilon, 1e-6);
-        assert_eq!(optimizer.s.len(), model.graph.parameters().len());
-        assert_eq!(optimizer.u.len(), model.graph.parameters().len());
+        assert_eq!(optimizer.y_s, 0.999);
+        assert_eq!(optimizer.y_v, 0.9);
+        assert_eq!(optimizer.k, 0);
+        assert_eq!(
+            optimizer.v_delta.len(), 
+            model.graph.parameters().len()
+        );
+        assert_eq!(
+            optimizer.s_delta.len(), 
+            model.graph.parameters().len()
+        );
 
         let expected_shapes = vec![(3, 1), (1, 1)];
-        for (idx, item) in optimizer.s.iter().enumerate() {
+        for (idx, item) in optimizer.v_delta.iter().enumerate() {
             assert_eq!(item.dim(), expected_shapes[idx]);
         }
 
-        for (idx, item) in optimizer.u.iter().enumerate() {
+        for (idx, item) in optimizer.s_delta.iter().enumerate() {
             assert_eq!(item.dim(), expected_shapes[idx]);
         }
 
@@ -191,7 +199,11 @@ mod optimizer_tests {
         }
 
         let loss_total = model.loss();
-        assert_eq!(loss_total < 204.0, true);
+        assert_eq!(loss_total < 0.1, true);
+
+        let predicted = model.predicted().mapv(|x| x.round());
+        assert_eq!(predicted, y);   
+        assert_eq!(optimizer.k, 350); 
 
         Ok(())
     }

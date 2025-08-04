@@ -274,25 +274,25 @@ impl Optimizer for Adadelta {
 pub struct Adam {
 
     /// Learning rate associated with model
-    alpha: f64,
+    pub alpha: f64,
 
     /// Epsilon to represent small value
-    epsilon: f64, 
+    pub epsilon: f64, 
 
     /// First gradient decay
-    y_v: f64,
+    pub y_v: f64,
 
     /// Second gradient decay
-    y_s: f64,
+    pub y_s: f64,
 
     /// Step counter (iteration count)
-    k: usize,
+    pub k: usize,
 
     /// First momentum estimation
-    v_delta: Vec<Array2<f64>>,
+    pub v_delta: Vec<Array2<f64>>,
 
     /// Second momentum estimation
-    s_delta: Vec<Array2<f64>>
+    pub s_delta: Vec<Array2<f64>>
     
 }
 
@@ -367,7 +367,10 @@ impl Optimizer for Adam {
 
             self.v_delta[idx] = self.y_v * self.v_delta[idx].clone() + (1.0 - self.y_v) * grad.clone(); 
             self.s_delta[idx] = self.y_s * self.s_delta[idx].clone() + (1.0 - self.y_s) * grad_squared;
-            self.k += 1;
+
+            if idx == 0 {
+                self.k += 1;
+            }
 
             let v_hat = self.v_delta[idx].clone() / (1.0 - self.y_v.powf(self.k as f64)); 
             let s_hat = self.s_delta[idx].clone() / (1.0 - self.y_s.powf(self.k as f64)); 

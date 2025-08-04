@@ -362,6 +362,9 @@ fn main() -> std::io::Result<()> {
     let mut model = SGD::new(&x, &y, 0.1).unwrap();
     let mut optimizer = RMSProp::default(&model);
 
+    model.train_v1(250, None, Some(&mut optimizer));
+
+    /*
     for _ in 0..250 {
         model.graph.forward(); 
         model.graph.backward();
@@ -372,7 +375,7 @@ fn main() -> std::io::Result<()> {
             "\nLoss: {:?}", 
             loss_total
         );
-    }
+    } */ 
 
     Ok(())
 
