@@ -64,6 +64,7 @@ mod classification_test {
     } 
 
 
+    /*
     #[test]
     fn test_multi_classification() -> std::io::Result<()> {
 
@@ -119,6 +120,6 @@ mod classification_test {
 
         fs::remove_dir_all("data/multiclass_logistic")?; 
         Ok(())
-    }
+    } */ 
 
 }

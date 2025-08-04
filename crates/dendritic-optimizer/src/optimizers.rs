@@ -15,9 +15,7 @@ use crate::model::*;
 
 pub trait Optimizer {
 
-    fn step(&mut self, model: &mut SGD); 
-
-    fn reset(&mut self, model: &mut SGD);
+    fn step(&mut self, model: &mut SGD);
 
 }
 
@@ -40,23 +38,19 @@ impl Optimizer for DefaultOptimizer {
         }
     }
 
-    fn reset(&mut self, model: &mut SGD) {
-        println!("Testing reset.."); 
-    }
-
 }
 
 
 pub struct Nesterov {
 
     /// Learning rate associated with model
-    alpha: f64,
+    pub alpha: f64,
     
     /// Momentum factor associated with model
-    beta: f64,
+    pub beta: f64,
 
     /// Velocity associated with paramters
-    v: Vec<Array2<f64>>
+    pub v: Vec<Array2<f64>>
 
 }
 
@@ -97,23 +91,19 @@ impl Optimizer for Nesterov {
         }
     }
 
-    fn reset(&mut self, model: &mut SGD) {
-        println!("Testing reset.."); 
-    }
-
 }
 
 
 pub struct Adagrad {
 
     /// Learning rate associated with model
-    alpha: f64,
+    pub alpha: f64,
     
     /// Momentum factor associated with model
-    epsilon: f64,
+    pub epsilon: f64,
 
     /// Not known yet
-    s: Vec<Array2<f64>>
+    pub s: Vec<Array2<f64>>
 
 }
 
@@ -155,26 +145,22 @@ impl Optimizer for Adagrad {
         }
     }
 
-    fn reset(&mut self, model: &mut SGD) {
-        println!("Testing reset.."); 
-    }
-
 }
 
 
 pub struct RMSProp {
 
     /// Learning rate associated with model
-    alpha: f64,
+    pub alpha: f64,
     
     /// Momentum factor associated with model
-    epsilon: f64,
+    pub epsilon: f64,
 
     /// Not known yet
-    decay_rate: f64,
+    pub decay_rate: f64,
 
     /// Not known yet
-    s: Vec<Array2<f64>>
+    pub s: Vec<Array2<f64>>
 
 }
 
@@ -217,29 +203,25 @@ impl Optimizer for RMSProp {
         }
     }
 
-    fn reset(&mut self, model: &mut SGD) {
-        println!("Testing reset.."); 
-    }
-
 }
 
 
 pub struct Adadelta {
 
     /// Learning rate associated with model
-    y_s: f64,
+    pub y_s: f64,
    
     /// Learning rate associated with model
-    y_x: f64,
+    pub y_x: f64,
 
     /// Momentum factor associated with model
-    epsilon: f64,
+    pub epsilon: f64,
 
     /// Not known yet
-    s: Vec<Array2<f64>>
+    pub s: Vec<Array2<f64>>,
 
     /// Not known yet
-    u: Vec<Array2<f64>>
+    pub u: Vec<Array2<f64>>
 
 }
 
@@ -278,15 +260,11 @@ impl Optimizer for Adadelta {
             let grad_squared = grad.mapv(|x| x * x);
             
             self.s[idx] = self.y_s * self.s[idx].clone() + (1.0 - self.y_s) * grad_squared;
-            let delta = ((self.u[idx].mapv(f64::sqrt) + self.epsilon) / (self.s[idx].mapv(f64::sqrt) + epsilon)) * grad;
+            let delta = ((self.u[idx].mapv(f64::sqrt) + self.epsilon) / (self.s[idx].mapv(f64::sqrt) + self.epsilon)) * grad;
             self.u[idx] = self.y_x * self.u[idx].clone() + (1.0 - self.y_x) * delta.mapv(|x| x * x); 
             let new = parameter.output() + (delta * -1.0);
             model.graph.mut_node_output(param, new); 
         }
-    }
-
-    fn reset(&mut self, model: &mut SGD) {
-        println!("Testing reset.."); 
     }
 
 }
@@ -397,10 +375,6 @@ impl Optimizer for Adam {
 
             model.graph.mut_node_output(param, parameter.output() - param_delta);  
         }
-    }
-
-    fn reset(&mut self, model: &mut SGD) {
-        println!("Testing reset.."); 
     }
 
 }

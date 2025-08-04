@@ -359,10 +359,10 @@ pub fn adam() {
 fn main() -> std::io::Result<()> {
 
     let (x, y) = load_data();
-    let mut model = SGD::new(&x, &y, 0.5).unwrap();
-    let mut optimizer = Adagrad::default(&model);
+    let mut model = SGD::new(&x, &y, 0.1).unwrap();
+    let mut optimizer = RMSProp::default(&model);
 
-    for _ in 0..500 {
+    for _ in 0..250 {
         model.graph.forward(); 
         model.graph.backward();
         optimizer.step(&mut model);
