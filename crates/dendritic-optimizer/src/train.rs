@@ -25,18 +25,16 @@ pub trait Trainable {
 
 pub trait OptimizerTrain {
 
-    fn fit_v1<O: Optimizer>(
+    fn train_v1<O: Optimizer>(&mut self, epochs: usize, optimizer: Option<&mut O>);
+
+    fn train_v1_batch<O: Optimizer>(
         &mut self, 
-        epochs: usize, 
-        optimizer: Option<&mut O>
+        iterations: usize,
+        batch_size: usize,
+        batch_epochs: usize,
+        optimizer: Option<&mut O> 
     );
 
-    fn train_v1<O: Optimizer>(
-        &mut self, 
-        epochs: usize, 
-        batch_size: Option<usize>,
-        optimizer: Option<&mut O>
-    );
 
 }
 
@@ -183,18 +181,6 @@ macro_rules! train {
 
             }
 
-            /*
-            fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> {
-
-                let y = Array2::zeros((x.nrows(), self.output().shape()[1]));
-                self.set_input(x);
-                self.set_output(&y);
-
-                self.graph.forward();
-                self.graph.backward(); 
-                self.predicted()
-            } */
-
         }
 
     }
@@ -257,11 +243,6 @@ macro_rules! impl_regression_extension_train {
 
             }
 
-            /*
-            fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> {
-                self.sgd.predict(&x.to_owned())
-            } */
-
         }
 
     };
@@ -275,14 +256,14 @@ impl_regression_extension_train!(Elastic);
 
 impl OptimizerTrain for SGD {
 
-    fn fit_v1<O: Optimizer>(&mut self, epochs: usize, optimizer: Option<&mut O>) {
-
-        let bar = ProgressBar::new(epochs.try_into().unwrap());
-        bar.set_style(ProgressStyle::default_bar()
-            .template("{bar:50} {pos}/{len}")
-            .unwrap());
+    fn train_v1<O: Optimizer>(&mut self, epochs: usize, optimizer: Option<&mut O>) {
 
         let mut opt = optimizer.unwrap();
+
+        let bar = ProgressBar::new(epochs.try_into().unwrap());
+            bar.set_style(ProgressStyle::default_bar()
+                .template("{bar:50} {pos}/{len}")
+                .unwrap());
 
         for _ in 0..epochs {
             self.graph.forward();
@@ -293,21 +274,70 @@ impl OptimizerTrain for SGD {
 
         bar.finish();
 
-    }
-
-    fn train_v1<O: Optimizer>(
-        &mut self, 
-        epoch: usize, 
-        batch_size: Option<usize>,
-        optimizer: Option<&mut O>) {
-
-        self.fit_v1(epoch, optimizer);
         let total_loss = self.loss();
         println!(
             "Loss: {:?}, Learning Rate: {:?}", 
             total_loss,
             self.learning_rate
         );
+
+    }
+
+    
+    fn train_v1_batch<O: Optimizer>(
+        &mut self, 
+        iterations: usize,
+        batch_size: usize,
+        batch_epochs: usize,
+        optimizer: Option<&mut O>) {
+
+        let x_train = self.input();
+        let y_train = self.output(); 
+        let rows = x_train.nrows();
+        let num_batches = (rows + batch_size - 1) / batch_size;
+
+        for iteration in 0..iterations {
+
+            let bar = ProgressBar::new(1000);
+            bar.set_style(ProgressStyle::default_bar()
+                .template("{bar:50} {pos}/{len}")
+                .unwrap());
+        
+            for epoch in batch_epochs {
+
+                let mut row_indices: Vec<_> = (0..rows).collect();
+                row_indices.shuffle(&mut thread_rng());
+
+                let x_shuffled = x_train.select(Axis(0), &row_indices);
+                let y_shuffled = y_train.select(Axis(0), &row_indices);
+
+                for batch_idx in 0..num_batches { 
+                    let start_idx = batch_idx * batch_size;
+                    let end_idx = (start_idx + batch_size).min(rows);
+                    let x = x_shuffled.slice(s![start_idx..end_idx, ..]);
+                    let y = y_shuffled.slice(s![start_idx..end_idx, ..]);
+
+                    // fix this later
+                    if (end_idx - start_idx) < batch_size {
+                        continue; 
+                    }
+
+                    self.set_input(&x.to_owned());
+                    self.set_output(&y.to_owned());
+
+                    self.graph.forward();
+                    self.graph.backward(); 
+                    self.update_parameters();
+                }
+
+                
+
+            }
+
+        }
+
+
+
     }
 
 }

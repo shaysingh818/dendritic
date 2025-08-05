@@ -362,7 +362,7 @@ fn main() -> std::io::Result<()> {
     let mut model = SGD::new(&x, &y, 0.1).unwrap();
     let mut optimizer = RMSProp::default(&model);
 
-    model.train_v1(250, None, Some(&mut optimizer));
+    //model.train_v1(250, Some(&mut optimizer));
 
     /*
     for _ in 0..250 {
