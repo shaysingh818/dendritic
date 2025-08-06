@@ -3,7 +3,9 @@ use rand::prelude::SliceRandom;
 use uuid::Uuid;
 use chrono::{Datelike, Utc};  
 use indicatif::{ProgressBar, ProgressStyle}; 
-use ndarray::{s, Array2, Axis}; 
+use ndarray::{s, Array2, Axis};
+use serde::Serialize;
+use serde_json; 
 
 
 use crate::model::*;
@@ -25,7 +27,11 @@ pub trait Trainable {
 
 pub trait OptimizerTrain {
 
-    fn train_v1<O: Optimizer>(&mut self, epochs: usize, optimizer: Option<&mut O>);
+    fn train_v1<O: Optimizer>(
+        &mut self, 
+        epochs: usize, 
+        optimizer: Option<&mut O>
+    );
 
     fn train_v1_batch<O: Optimizer>(
         &mut self, 
@@ -254,92 +260,126 @@ impl_regression_extension_train!(Ridge);
 impl_regression_extension_train!(Elastic);
 
 
-impl OptimizerTrain for SGD {
+#[derive(Serialize)]
+struct TrainingResult {
 
-    fn train_v1<O: Optimizer>(&mut self, epochs: usize, optimizer: Option<&mut O>) {
+    /// current loss of model during training
+    loss: f64,
 
-        let mut opt = optimizer.unwrap();
+    /// Measure of how much loss decreased for each batch
+    loss_decrease: f64, 
 
-        let bar = ProgressBar::new(epochs.try_into().unwrap());
-            bar.set_style(ProgressStyle::default_bar()
-                .template("{bar:50} {pos}/{len}")
-                .unwrap());
+    /// Current batch number of training
+    batch_number: String
+}
 
-        for _ in 0..epochs {
-            self.graph.forward();
-            self.graph.backward();
-            opt.step(self);
-            bar.inc(1); 
-        }
 
-        bar.finish();
+macro_rules! train_default {
 
-        let total_loss = self.loss();
-        println!(
-            "Loss: {:?}, Learning Rate: {:?}", 
-            total_loss,
-            self.learning_rate
-        );
+    ($t:ty) => {
 
-    }
+        impl OptimizerTrain for $t {
 
-    
-    fn train_v1_batch<O: Optimizer>(
-        &mut self, 
-        iterations: usize,
-        batch_size: usize,
-        batch_epochs: usize,
-        optimizer: Option<&mut O>) {
+            fn train_v1<O: Optimizer>(&mut self, epochs: usize, optimizer: Option<&mut O>) {
 
-        let x_train = self.input();
-        let y_train = self.output(); 
-        let rows = x_train.nrows();
-        let num_batches = (rows + batch_size - 1) / batch_size;
+                let mut opt = optimizer.unwrap();
 
-        for iteration in 0..iterations {
+                let bar = ProgressBar::new(epochs.try_into().unwrap());
+                    bar.set_style(ProgressStyle::default_bar()
+                        .template("{bar:50} {pos}/{len}")
+                        .unwrap());
 
-            let bar = ProgressBar::new(1000);
-            bar.set_style(ProgressStyle::default_bar()
-                .template("{bar:50} {pos}/{len}")
-                .unwrap());
-        
-            for epoch in batch_epochs {
-
-                let mut row_indices: Vec<_> = (0..rows).collect();
-                row_indices.shuffle(&mut thread_rng());
-
-                let x_shuffled = x_train.select(Axis(0), &row_indices);
-                let y_shuffled = y_train.select(Axis(0), &row_indices);
-
-                for batch_idx in 0..num_batches { 
-                    let start_idx = batch_idx * batch_size;
-                    let end_idx = (start_idx + batch_size).min(rows);
-                    let x = x_shuffled.slice(s![start_idx..end_idx, ..]);
-                    let y = y_shuffled.slice(s![start_idx..end_idx, ..]);
-
-                    // fix this later
-                    if (end_idx - start_idx) < batch_size {
-                        continue; 
-                    }
-
-                    self.set_input(&x.to_owned());
-                    self.set_output(&y.to_owned());
-
+                for _ in 0..epochs {
                     self.graph.forward();
-                    self.graph.backward(); 
-                    self.update_parameters();
+                    self.graph.backward();
+                    opt.step(self);
+                    bar.inc(1); 
                 }
 
+                bar.finish();
+
+                let total_loss = self.loss();
+                println!(
+                    "Loss: {:?}, Learning Rate: {:?}", 
+                    total_loss,
+                    self.learning_rate
+                );
+
+            }
+
+            
+            fn train_v1_batch<O: Optimizer>(
+                &mut self, 
+                iterations: usize,
+                batch_size: usize,
+                batch_epochs: usize,
+                optimizer: Option<&mut O>) {
+
+                let x_train = self.input();
+                let y_train = self.output(); 
+                let rows = x_train.nrows();
+                let num_batches = (rows + batch_size - 1) / batch_size;
+                let mut opt = optimizer.unwrap();
+                let mut curr_loss = 0.00;
+
+                for iteration in 0..iterations {
+
+                    let bar = ProgressBar::new(batch_epochs.try_into().unwrap());
+                    bar.set_style(ProgressStyle::default_bar()
+                        .template("{bar:50} {pos}/{len}")
+                        .unwrap());
                 
+                    for epoch in 0..batch_epochs {
+
+                        let mut row_indices: Vec<_> = (0..rows).collect();
+                        row_indices.shuffle(&mut thread_rng());
+
+                        let x_shuffled = x_train.select(Axis(0), &row_indices);
+                        let y_shuffled = y_train.select(Axis(0), &row_indices);
+
+                        for batch_idx in 0..num_batches { 
+                            let start_idx = batch_idx * batch_size;
+                            let end_idx = (start_idx + batch_size).min(rows);
+                            let x = x_shuffled.slice(s![start_idx..end_idx, ..]);
+                            let y = y_shuffled.slice(s![start_idx..end_idx, ..]);
+
+                            // fix this later
+                            if (end_idx - start_idx) < batch_size {
+                                continue; 
+                            }
+
+                            self.set_input(&x.to_owned());
+                            self.set_output(&y.to_owned());
+
+                            self.graph.forward();
+                            self.graph.backward(); 
+                            opt.step(self);
+                        }
+
+                        bar.inc(1); 
+                    }
+
+                    bar.finish();
+
+                    let total_loss = self.loss();
+                    let result = TrainingResult {
+                        loss: total_loss,
+                        loss_decrease: curr_loss - total_loss,
+                        batch_number: format!("{:?}/{:?}", iteration+1, iterations)
+                    };
+                    let json = serde_json::to_string_pretty(&result).unwrap();
+                    println!("{}", json); 
+                    curr_loss = total_loss; 
+                    println!(""); 
+                }
+
 
             }
 
         }
 
-
-
     }
 
 }
 
-
+train_default!(SGD);

@@ -19,10 +19,18 @@ pub fn load_data() -> (Array2<f64>, Array2<f64>) {
         [2.0, 3.0, 4.0],
         [3.0, 4.0, 5.0],
         [4.0, 5.0, 6.0],
+        [5.0, 6.0, 7.0],
+        [1.0, 2.0, 3.0],
+        [2.0, 3.0, 4.0],
+        [3.0, 4.0, 5.0],
+        [4.0, 5.0, 6.0],
         [5.0, 6.0, 7.0]
     ]);
 
-    let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
+    let y = arr2(&[
+        [10.0], [12.0], [14.0], [16.0], [18.0],
+        [10.0], [12.0], [14.0], [16.0], [18.0]
+    ]);
 
     (x, y)
 }
@@ -359,10 +367,13 @@ pub fn adam() {
 fn main() -> std::io::Result<()> {
 
     let (x, y) = load_data();
-    let mut model = SGD::new(&x, &y, 0.1).unwrap();
+    let mut model = SGD::new(&x, &y, 0.01).unwrap();
     let mut optimizer = RMSProp::default(&model);
 
-    //model.train_v1(250, Some(&mut optimizer));
+    model.train_v1_batch(10, 5, 500, Some(&mut optimizer));
+
+    let predicted = model.predict(&x); 
+    println!("{:?}", predicted); 
 
     /*
     for _ in 0..250 {
