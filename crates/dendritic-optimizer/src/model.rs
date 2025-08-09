@@ -29,6 +29,15 @@ pub trait Model {
     /// Set true labels for model
     fn set_output(&mut self, y: &Array2<f64>); 
 
+    /// Return computation graph expression associated to model
+    fn graph(&self) -> &ComputationGraph<Array2<f64>>;
+
+    /// Peform forward pass of computation graph for model
+    fn forward(&mut self); 
+
+    /// Perform backward pass of computation graph for model
+    fn backward(&mut self);
+
     /// Predicted output based on parameters of model
     fn predicted(&self) -> Array2<f64>;
 
@@ -38,8 +47,11 @@ pub trait Model {
     /// Measure loss for a model
     fn loss(&mut self) -> f64;
 
-    /// Update paramters for a model
+    /// Update all parameters in model (without optimizer)
     fn update_parameters(&mut self);
+
+    /// Update specific parameter index in computation graph
+    fn update_parameter(&mut self, idx: usize, val: Array2<f64>);
 
 }
 
@@ -62,19 +74,6 @@ pub trait ModelSerialize {
         day: &str,
         snapshot_id: &str) -> Result<Self, Box<dyn std::error::Error>> where Self: Sized;
 
-}
-
-
-pub trait Optimizer {
-
-    /// Retrieve parameter indexes to update for optimizer
-    fn parameters(&self) -> Vec<usize>;
-
-    /// Step for updating parameters of a given optimizer
-    fn step(&mut self); 
-
-    /// Reset gradients of parameters back to 0
-    fn reset(&mut self);
 }
 
 

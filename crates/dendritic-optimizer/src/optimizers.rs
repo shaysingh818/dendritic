@@ -15,31 +15,31 @@ use crate::model::*;
 
 pub trait Optimizer {
 
-    fn step(&mut self, model: &mut SGD);
+    /// Parmeter update method for optimizers
+    fn step<M: Model>(&mut self, model: &mut M);
 
 }
 
 pub struct DefaultOptimizer {
 
     /// Learning rate associated with model
-    alpha: f64
+    pub alpha: f64
 
 }
 
 impl Optimizer for DefaultOptimizer {
 
-    fn step(&mut self, model: &mut SGD) {
-        let params = model.graph.parameters();
+    fn step<M: Model>(&mut self, model: &mut M) {
+        let params = model.graph().parameters();
         for (idx, param) in params.into_iter().enumerate() {
-            let parameter = model.graph.node(param);
-            let grad = parameter.grad() * model.learning_rate;
+            let parameter = model.graph().node(param);
+            let grad = parameter.grad() * self.alpha;
             let delta = parameter.output() - grad;
-            model.graph.mut_node_output(param, delta); 
+            model.update_parameter(param, delta);
         }
     }
 
 }
-
 
 pub struct Nesterov {
 
@@ -56,6 +56,7 @@ pub struct Nesterov {
 
 impl Nesterov {
 
+    /// Nesterov optimization technique with default parameters initialized
     pub fn default(model: &SGD) -> Self {
 
         let mut velocity_vector: Vec<Array2<f64>> = Vec::new();
@@ -77,17 +78,17 @@ impl Nesterov {
 
 impl Optimizer for Nesterov {
 
-    fn step(&mut self, model: &mut SGD) {
-        let params = model.graph.parameters();
+    fn step<M: Model>(&mut self, model: &mut M) {
+        let params = model.graph().parameters();
         for (idx, param) in params.into_iter().enumerate() {
-            let parameter = model.graph.node(param);
+            let parameter = model.graph().node(param);
             let lookahead = parameter.output() - (self.beta * self.v[idx].clone());
-            model.graph.mut_node_output(param, lookahead);
+            model.update_parameter(param, lookahead);
 
             let grad = parameter.grad() * self.alpha;
             self.v[idx] = grad + (self.beta * self.v[idx].clone());
             let new_param = parameter.output() - self.v[idx].clone();
-            model.graph.mut_node_output(param, new_param);
+            model.update_parameter(param, new_param);
         }
     }
 
@@ -109,6 +110,7 @@ pub struct Adagrad {
 
 impl Adagrad {
 
+    /// Default adagrad constructor using SGD
     pub fn default(model: &SGD) -> Self {
 
         let mut s_vector: Vec<Array2<f64>> = Vec::new();
@@ -127,20 +129,19 @@ impl Adagrad {
 
 }
 
-
 impl Optimizer for Adagrad {
 
-    fn step(&mut self, model: &mut SGD) {
-        let params = model.graph.parameters();
+    fn step<M: Model>(&mut self, model: &mut M) {
+        let params = model.graph().parameters();
         for (idx, param) in params.into_iter().enumerate() {
-            let parameter = model.graph.node(param);
+            let parameter = model.graph().node(param);
             let grad = parameter.grad();
             let grad_squared = grad.mapv(|x| x * x);
             self.s[idx] += &grad_squared;
 
             let ada = self.alpha / (self.s[idx].mapv(f64::sqrt) + self.epsilon);
             let param_new = parameter.output() - (ada * grad); 
-            model.graph.mut_node_output(param, param_new);
+            model.update_parameter(param, param_new);
 
         }
     }
@@ -167,6 +168,7 @@ pub struct RMSProp {
 
 impl RMSProp {
 
+    /// Default RMSProp method using gradient descent
     pub fn default(model: &SGD) -> Self {
 
         let mut s_vector: Vec<Array2<f64>> = Vec::new();
@@ -189,17 +191,17 @@ impl RMSProp {
 
 impl Optimizer for RMSProp {
 
-    fn step(&mut self, model: &mut SGD) {
-        let params = model.graph.parameters();
+    fn step<M: Model>(&mut self, model: &mut M) {
+        let params = model.graph().parameters();
         for (idx, param) in params.into_iter().enumerate() {
-            let parameter = model.graph.node(param);
+            let parameter = model.graph().node(param);
             let grad = parameter.grad();
             let grad_squared = grad.mapv(|x| x * x);
 
             self.s[idx] = self.decay_rate * self.s[idx].clone() + (1.0 - self.decay_rate) * grad_squared;
             let rms = self.alpha / (self.s[idx].mapv(f64::sqrt) + self.epsilon);
             let new = parameter.output() - (rms * grad); 
-            model.graph.mut_node_output(param, new);
+            model.update_parameter(param, new);
         }
     }
 
@@ -228,6 +230,8 @@ pub struct Adadelta {
 
 impl Adadelta {
 
+
+    /// Default Adadelta method using gradient descent
     pub fn default(model: &SGD) -> Self {
 
         let mut s_vector: Vec<Array2<f64>> = Vec::new();
@@ -249,13 +253,12 @@ impl Adadelta {
     }
 }
 
-
 impl Optimizer for Adadelta {
 
-    fn step(&mut self, model: &mut SGD) {
-        let params = model.graph.parameters();
+    fn step<M: Model>(&mut self, model: &mut M) {
+        let params = model.graph().parameters();
         for (idx, param) in params.into_iter().enumerate() {
-            let parameter = model.graph.node(param);
+            let parameter = model.graph().node(param);
             let grad = parameter.grad();
             let grad_squared = grad.mapv(|x| x * x);
             
@@ -263,12 +266,10 @@ impl Optimizer for Adadelta {
             let delta = ((self.u[idx].mapv(f64::sqrt) + self.epsilon) / (self.s[idx].mapv(f64::sqrt) + self.epsilon)) * grad;
             self.u[idx] = self.y_x * self.u[idx].clone() + (1.0 - self.y_x) * delta.mapv(|x| x * x); 
             let new = parameter.output() + (delta * -1.0);
-            model.graph.mut_node_output(param, new); 
+            model.update_parameter(param, new); 
         }
     }
-
 }
-
 
 
 pub struct Adam {
@@ -299,6 +300,7 @@ pub struct Adam {
 
 impl Adam {
 
+    /// Default Adam optimizer using gradient descent
     pub fn default(model: &SGD) -> Self {
 
         let mut obj = Adam {
@@ -319,26 +321,32 @@ impl Adam {
 
     }
 
+    /// Retrieve first gradient decay variable
     pub fn grad_decay_1(&self) -> f64 {
         self.y_v
     }
         
+    /// Retrieve second gradient decay variable
     pub fn grad_decay_2(&self) -> f64 {
         self.y_s
     }
 
+    /// Retrieve step count iteration of training
     pub fn step_count(&self) -> usize {
         self.k
     }
 
+    /// Retrieve first set of momentum variables
     pub fn first_momentum(&self) -> Vec<Array2<f64>> {
         self.v_delta.clone()
     }
 
+    /// Retrieve second set of momentum variables
     pub fn second_momentum(&self) -> Vec<Array2<f64>> {
         self.v_delta.clone()
     }
 
+    /// Initiate zero set of momentum parameters based on shapes of marked parmeters
     pub fn parameter_momentum_init(
         &mut self,
         parameter_idxs: Vec<usize>,
@@ -357,11 +365,11 @@ impl Adam {
 
 impl Optimizer for Adam {
 
-    fn step(&mut self, model: &mut SGD) {
-        let params = model.graph.parameters();
+    fn step<M: Model>(&mut self, model: &mut M) {
+        let params = model.graph().parameters();
         for (idx, param) in params.into_iter().enumerate() {
 
-            let parameter = model.graph.node(param);
+            let parameter = model.graph().node(param);
             let grad = parameter.grad();
             let grad_squared = grad.mapv(|x| x * x);
 
@@ -375,8 +383,7 @@ impl Optimizer for Adam {
             let v_hat = self.v_delta[idx].clone() / (1.0 - self.y_v.powf(self.k as f64)); 
             let s_hat = self.s_delta[idx].clone() / (1.0 - self.y_s.powf(self.k as f64)); 
             let param_delta = self.alpha * v_hat / (s_hat.mapv(f64::sqrt) + self.epsilon); 
-
-            model.graph.mut_node_output(param, parameter.output() - param_delta);  
+            model.update_parameter(param, parameter.output() - param_delta);  
         }
     }
 

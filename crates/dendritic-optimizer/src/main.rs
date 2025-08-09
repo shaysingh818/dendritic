@@ -7,6 +7,7 @@ use dendritic_autodiff::operations::activation::*;
 use dendritic_autodiff::operations::loss::*; 
 use dendritic_optimizer::regression::logistic::*; 
 use dendritic_optimizer::regression::sgd::*;
+use dendritic_optimizer::regression::ridge::*;
 use dendritic_optimizer::train::*;
 use dendritic_optimizer::model::*;
 use dendritic_optimizer::optimizers::*; 
@@ -95,154 +96,6 @@ pub fn load_binary_data() -> (Array2<f64>, Array2<f64>) {
     (x, y)
 }
 
-
-
-pub fn nesterov() {
-
-    // nesterov momentum
-    let lr = 0.001; // learning rate
-    let B = 0.9; // momentum factor
-    let mut v_w = Array2::zeros((3, 1)); // velocity for weights
-    let mut v_b = Array2::zeros((1,1)); // velocity for biases
-    let (x, y) = load_data(); 
-    
-    let mut model = SGD::new(&x, &y, lr).unwrap();
-    
-    for _ in 0..250 {
-
-        model.graph.forward(); 
-        model.graph.backward();
-
-        let mut w = model.graph.node(1); 
-        let mut b = model.graph.node(3); 
-
-        // factor in velocity
-        let w_lookahead = w.output() - (B * v_w.clone()); 
-        let b_lookahead = b.output() - (B * v_b.clone()); 
-
-        model.graph.mut_node_output(1, w_lookahead);
-        model.graph.mut_node_output(3, b_lookahead);
-
-        let w_grad = w.grad() * lr; 
-        let b_grad = b.grad() * lr;
-
-        v_w = w_grad + (B * v_w); 
-        v_b = b_grad + (B * v_b);
-
-        let new_w = w.output() - v_w.clone(); 
-        let new_b = b.output() - v_b.clone();
-
-        model.graph.mut_node_output(1, new_w); 
-        model.graph.mut_node_output(3, new_b);
-
-        let loss_total = model.loss();
-        println!(
-            "\nLoss: {:?}", 
-            loss_total
-        );
-
-    }
-
-    println!("{:?}", model.predicted()); 
-
-}
-
-
-pub fn adagrad() {
-
-    let lr = 0.9; // learning rate
-    let epsilon = 1e-8; // momentum factor
-    let (x, y) = load_data();
-    let mut s_w: Array2<f64> = Array2::zeros((3, 1)); // velocity for weights
-    let mut s_b: Array2<f64> = Array2::zeros((1,1)); // velocity for biases
-    let mut model = SGD::new(&x, &y, lr).unwrap();
-    
-    for _ in 0..200 {
-
-        model.graph.forward(); 
-        model.graph.backward();
-
-        let mut w = model.graph.node(1); 
-        let mut b = model.graph.node(3);
-        let w_grad = w.grad();
-        let b_grad = b.grad();
-
-        // square the params
-        let w_grad_squared = w_grad.mapv(|x| x * x); 
-        let b_grad_squared = b_grad.mapv(|x| x * x); 
-
-        s_w += &w_grad_squared;
-        s_b += &b_grad_squared;
-
-        let w_ada = lr / (s_w.mapv(f64::sqrt) + epsilon); 
-        let b_ada = lr / (s_b.mapv(f64::sqrt) + epsilon);
-
-        let w_new = w.output() - (w_ada * w.grad());
-        let b_new = b.output() - (b_ada * &b_grad);
-
-        model.graph.mut_node_output(1, w_new); 
-        model.graph.mut_node_output(3, b_new);
-
-        let loss_total = model.loss();
-        println!(
-            "\nLoss: {:?}", 
-            loss_total
-        );
-
-    }
-
-    println!("{:?}", model.predicted()); 
-
-}
-
-pub fn rmsprop() {
-
-    let lr = 0.1; // learning rate
-    let epsilon = 1e-8; // squared gradients
-    let decay_rate = 0.9;
-    let (x, y) = load_data();
-    let mut s_w: Array2<f64> = Array2::zeros((3, 1)); // velocity for weights
-    let mut s_b: Array2<f64> = Array2::zeros((1,1)); // velocity for biases
-    let mut model = SGD::new(&x, &y, lr).unwrap();
-    
-    for _ in 0..500 {
-
-        model.graph.forward(); 
-        model.graph.backward();
-
-        let mut w = model.graph.node(1); 
-        let mut b = model.graph.node(3);
-
-        let w_grad = w.grad();
-        let b_grad = b.grad(); 
-
-        // square the params
-        let w_grad_squared = w_grad.mapv(|x| x * x); 
-        let b_grad_squared = b_grad.mapv(|x| x * x);
-
-        s_w = decay_rate * s_w + (1.0 - decay_rate) * w_grad_squared;
-        s_b = decay_rate * s_b + (1.0 - decay_rate) * b_grad_squared;
-
-        let w_rms = lr / (s_w.mapv(f64::sqrt) + epsilon); 
-        let b_rms = lr / (s_b.mapv(f64::sqrt) + epsilon);
-
-        let w_new = w.output() - (w_rms * w_grad);
-        let b_new = b.output() - (b_rms * &b_grad);
-
-        model.graph.mut_node_output(1, w_new); 
-        model.graph.mut_node_output(3, b_new);
-
-        let loss_total = model.loss();
-        println!(
-            "\nLoss: {:?}", 
-            loss_total
-        );
-        
-    }
-
-    println!("{:?}", model.predicted()); 
-
-}
 
 
 pub fn adadelta() {
@@ -367,26 +220,14 @@ pub fn adam() {
 fn main() -> std::io::Result<()> {
 
     let (x, y) = load_data();
-    let mut model = SGD::new(&x, &y, 0.01).unwrap();
-    let mut optimizer = RMSProp::default(&model);
 
-    model.train_v1_batch(10, 5, 500, Some(&mut optimizer));
+    let mut model = SGD::new(&x, &y, 0.5).unwrap();
+    let mut optimizer = Adagrad::default(&model);
+    
+    model.train_with_optimizer(500, &mut optimizer);
 
     let predicted = model.predict(&x); 
     println!("{:?}", predicted); 
-
-    /*
-    for _ in 0..250 {
-        model.graph.forward(); 
-        model.graph.backward();
-        optimizer.step(&mut model);
-
-        let loss_total = model.loss();
-        println!(
-            "\nLoss: {:?}", 
-            loss_total
-        );
-    } */ 
 
     Ok(())
 

@@ -96,6 +96,18 @@ impl Model for SGD {
         self.graph.mut_node_output(0, x.to_owned());
     }
 
+    fn graph(&self) -> &ComputationGraph<Array2<f64>> {
+        &self.graph
+    }
+
+    fn forward(&mut self) {
+        self.graph.forward();
+    }
+
+    fn backward(&mut self) {
+        self.graph.backward();
+    }
+
     fn set_output(&mut self, y: &Array2<f64>) {
         self.graph.mut_node_output(4, y.to_owned());
         self.graph.mut_node_output(5, y.to_owned());
@@ -129,6 +141,10 @@ impl Model for SGD {
         let b_grad = b.grad() * self.learning_rate;
         let b_delta = b.output() - b_grad;
         self.graph.mut_node_output(3, b_delta); 
+    }
+
+    fn update_parameter(&mut self, idx: usize, val: Array2<f64>) {
+        self.graph.mut_node_output(idx, val);
     }
 
 }

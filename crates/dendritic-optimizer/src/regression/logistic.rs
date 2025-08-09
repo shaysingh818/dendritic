@@ -18,6 +18,7 @@ use dendritic_autodiff::operations::activation::*;
 use dendritic_autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
 use crate::model::*;
+use crate::optimizers::Optimizer; 
 
 
 pub struct Logistic {
@@ -132,6 +133,18 @@ impl Model for Logistic {
         }
     }
 
+    fn graph(&self) -> &ComputationGraph<Array2<f64>> {
+        &self.graph
+    }
+
+    fn forward(&mut self) {
+        self.graph.forward();
+    }
+
+    fn backward(&mut self) {
+        self.graph.backward();
+    }
+
     fn predicted(&self) -> Array2<f64> {
         if self.multi_class {
             let mut row_idx = 0;
@@ -177,6 +190,10 @@ impl Model for Logistic {
         let b_grad = b.grad() * self.learning_rate;
         let b_delta = b.output() - b_grad;
         self.graph.mut_node_output(3, b_delta); 
+    }
+
+    fn update_parameter(&mut self, idx: usize, val: Array2<f64>) {
+        self.graph.mut_node_output(idx, val);
     }
 
 }

@@ -53,9 +53,10 @@ mod optimizer_tests {
 
         let loss_total = model.loss(); 
         assert_eq!(loss_total < 0.1, true);
+        assert_eq!(loss_total > 0.00, true); 
 
         let predicted = model.predicted().mapv(|x| x.round());
-        assert_eq!(predicted, y); 
+        assert_eq!(predicted, y);
 
         Ok(()) 
     }
@@ -85,6 +86,7 @@ mod optimizer_tests {
 
         let loss_total = model.loss();
         assert_eq!(loss_total < 0.1, true);
+        assert_eq!(loss_total > 0.00, true); 
 
         let predicted = model.predicted().mapv(|x| x.round());
         assert_eq!(predicted, y); 
@@ -119,6 +121,7 @@ mod optimizer_tests {
 
         let loss_total = model.loss();
         assert_eq!(loss_total < 0.1, true);
+        assert_eq!(loss_total > 0.00, true); 
 
         let predicted = model.predicted().mapv(|x| x.round());
         assert_eq!(predicted, y); 
@@ -200,10 +203,11 @@ mod optimizer_tests {
 
         let loss_total = model.loss();
         assert_eq!(loss_total < 0.1, true);
+        assert_eq!(loss_total > 0.00, true); 
 
         let predicted = model.predicted().mapv(|x| x.round());
         assert_eq!(predicted, y);   
-        assert_eq!(optimizer.k, 350); 
+        assert_eq!(optimizer.k, 350);
 
         Ok(())
     }
