@@ -135,10 +135,17 @@ impl Operation<Array2<f64>> for Add {
         debug!(
             "(ADD) Performing forward pass on node index: {:?}",
             curr_idx
-        ); 
+        );
 
         let inputs = nodes[curr_idx].inputs();
-        nodes[inputs[0]].output() + nodes[inputs[1]].output()
+        let lhs = nodes[inputs[0]].output();
+        let rhs = nodes[inputs[1]].output();
+
+        debug!(
+            "[ADD]: [Node {:?}]: {:?} + [Node {:?}]: {:?}", 
+            inputs[0], lhs.dim(), inputs[1], rhs.dim()
+        ); 
+        lhs + rhs
     }
 
     fn backward(
@@ -147,10 +154,6 @@ impl Operation<Array2<f64>> for Add {
         curr_idx: usize) {
 
 
-        debug!(
-            "(ADD) Performing backward on node index: {:?}",
-            curr_idx
-        );
 
         let inputs = nodes[curr_idx].inputs();
         let upstream = nodes[curr_idx].upstream();
@@ -162,48 +165,21 @@ impl Operation<Array2<f64>> for Add {
         let upstream_grad = nodes[upstream[0]].grad();
         nodes[curr_idx].set_grad_output(upstream_grad.clone());
 
+        debug!(
+            "[ADD] Upstream: {:?} Inputs: {:?}", 
+            upstream[0], inputs
+        ); 
+
         for input_idx in &inputs {
-
             let input_shape = nodes[*input_idx].output().dim();
-            let grad_shape = upstream_grad.dim();
-            let grad = if input_shape == grad_shape {
-                upstream_grad.clone()
+            if input_shape.0 == 1 {
+                let grad = upstream_grad.sum_axis(Axis(0));
+                let final_grad = grad.clone().into_shape((1, grad.dim())).unwrap();
+                nodes[*input_idx].set_grad_output(final_grad);
             } else {
-                let mut grad = upstream_grad.clone();
-                let mut summed_axes = vec![]; 
-
-                if input_shape.0 == 1 && grad_shape.0 > 1 {
-                    summed_axes.push(Axis(0));
-                }
-
-                if input_shape.1 == 1 && grad_shape.1 > 1 {
-                    summed_axes.push(Axis(1));
-                }
-
-                for axis in summed_axes {
-                    grad = grad.sum_axis(axis).insert_axis(axis);
-                }
-                grad
-            };
-
-            nodes[*input_idx].set_grad_output(grad);
-        }
-
-        /*
-        match upstream.len() {
-            1 => {
-                let upstream_grad = nodes[upstream[0]].grad();
-                nodes[curr_idx].set_grad_output(upstream_grad.clone());
-                nodes[inputs[0]].set_grad_output(upstream_grad.clone()); 
-                nodes[inputs[1]].set_grad_output(upstream_grad.clone());
-            },
-            0 => {
-                panic!("No upstream values associated with node: {:?}", nodes[curr_idx]); 
-            },
-            _ => {
-                panic!("ADD: Unable to handle upstream values");
+                nodes[*input_idx].set_grad_output(upstream_grad.clone());
             }
-        } */ 
+        }
 
         debug!(
             "(ADD) Updated gradients for node input indexes: {:?}",
@@ -265,13 +241,14 @@ impl Operation<Array2<f64>> for Sub {
         curr_idx: usize) -> Array2<f64> {
 
         debug!(
-            "Performing forward pass multiply on node index: {:?}",
+            "Forward subtraction on node: {:?}",
             curr_idx
         ); 
 
         let inputs = nodes[curr_idx].inputs();
         let lhs = nodes[inputs[0]].output(); 
         let rhs = nodes[inputs[1]].output();
+        debug!("[SUB]: {:?} - {:?}", lhs.dim(), rhs.dim()); 
         lhs - rhs
     }
 
@@ -297,7 +274,8 @@ impl Operation<Array2<f64>> for Sub {
 
         let upstream = nodes[node_upstream[0]].output();  
         let rhs_grad = upstream.dot(&rhs.t());
-        let lhs_grad = lhs.t().dot(&upstream); 
+        let lhs_grad = lhs.t().dot(&upstream);
+        debug!("[SUB]: Upstream node {:?}", node_upstream[0]); 
 
         nodes[node_inputs[0]].set_grad_output(rhs_grad); 
         nodes[node_inputs[1]].set_grad_output(lhs_grad);
@@ -379,6 +357,10 @@ impl Operation<Array2<f64>> for Mul {
         let inputs = nodes[curr_idx].inputs();
         let lhs = nodes[inputs[0]].output(); 
         let rhs = nodes[inputs[1]].output();
+        debug!(
+            "[MUL]: [Node {:?}]: {:?} * [Node {:?}]: {:?}", 
+            inputs[0], lhs.dim(), inputs[1], rhs.dim()
+        ); 
         lhs.dot(&rhs)
     }
 
@@ -402,11 +384,14 @@ impl Operation<Array2<f64>> for Mul {
             panic!("Backward multiply can only handle one upstream"); 
         }
 
+        debug!("[MUL]: Upstream node {:?}", upstream[0]); 
+
         match upstream.len() {
             1 => {
                 let upstream = nodes[upstream[0]].grad();
                 let rhs_grad = upstream.dot(&rhs.t());
                 let lhs_grad = lhs.t().dot(&upstream);
+
                 nodes[inputs[0]].set_grad_output(rhs_grad); 
                 nodes[inputs[1]].set_grad_output(lhs_grad);
             },

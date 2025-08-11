@@ -64,7 +64,6 @@ mod classification_test {
     } 
 
 
-    /*
     #[test]
     fn test_multi_classification() -> std::io::Result<()> {
 
@@ -103,7 +102,7 @@ mod classification_test {
         let mut model = Logistic::new(&x1, &y1, true, 0.01).unwrap();
 
         assert_eq!(model.weight_dim, (2, 3));
-        assert_eq!(model.bias_dim, (1, 1));
+        assert_eq!(model.bias_dim, (1, 3));
         assert_eq!(model.learning_rate, 0.01);
         assert_eq!(model.input(), x1); 
         assert_eq!(model.output(), y1); 
@@ -120,6 +119,6 @@ mod classification_test {
 
         fs::remove_dir_all("data/multiclass_logistic")?; 
         Ok(())
-    } */ 
+    }  
 
 }

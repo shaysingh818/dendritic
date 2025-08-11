@@ -369,7 +369,11 @@ impl Operation<Array2<f64>> for CategoricalCrossEntropy {
         let logits = nodes[inputs[0]].output(); 
         let y_true = nodes[inputs[1]].output();
 
-        debug!("INPUTS: {:?}", inputs); 
+        debug!("[CCE]: Performing forward on node: {:?}", curr_idx);
+        debug!(
+            "[CCE]: [Node {:?}] -> {:?}  [Node {:?}] -> {:?}", 
+            inputs[0], logits.dim(), inputs[1], y_true.dim()
+        ); 
 
         let softmax_samples: Vec<_> = logits
             .axis_iter(Axis(0))
@@ -391,7 +395,6 @@ impl Operation<Array2<f64>> for CategoricalCrossEntropy {
             loss += diff; 
         }
 
-        debug!("Performing forward CCE on node: {:?}", curr_idx);
         let batch_size = y_true.nrows() as f64; 
         let total_loss = loss / batch_size;
         Array2::from_elem((1, 1), total_loss)
@@ -402,6 +405,8 @@ impl Operation<Array2<f64>> for CategoricalCrossEntropy {
         nodes: &mut Vec<Node<Array2<f64>>>, 
         curr_idx: usize) {
 
+        debug!("[CCE]: Backward pass on node {:?}", curr_idx); 
+
         let inputs = nodes[curr_idx].inputs();
         let logits = nodes[inputs[0]].output(); 
         let y_true = nodes[inputs[1]].output();
@@ -409,7 +414,7 @@ impl Operation<Array2<f64>> for CategoricalCrossEntropy {
 
         if logits.shape() != y_true.shape() {
             panic!("Value shapes for categorical cross entropy not equal");
-        }  
+        } 
 
         let softmax_samples: Vec<_> = logits
             .axis_iter(Axis(0))
@@ -428,7 +433,13 @@ impl Operation<Array2<f64>> for CategoricalCrossEntropy {
         let grad = softmax.clone() - y_true;
 
         nodes[curr_idx].set_grad_output(grad.clone());
-        nodes[inputs[1]].set_grad_output(softmax); // opened issue for how to solve this later on
+        nodes[inputs[1]].set_grad_output(softmax.clone());
+
+        debug!("[CCE]: Node {:?} set with {:?}", curr_idx, grad.dim()); 
+        debug!(
+            "[CCE]: Node {:?} set with {:?}", 
+            inputs[1], softmax.clone().dim()
+        );
     }
 }
 
