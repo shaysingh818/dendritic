@@ -1,3 +1,5 @@
+use log::debug;
+use std::collections::HashSet; 
 use ndarray::{arr2, Array2, Axis};
 
 
@@ -21,40 +23,68 @@ pub struct OneHotEncoding {
     encoded: Array2<f64>,
 
     /// Max value associated with encoder
-    max_value: f64,
+    num_classes: usize,
 
     /// Number of samples that were encoded
-    num_samples: f64
+    num_samples: usize
 
 }
 
 
 impl OneHotEncoding {
     
-    pub fn new(data: Array2<f64>) -> Result<Self, String> {
+    pub fn new(data: &Array2<f64>) -> Result<Self, String> {
 
         if data.dim().1 != 1 {
             let msg = "Input must be of size (N, 1)";
             return Err(msg.to_string());
         }
 
-        let max_index = 0.00; 
-        if let Some((max_i, max_val)) = data
-            .indexed_iter()
-            .max_by(|a, b| a.1.total_cmp(b.1))
-        {
-            max_index = max_i as f64 + 1.0;
-        } else {
-            debug!("[OneHotEncoding]: No max value found"); 
-        }
+        
+        let mut vals = HashSet::new();
+        data.mapv(|x| vals.insert(x as usize)); 
+        let num_classes = vals.len();
 
         Ok(Self {
-            data: data,
-            encoded_data: Array2::zeros(data.dim()),
-            max_value: max_index, 
+            data: data.clone(),
+            encoded: Array2::zeros((data.dim().0, num_classes)),
+            num_classes: num_classes, 
             num_samples: data.nrows()
-        })
+        }) 
 
+    }
+
+    pub fn data(&self) -> Array2<f64> {
+        self.data.clone()
+    }
+
+    pub fn encoded(&self) -> Array2<f64> {
+        self.encoded.clone()
+    }
+
+    pub fn num_classes(&self) -> usize {
+        self.num_classes
+    }
+
+    pub fn num_samples(&self) -> usize {
+        self.num_samples
+    }
+
+}
+
+
+impl Preprocessor for OneHotEncoding {
+
+    /// Encode function for One Hot Encoding
+    fn encode(&mut self) -> Array2<f64> {
+        println!("Still need to do");
+        self.data.clone()
+    }
+
+    /// Decode function for decoding One Hot Encoded Values
+    fn decode(&mut self) -> Array2<f64> {
+        println!("Not done yet"); 
+        self.data.clone()
     }
 
 }
