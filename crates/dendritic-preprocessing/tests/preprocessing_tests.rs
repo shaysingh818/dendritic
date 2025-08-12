@@ -14,11 +14,22 @@ mod preprocessing_tests {
         ]);
 
         let one_hot = OneHotEncoding::new(&x).unwrap();
+        let bad_on_hot = OneHotEncoding::new(
+            &arr2(&[
+                 [0.0, 0.0],
+                 [0.0, 0.0]
+            ])
+        );
 
         assert_eq!(one_hot.num_classes(), 3); 
         assert_eq!(one_hot.num_samples(), 9); 
         assert_eq!(one_hot.data().dim(), x.dim());
         assert_eq!(one_hot.encoded().dim(), (x.nrows(), 3));
+
+        assert_eq!(
+            bad_on_hot.unwrap_err().to_string(),
+            "Input must be of size (N, 1)"
+        );
  
     }
 

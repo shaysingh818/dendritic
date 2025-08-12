@@ -13,7 +13,7 @@ pub trait Preprocessor {
 
 }
 
-
+#[derive(Debug, Clone)]
 pub struct OneHotEncoding {
     
     /// Raw data passed to the encoder
@@ -54,18 +54,22 @@ impl OneHotEncoding {
 
     }
 
+    /// Retrieve data passed to one hot encoder
     pub fn data(&self) -> Array2<f64> {
         self.data.clone()
     }
 
+    /// Retrieve encoded data after it's been one hot encoded
     pub fn encoded(&self) -> Array2<f64> {
         self.encoded.clone()
     }
 
+    /// Retrieve the number of classes associated with data
     pub fn num_classes(&self) -> usize {
         self.num_classes
     }
 
+    /// Retrieve the total number of samples being encoded
     pub fn num_samples(&self) -> usize {
         self.num_samples
     }
@@ -77,7 +81,11 @@ impl Preprocessor for OneHotEncoding {
 
     /// Encode function for One Hot Encoding
     fn encode(&mut self) -> Array2<f64> {
-        println!("Still need to do");
+        let mut row = 0; 
+        let col_stride = self.encoded.dim().1;
+        for row in self.data() {
+            row += col_stride;
+        }
         self.data.clone()
     }
 
