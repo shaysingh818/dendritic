@@ -8,6 +8,7 @@ license = "MIT"
 [dependencies]
 dendritic = {version = "1.1.1", path = "../../" }
 ndarray = { version = "0.16.1", features = ["serde"] }
+ndarray-stats = "0.6.0"
 serde = "1.0.126"
 serde_json = "1.0.64"
 log = "0.4.27"

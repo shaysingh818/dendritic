@@ -1,6 +1,7 @@
 use log::debug;
 use std::collections::HashSet; 
 use ndarray::{arr2, Array, Array2, Axis};
+use ndarray_stats::QuantileExt;
 
 
 pub trait Preprocessor {
@@ -9,7 +10,7 @@ pub trait Preprocessor {
     fn encode(&mut self) -> Array2<f64>;
 
     /// Decode data from encoded values with associated trait type
-    fn decode(&mut self, data: Array2<f64>) -> Array2<f64>;
+    fn decode(&mut self, data: &Array2<f64>) -> Array2<f64>;
 
 }
 
@@ -83,7 +84,7 @@ impl Preprocessor for OneHotEncoding {
     }
 
     /// Decode function for decoding One Hot Encoded Values
-    fn decode(&mut self, data: Array2<f64>) -> Array2<f64> {
+    fn decode(&mut self, data: &Array2<f64>) -> Array2<f64> {
 
         let mut decoded: Array2<f64> = Array2::zeros((data.nrows(), 1));
         for (idx, row) in data.axis_iter(Axis(0)).enumerate() {
@@ -144,7 +145,7 @@ impl Preprocessor for StandardScalar {
     /// Encode function for One Hot Encoding
     fn encode(&mut self) -> Array2<f64> {
 
-        let encoded: Array2<f64> = Array2::zeros(self.data.dim());
+        let mut encoded: Array2<f64> = Array2::zeros(self.data.dim());
      
         for (idx, col) in self.data.axis_iter(Axis(1)).enumerate() {
 
@@ -165,18 +166,118 @@ impl Preprocessor for StandardScalar {
             );
 
             let feature_col = (col.to_owned() - mean_vec.clone()) / std_dev_vec.clone();
-            println!("{:?}", feature_col); 
+            encoded.index_axis_mut(Axis(1), idx).assign(&feature_col); 
         }
 
-
-
-
-        Array2::zeros(self.data.dim())
+        encoded
+    }
+    
+    /// Decode function for decoding One Hot Encoded Values
+    fn decode(&mut self, data: &Array2<f64>) -> Array2<f64> {
+        let mean = Array::from_vec(self.mean());
+        let std_dev = Array::from_vec(self.stdev());
+        data * std_dev + mean
     }
 
+}
+
+
+
+#[derive(Debug, Clone)]
+pub struct MinMaxScalar {
+    
+    /// Raw data passed to the encoder
+    data: Array2<f64>,
+
+    /// Vector of minimum values associated with each feature
+    min_range: Vec<f64>,
+    
+    /// Vector of maximum values associated with each feature
+    max_range: Vec<f64>
+
+}
+
+
+impl MinMaxScalar {
+
+    pub fn new(data: &Array2<f64>) -> Result<Self, String> {
+        Ok(MinMaxScalar { 
+            data: data.clone(),
+            min_range: vec![0.0; data.ncols()],
+            max_range: vec![0.0; data.ncols()]
+        })
+    }
+
+    pub fn data(&self) -> &Array2<f64> {
+        &self.data
+    }
+
+    pub fn min_range(&self) -> &Vec<f64> {
+        &self.min_range
+    }
+
+    pub fn max_range(&self) -> &Vec<f64> {
+        &self.max_range
+    }
+
+}
+
+
+impl Preprocessor for MinMaxScalar {
+
+    /// Encode function for One Hot Encoding
+    fn encode(&mut self) -> Array2<f64> {
+
+        let mut encoded: Array2<f64> = Array2::zeros(self.data.dim());
+        for (idx, col) in self.data.axis_iter(Axis(1)).enumerate() {
+            
+            let owned_col = col.to_owned();
+            
+            let min = owned_col.min().unwrap();
+            let max = owned_col.max().unwrap();
+
+            self.min_range[idx] = *min;
+            self.max_range[idx] = *max;
+
+            let min_vec = Array::from_elem(col.len(), *min);
+            let max_vec = Array::from_elem(col.len(), *max);
+
+            let subtract_min = owned_col - min_vec.clone();
+            let min_max = max_vec - min_vec;
+            let div = subtract_min / min_max;
+
+            encoded.index_axis_mut(Axis(1), idx).assign(&div);
+        }
+
+        encoded
+    }
+    
     /// Decode function for decoding One Hot Encoded Values
-    fn decode(&mut self, data: Array2<f64>) -> Array2<f64> {
-        Array2::zeros(self.data.dim())
+    fn decode(&mut self, data: &Array2<f64>) -> Array2<f64> {
+
+        if data.dim() != self.data.dim() {
+            panic!("Encoded data does not much decoded data dimensions"); 
+        }
+
+        let mut decoded: Array2<f64> = Array2::zeros(self.data.dim());
+        for (idx, col) in data.axis_iter(Axis(1)).enumerate() {
+
+            let min_vec = Array::from_elem(
+                col.len(), 
+                self.min_range[idx]
+            );
+
+            let max_vec = Array::from_elem(
+                col.len(), 
+                self.max_range[idx]
+            );
+
+            let min_max = max_vec - min_vec.clone();
+            let feature = min_max * col + min_vec;
+            decoded.index_axis_mut(Axis(1), idx).assign(&feature);              
+        }
+
+        decoded
     }
 
 }
