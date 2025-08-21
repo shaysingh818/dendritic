@@ -4,7 +4,7 @@ use std::fmt::Debug;
 use serde::{Serialize, Deserialize}; 
 use log::debug; 
 
-use crate::node::{Node}; 
+use crate::autodiff::node::{Node}; 
 
 
 pub trait Operation<T>: OperationClone<T> + Debug {

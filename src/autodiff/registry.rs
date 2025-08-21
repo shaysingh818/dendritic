@@ -1,10 +1,10 @@
 use ndarray::Array2;
 
-use crate::graph::ComputationGraph; 
-use crate::operations::base::*; 
-use crate::operations::activation::*; 
-use crate::operations::arithmetic::*; 
-use crate::operations::loss::*; 
+use crate::autodiff::graph::ComputationGraph; 
+use crate::autodiff::operations::base::*; 
+use crate::autodiff::operations::activation::*; 
+use crate::autodiff::operations::arithmetic::*; 
+use crate::autodiff::operations::loss::*; 
 
 
 pub trait DefaultOperations<T> {

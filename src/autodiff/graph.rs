@@ -9,9 +9,9 @@ use log::info;
 use ndarray::Array2;
 use serde::{Serialize, Deserialize}; 
 
-use crate::node::{Node, NodeSerialization, NodeSerialize};
-use crate::registry::*; 
-use crate::operations::base::*;
+use crate::autodiff::node::{Node, NodeSerialization, NodeSerialize};
+use crate::autodiff::registry::*; 
+use crate::autodiff::operations::base::*;
 
 
 /// A dendrite is an instance of expression stored in a computation graph.

@@ -16,6 +16,7 @@ use dendritic_autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerial
 
 use crate::model::*; 
 use crate::regression::sgd::*; 
+use crate::optimizers::Optimizer; 
 
 
 
@@ -67,11 +68,23 @@ impl Model for Ridge {
     }
 
     fn set_input(&mut self, x: &Array2<f64>) {
-        self.set_input(x);
+        self.sgd.set_input(x);
     }
 
     fn set_output(&mut self, y: &Array2<f64>) {
-        self.set_output(y);
+        self.sgd.set_output(y);
+    }
+
+    fn graph(&self) -> &ComputationGraph<Array2<f64>> {
+        &self.sgd.graph
+    }
+
+    fn forward(&mut self) {
+        self.sgd.forward();
+    }
+
+    fn backward(&mut self) {
+        self.sgd.backward();
     }
 
     fn predicted(&self) -> Array2<f64> {
@@ -90,7 +103,7 @@ impl Model for Ridge {
         let loss_val = loss.clone() + (self.lambda * l2);
         loss_val.as_slice().unwrap()[0]
     }
-
+ 
     fn update_parameters(&mut self) {
 
         let lr = self.sgd.learning_rate;
@@ -100,9 +113,13 @@ impl Model for Ridge {
         self.sgd.graph.mut_node_output(1, w_delta); 
 
         let b = self.sgd.graph.node(3);
-        let b_grad = (b.grad() * lr).sum_axis(Axis(0));
+        let b_grad = b.grad() * lr;
         let b_delta = b.output() - b_grad;
         self.sgd.graph.mut_node_output(3, b_delta); 
+    }
+
+    fn update_parameter(&mut self, idx: usize, val: Array2<f64>) {
+        self.sgd.update_parameter(idx, val);
     }
 
 }

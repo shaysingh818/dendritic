@@ -1,6 +1,7 @@
 use std::fs;
 use std::fs::File; 
 use std::io::{Write, BufWriter, BufReader};
+use std::collections::HashMap; 
 
 use rand::thread_rng;
 use rand::prelude::SliceRandom;
@@ -13,6 +14,7 @@ use dendritic_autodiff::operations::arithmetic::*;
 use dendritic_autodiff::operations::loss::*;
 use dendritic_autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
+use crate::optimizers::*; 
 use crate::model::*; 
 
 
@@ -29,7 +31,6 @@ pub struct SGD {
 
     /// Learning rate to control how fast to decrease
     pub learning_rate: f64
-
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -46,7 +47,6 @@ pub struct SGDSerialize {
 
     /// Learning rate to control how fast to decrease
     pub learning_rate: f64
-
 }
 
 
@@ -96,6 +96,18 @@ impl Model for SGD {
         self.graph.mut_node_output(0, x.to_owned());
     }
 
+    fn graph(&self) -> &ComputationGraph<Array2<f64>> {
+        &self.graph
+    }
+
+    fn forward(&mut self) {
+        self.graph.forward();
+    }
+
+    fn backward(&mut self) {
+        self.graph.backward();
+    }
+
     fn set_output(&mut self, y: &Array2<f64>) {
         self.graph.mut_node_output(4, y.to_owned());
         self.graph.mut_node_output(5, y.to_owned());
@@ -106,6 +118,7 @@ impl Model for SGD {
     }
 
     fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> {
+        self.set_output(&Array2::zeros((x.nrows(), 1)));
         self.set_input(x);
         self.graph.forward();
         self.predicted()
@@ -125,9 +138,13 @@ impl Model for SGD {
         self.graph.mut_node_output(1, w_delta); 
 
         let b = self.graph.node(3);
-        let b_grad = (b.grad() * self.learning_rate).sum_axis(Axis(0));
+        let b_grad = b.grad() * self.learning_rate;
         let b_delta = b.output() - b_grad;
         self.graph.mut_node_output(3, b_delta); 
+    }
+
+    fn update_parameter(&mut self, idx: usize, val: Array2<f64>) {
+        self.graph.mut_node_output(idx, val);
     }
 
 }

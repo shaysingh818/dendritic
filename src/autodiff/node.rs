@@ -4,8 +4,8 @@ use std::collections::HashMap;
 use ndarray::Array2;
 use serde::{Serialize, Deserialize}; 
 
-use crate::tensor::Tensor; 
-use crate::operations::base::*; 
+use crate::autodiff::tensor::Tensor; 
+use crate::autodiff::operations::base::*; 
 
 /// Node structure that stores operations in a computation graph.
 /// Nodes store the inputs and the outputs of the computed inputs. 

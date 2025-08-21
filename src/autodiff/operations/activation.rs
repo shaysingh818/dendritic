@@ -3,9 +3,9 @@ use std::fmt::Debug;
 use ndarray::Array2;
 use log::debug; 
 
-use crate::operations::base::*; 
-use crate::node::{Node}; 
-use crate::graph::ComputationGraph; 
+use crate::autodiff::operations::base::*; 
+use crate::autodiff::node::{Node}; 
+use crate::autodiff::graph::ComputationGraph; 
 
 
 /// Shared trait for constructing scalar binary operations.

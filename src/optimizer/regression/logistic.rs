@@ -7,7 +7,7 @@ use rand::thread_rng;
 use rand::prelude::SliceRandom;
 use uuid::Uuid;
 use chrono::{Datelike, Utc};  
-use ndarray::{s, Array2, Axis};
+use ndarray::{s, stack,  Array2, Axis};
 use indicatif::{ProgressBar, ProgressStyle}; 
 use serde::{Serialize, Deserialize}; 
 
@@ -18,6 +18,7 @@ use dendritic_autodiff::operations::activation::*;
 use dendritic_autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
 use crate::model::*;
+use crate::optimizers::Optimizer; 
 
 
 pub struct Logistic {
@@ -74,14 +75,17 @@ impl Logistic {
         }
 
         let mut weight_dim: (usize, usize) = (x.shape()[1], 1);
+        let mut bias_dim: (usize, usize) = (1, y.shape()[1]);
+
         if multi_class {
             weight_dim = (x.shape()[1], y.shape()[1]);
+            bias_dim = (1, y.shape()[1]);
         }
             
         let mut log = Logistic {
             graph: ComputationGraph::new(),
             weight_dim: weight_dim,
-            bias_dim: (1, 1),
+            bias_dim: bias_dim,
             learning_rate: learning_rate,
             multi_class: multi_class
         };
@@ -132,11 +136,38 @@ impl Model for Logistic {
         }
     }
 
+    fn graph(&self) -> &ComputationGraph<Array2<f64>> {
+        &self.graph
+    }
+
+    fn forward(&mut self) {
+        self.graph.forward();
+    }
+
+    fn backward(&mut self) {
+        self.graph.backward();
+    }
+
     fn predicted(&self) -> Array2<f64> {
+
         if self.multi_class {
             let mut row_idx = 0;
             let mut predictions = Array2::zeros((self.output().nrows(), 2));
-            let softmax = self.graph.node(5).grad();
+            let output = self.graph.node(4).output(); // bias node
+
+            let samples: Vec<_> = output
+                .axis_iter(Axis(0))
+                .map(|row| {
+                    let max = row.fold(f64::NEG_INFINITY, |a, &b| a.max(b));
+                    let exp = row.mapv(|x| (x - max).exp());
+                    let sum = exp.sum();
+                    exp.mapv(|x| x / sum)
+                })
+                .collect();
+
+            let views: Vec<_> = samples.iter().map(|r| r.view()).collect();
+            let softmax = stack(Axis(0), &views).unwrap();
+
             for row in softmax.axis_iter(Axis(0)) {
                 let (predicted_idx, &prob) = row
                     .iter()
@@ -153,7 +184,8 @@ impl Model for Logistic {
         }
     }
 
-    fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> { 
+    fn predict(&mut self, x: &Array2<f64>) -> Array2<f64> {
+        self.set_output(&Array2::zeros((x.nrows(), self.output().dim().1)));
         self.set_input(x);
         self.graph.forward();
         self.predicted()
@@ -173,9 +205,14 @@ impl Model for Logistic {
         self.graph.mut_node_output(1, w_delta); 
 
         let b = self.graph.node(3);
-        let b_grad = (b.grad() * self.learning_rate).sum_axis(Axis(0));
-        let b_delta = b.output() - b_grad;
+        let b_grad = b.grad() * self.learning_rate;
+        let b_delta = b.output() - b_grad.clone();
         self.graph.mut_node_output(3, b_delta); 
+
+    }
+
+    fn update_parameter(&mut self, idx: usize, val: Array2<f64>) {
+        self.graph.mut_node_output(idx, val);
     }
 
 }

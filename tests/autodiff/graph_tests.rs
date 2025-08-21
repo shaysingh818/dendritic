@@ -1,0 +1,395 @@
+
+#[cfg(test)]
+mod graph_test {
+
+    use std::fs;
+    use std::fs::File; 
+    use dendritic_autodiff::node::*; 
+    use dendritic_autodiff::operations::activation::*; 
+    use dendritic_autodiff::operations::arithmetic::*; 
+    use dendritic_autodiff::operations::loss::*; 
+    use dendritic_autodiff::graph::*; 
+    use ndarray::{arr2};
+
+
+    #[test]
+    fn test_graph_instantiation() {
+
+        let graph: ComputationGraph<f64> = ComputationGraph::new();
+
+        assert_eq!(graph.nodes().len(), 0); 
+        assert_eq!(graph.curr_node_idx(), -1);
+        assert_eq!(graph.path().len(), 0);
+        assert_eq!(graph.variables().len(), 0); 
+        assert_eq!(graph.operations().len(), 0); 
+    }
+
+    #[test]
+    fn test_graph_binary_node() {
+
+        let a = Some(5.0); 
+        let b = Some(10.0); 
+
+        let mut graph = ComputationGraph::new(); 
+        graph.binary(a, b, Box::new(Add));
+
+        assert_eq!(graph.nodes().len(), 3); 
+        assert_eq!(graph.curr_node_idx(), 2);
+
+        let a_val = graph.node(0); 
+        let b_val = graph.node(1); 
+        let add_node = graph.node(2);
+
+        assert_eq!(a_val.upstream(), vec![2]); 
+        assert_eq!(b_val.upstream(), vec![2]); 
+        assert_eq!(a_val.inputs().len(), 0); 
+        assert_eq!(b_val.inputs().len(), 0);
+
+        assert_eq!(a_val.output(), 5.0); 
+        assert_eq!(b_val.output(), 10.0);
+
+        assert_eq!(add_node.upstream().len(), 0); 
+        assert_eq!(add_node.inputs().len(), 2); 
+        assert_eq!(add_node.inputs(), vec![0, 1]);
+        assert_eq!(add_node.output(), 0.0); 
+    }
+
+    #[test]
+    fn test_graph_unary_node() -> Result<(), Box<dyn std::error::Error>>  {
+
+        let a = Some(5.0); 
+        let b = Some(10.0);
+        let c = 100.0; 
+
+        let mut graph = ComputationGraph::new(); 
+        graph.binary(a, b, Box::new(Add));
+        graph.unary(c, Box::new(Add)); 
+
+        assert_eq!(graph.nodes().len(), 5); 
+        assert_eq!(graph.curr_node_idx(), 4); 
+
+        let a_val = graph.node(0); 
+        let b_val = graph.node(1); 
+        let add = graph.node(2); 
+        let c_val = graph.node(3); 
+        let add_2 = graph.node(4);
+
+        assert_eq!(a_val.upstream(), vec![2]); 
+        assert_eq!(b_val.upstream(), vec![2]); 
+        assert_eq!(a_val.inputs().len(), 0); 
+        assert_eq!(b_val.inputs().len(), 0);
+        assert_eq!(a_val.output(), 5.0); 
+        assert_eq!(b_val.output(), 10.0);
+
+        assert_eq!(add.upstream().len(), 1);
+        assert_eq!(add.upstream(), vec![4]); 
+        assert_eq!(add.inputs().len(), 2); 
+        assert_eq!(add.inputs(), vec![0, 1]);
+        assert_eq!(add.output(), 0.0);
+
+        assert_eq!(c_val.inputs().len(), 0); 
+        assert_eq!(c_val.upstream().len(), 1); 
+        assert_eq!(c_val.upstream(), vec![4]); 
+        assert_eq!(c_val.output(), 100.0);
+
+        assert_eq!(add_2.inputs().len(), 2); 
+        assert_eq!(add_2.inputs(), vec![2, 3]); 
+        assert_eq!(add_2.upstream().len(), 0); 
+        assert_eq!(add_2.output(), 0.0); 
+
+        Ok(())
+    }
+
+
+    #[test]
+    fn test_graph_fn_node() -> Result<(), Box<dyn std::error::Error>>  {
+
+        let a = arr2(&[[0.0],[0.0],[0.0],[0.0]]);
+        let b = arr2(&[[0.0],[0.0],[0.0],[0.0]]);
+        let y = arr2(&[[1.0],[1.0],[1.0],[1.0]]); 
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![a, b]);
+        graph.function(Box::new(Sigmoid));
+        graph.mse(y.clone()); 
+
+        assert_eq!(graph.nodes().len(), 6); 
+        assert_eq!(graph.variables(), vec![0,1,4]); 
+        assert_eq!(graph.operations(), vec![2,3,5]);
+
+        graph.forward();
+
+        assert_eq!(
+            graph.node(2).output(), 
+            arr2(&[[0.0],[0.0],[0.0],[0.0]])
+        );
+
+        assert_eq!(
+            graph.node(3).output(),
+            arr2(&[[0.5],[0.5],[0.5],[0.5]])
+        );
+
+        graph.backward(); 
+
+        assert_eq!(
+            graph.node(3).grad(),
+            arr2(&[[-0.5],[-0.5],[-0.5],[-0.5]])
+        );
+
+        assert_eq!(
+            graph.node(2).grad(),
+            arr2(&[[-0.5],[-0.5],[-0.5],[-0.5]])
+        );
+
+        assert_eq!(
+            graph.node(1).grad(),
+            arr2(&[[-0.5],[-0.5],[-0.5],[-0.5]])
+        );
+
+        assert_eq!(
+            graph.node(0).grad(),
+            arr2(&[[-0.5],[-0.5],[-0.5],[-0.5]])
+        );
+
+        Ok(())
+    }
+
+    
+    #[test]
+    fn test_graph_operation_relationships() {
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]); 
+
+        assert_eq!(graph.nodes().len(), 9);
+        assert_eq!(graph.path().len(), 0);
+        assert_eq!(graph.curr_node_idx(), 8);
+
+        let val1 = graph.node(0);
+        assert_eq!(val1.upstream(), vec![2]); 
+        assert_eq!(val1.inputs().len(), 0); 
+
+        let val2 = graph.node(1);
+        assert_eq!(val2.upstream(), vec![2]); 
+        assert_eq!(val2.inputs().len(), 0); 
+
+        let add_node = graph.node(2);
+        assert_eq!(add_node.upstream(), vec![4]); 
+        assert_eq!(add_node.inputs().len(), 2); 
+        assert_eq!(add_node.inputs(), vec![0, 1]); 
+
+        let val3 = graph.node(3);
+        assert_eq!(val3.upstream(), vec![4]); 
+        assert_eq!(val3.inputs().len(), 0); 
+
+        let u_add_node = graph.node(4);
+        assert_eq!(u_add_node.upstream(), vec![6]); 
+        assert_eq!(u_add_node.inputs().len(), 2);
+        assert_eq!(u_add_node.inputs(), vec![2, 3]);
+
+        let val4 = graph.node(5);
+        assert_eq!(val4.upstream(), vec![6]); 
+        assert_eq!(val4.inputs().len(), 0);
+
+        let u_mul_node = graph.node(6);
+        assert_eq!(u_mul_node.upstream(), vec![8]); 
+        assert_eq!(u_mul_node.inputs().len(), 2);
+        assert_eq!(u_mul_node.inputs(), vec![4, 5]);
+        
+        let val5 = graph.node(7);
+        assert_eq!(val5.upstream(), vec![8]); 
+        assert_eq!(val5.inputs().len(), 0);
+
+        let u_sub_node = graph.node(8);
+        assert_eq!(u_sub_node.upstream().len(), 0); 
+        assert_eq!(u_sub_node.inputs().len(), 2);
+        assert_eq!(u_sub_node.inputs(), vec![6, 7]);
+
+    }
+
+    #[test]
+    fn test_graph_forward_evaluate_scalar() {
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]); 
+
+        graph.forward(); 
+
+        assert_eq!(graph.path().len(), 4);
+        assert_eq!(
+            graph.path(),
+            vec![2, 4, 6, 8]
+        );
+
+        let expected_outputs = vec![15.0, 115.0, 2300.0, 2290.0];
+
+        for (idx, node) in graph.path().iter().enumerate() {
+            let node_output = graph.node(*node);
+            assert_eq!(node_output.output(), expected_outputs[idx]); 
+        }
+    }
+
+    #[test]
+    fn test_graph_backward_evaluate_scalar() {
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]); 
+
+        graph.forward(); 
+
+        graph.backward();
+
+        assert_eq!(graph.path().len(), 4);
+        assert_eq!(
+            graph.path(),
+            vec![2, 4, 6, 8]
+        );
+
+        let mut path = graph.path().clone(); 
+        path.reverse();
+
+        let vars = graph.variables(); 
+        let ops = graph.operations();
+
+        let expected_var_grads = vec![1.0, 1.0, 1.0, 115.0, 1.0];
+        let expected_op_grads = vec![1.0, 20.0, 1.0, 0.0];
+
+        for (idx, var) in vars.iter().enumerate() {
+            let node = graph.node(*var); 
+            assert_eq!(node.grad(), expected_var_grads[idx]); 
+        }
+
+        for (idx, op) in ops.iter().enumerate() {
+            let node = graph.node(*op); 
+            assert_eq!(node.grad(), expected_op_grads[idx]); 
+        }
+
+    }
+
+    #[test]
+    fn test_graph_op_registry() {
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]);
+
+        let registry_keys = graph.registry.keys(); 
+        let mut keys_vec: Vec<String> = registry_keys.cloned().collect();
+
+        let mut expected = vec![
+            "Mul", "Sub", "Add", "DefaultValue", 
+            "Tanh", "BinaryCrossEntropy", "DefaultLossFunction",
+            "MSE", "Sigmoid"
+        ];
+
+        keys_vec.sort(); 
+        expected.sort(); 
+
+        assert_eq!(keys_vec, expected); 
+    }
+
+
+    #[test]
+    fn test_graph_save() -> std::io::Result<()> {
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]);
+
+        let _ = graph.save("testing");
+
+        let mut node_file: Option<String> = None; 
+        let mut metadata_file: Option<String> = None; 
+
+        for entry in fs::read_dir("testing")? {
+
+            let entry = entry?;
+            let path = entry.path();
+
+            if path.is_file() {
+
+                if let Some(file_name) = path.to_str() {
+ 
+                    if file_name.contains("_nodes") {
+                        node_file = Some(file_name.to_string()); 
+                    }
+
+                    if file_name.contains("_metadata") {
+                        metadata_file = Some(file_name.to_string()); 
+                    }
+
+                }
+
+            }
+
+        }
+
+        let node_file_read = File::open(node_file.unwrap())?; 
+        let metadata_file_read = File::open(metadata_file.unwrap())?; 
+
+        let nodes: Vec<NodeSerialize<f64>> = serde_json::from_reader(
+            node_file_read
+        )?;
+
+        let mut nodes_vec: Vec<Node<f64>> = Vec::new(); 
+        for node in nodes.iter() {
+            let item = Node::load(node.clone(), graph.registry.clone())?;
+            nodes_vec.push(item); 
+        }
+
+        assert_eq!(nodes_vec.len(), graph.nodes().len());
+
+        let g_metadata: ComputationGraphMetadata = serde_json::from_reader(
+            metadata_file_read
+        )?;
+
+        assert_eq!(g_metadata.path, graph.path());
+        assert_eq!(g_metadata.curr_node_idx, graph.curr_node_idx()); 
+        assert_eq!(g_metadata.variables, graph.variables());
+        assert_eq!(g_metadata.operations, graph.operations());
+
+        fs::remove_dir_all("testing")?; 
+        Ok(())
+    }
+
+
+    #[test]
+    fn test_graph_load() -> std::io::Result<()> {
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![5.0, 10.0]); 
+        graph.add(vec![100.0]);
+        graph.mul(vec![20.0]);
+        graph.sub(vec![10.0]);
+
+        let _ = graph.save("sample_saved_graph");
+
+        let loaded_graph: ComputationGraph<f64> = ComputationGraph::load("sample_saved_graph").unwrap();
+
+        assert_eq!(loaded_graph.nodes().len(), graph.nodes().len()); 
+        assert_eq!(loaded_graph.path(), graph.path());
+        assert_eq!(loaded_graph.variables(), graph.variables()); 
+        assert_eq!(loaded_graph.curr_node_idx(), graph.curr_node_idx());
+        assert_eq!(loaded_graph.operations(), graph.operations());
+
+        fs::remove_dir_all("sample_saved_graph")?; 
+        Ok(())
+
+    }
+
+
+
+}

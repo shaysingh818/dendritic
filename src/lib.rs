@@ -80,3 +80,6 @@
 //!     println!("LOSS: {:?}", loss);  
 //! }
 //! ```
+pub mod autodiff;
+pub mod optimizer;
+pub mod preprocessing;

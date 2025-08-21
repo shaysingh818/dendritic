@@ -15,7 +15,8 @@ use dendritic_autodiff::operations::loss::*;
 use dendritic_autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
 use crate::model::*; 
-use crate::regression::sgd::*; 
+use crate::regression::sgd::*;
+use crate::optimizers::Optimizer; 
 
 
 pub struct Lasso {
@@ -66,11 +67,23 @@ impl Model for Lasso {
     }
 
     fn set_input(&mut self, x: &Array2<f64>) {
-        self.set_input(x);
+        self.sgd.set_input(x);
     }
 
     fn set_output(&mut self, y: &Array2<f64>) {
-        self.set_output(y);
+        self.sgd.set_output(y);
+    }
+
+    fn graph(&self) -> &ComputationGraph<Array2<f64>> {
+        &self.sgd.graph
+    }
+
+    fn forward(&mut self) {
+        self.sgd.graph.forward();
+    }
+
+    fn backward(&mut self) {
+        self.sgd.graph.backward();
     }
 
     fn predicted(&self) -> Array2<f64> {
@@ -101,9 +114,13 @@ impl Model for Lasso {
         self.sgd.graph.mut_node_output(1, w_new); 
 
         let b = self.sgd.graph.node(3);
-        let b_grad = (b.grad() * lr).sum_axis(Axis(0));
+        let b_grad = b.grad() * lr;
         let b_delta = b.output() - b_grad;
         self.sgd.graph.mut_node_output(3, b_delta);  
+    }
+
+    fn update_parameter(&mut self, idx: usize, val: Array2<f64>) {
+        self.sgd.update_parameter(idx, val);
     }
 
 }

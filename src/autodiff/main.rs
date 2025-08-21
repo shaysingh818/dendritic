@@ -5,9 +5,9 @@ use ndarray::{arr2, Array2};
 
 use dendritic_autodiff::graph::*;
 
-use dendritic_autodiff::operations::activation::*; 
-use dendritic_autodiff::operations::arithmetic::*; 
-use dendritic_autodiff::operations::loss::*;
+use crate::autodiff::operations::activation::*; 
+use crate::autodiff::operations::arithmetic::*; 
+use crate::autodiff::operations::loss::*;
 
 use env_logger; 
 
