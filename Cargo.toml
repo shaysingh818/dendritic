@@ -1,19 +1,25 @@
 [package]
 name = "dendritic"
-version = "1.5.0"
+version = "2.0.0"
 edition = "2021"
-description = "Machine learning library for Rust"
+description = "Iterative Optimization Library"
 license = "MIT"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-
-[workspace]
-members = ["crates/*"]
-
-[workspace.package]
-version = "1.5.0"
-edition = "2021"
-
 [dependencies]
-ndarray = "0.16.1"
+ndarray = { version = "0.16.1", features = ["serde"] }
+ndarray-stats = "0.6.0"
+chrono = "0.4"
+log = "0.4.27"
+env_logger = "0.11"
+serde = "1.0.126"
+serde_json = "1.0.64"
+typetag = "0.2.20"
+rand = "0.8"
+indicatif = "0.18.0"
+
+[dependencies.uuid]
+version = "1.18.0"
+features = [
+    "v4",
+]
+

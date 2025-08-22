@@ -3,14 +3,14 @@ use std::io::Write;
 use chrono::Local; 
 use ndarray::{arr2, Array2, Axis};
 
-use dendritic_autodiff::node::*; 
-use dendritic_autodiff::graph::*;
-use dendritic_autodiff::operations::activation::*; 
-use dendritic_autodiff::operations::loss::*; 
-use crate::regression::logistic::*; 
-use crate::regression::sgd::*;
-use crate::train::*;
-use crate::model::*;
+use crate::autodiff::node::*; 
+use crate::autodiff::graph::*;
+use crate::autodiff::operations::activation::*; 
+use crate::autodiff::operations::loss::*; 
+use crate::optimizer::regression::logistic::*; 
+use crate::optimizer::regression::sgd::*;
+use crate::optimizer::train::*;
+use crate::optimizer::model::*;
 
 
 pub trait Optimizer {
@@ -388,3 +388,4 @@ impl Optimizer for Adam {
     }
 
 }
+

@@ -25,4 +25,6 @@ pub mod operations;
 pub mod tensor;
 pub mod graph;
 pub mod error;
-pub mod registry; 
+pub mod registry;
+
+

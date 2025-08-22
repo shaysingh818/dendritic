@@ -3,15 +3,15 @@ use std::io::Write;
 use chrono::Local; 
 use ndarray::{arr2, Array2, Axis};
 
-use dendritic_autodiff::operations::activation::*; 
-use dendritic_autodiff::operations::loss::*; 
-use dendritic_optimizer::regression::logistic::*; 
-use dendritic_optimizer::regression::sgd::*;
-use dendritic_optimizer::regression::ridge::*;
-use dendritic_optimizer::train::*;
-use dendritic_optimizer::model::*;
-use dendritic_optimizer::optimizers::*; 
-use dendritic_optimizer::optimizers::Optimizer;
+use crate::autodiff::operations::activation::*; 
+use crate::autodiff::operations::loss::*; 
+use crate::optimizer::regression::logistic::*; 
+use crate::optimizer::regression::sgd::*;
+use crate::optimizer::regression::ridge::*;
+use crate::optimizer::train::*;
+use crate::optimizer::model::*;
+use crate::optimizer::optimizers::*; 
+use crate::optimizer::optimizers::Optimizer;
 
 pub fn load_data() -> (Array2<f64>, Array2<f64>) {
 

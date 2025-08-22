@@ -230,6 +230,117 @@ impl Operation<f64> for Tanh {
 }
 
 
+#[cfg(test)]
+mod activation_ops_test {
+
+    use crate::autodiff::graph::*;
+    use crate::autodiff::operations::activation::*; 
+    use crate::autodiff::operations::arithmetic::*; 
+    use crate::autodiff::operations::loss::*; 
+    use ndarray::prelude::*; 
+    use ndarray::{arr2};
+
+
+    #[test]
+    fn test_sigmoid() {
+
+        let w = Array2::<f64>::zeros((3, 1));
+        let b = Array2::<f64>::zeros((1, 1));
+
+        let x = arr2(&[
+            [1.0, 2.0, 3.0],
+            [2.0, 3.0, 4.0],
+            [3.0, 4.0, 5.0],
+            [4.0, 5.0, 6.0],
+            [5.0, 6.0, 7.0]
+        ]);
+
+        let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]); 
+        
+        let mut graph = ComputationGraph::new();
+        graph.mul(vec![x, w]); 
+        graph.add(vec![b]);
+        graph.sigmoid(); 
+        graph.mse(y.clone());
+
+        graph.forward(); 
+
+        let add_output = graph.node(4); 
+        let sig_output = graph.node(5); 
+
+        assert_eq!(
+            add_output.output(), 
+            arr2(&[[0.0],[0.0],[0.0],[0.0], [0.0]])
+        );
+
+        assert_eq!(
+            sig_output.output(), 
+            arr2(&[[0.5],[0.5],[0.5],[0.5], [0.5]])
+        );
+
+        graph.backward();
+
+        assert_eq!(
+            graph.node(4).grad(),
+            arr2(&[[-2.375],[-2.875],[-3.375],[-3.875],[-4.375]])
+        );
+
+    }
+
+
+    #[test]
+    fn test_tanh() {
+
+        let b = Array2::<f64>::zeros((1, 1));
+        let w = arr2(&[[1.0],[2.0],[3.0]]);
+
+        let x = arr2(&[
+            [1.0, 2.0, 3.0],
+            [2.0, 3.0, 4.0],
+            [3.0, 4.0, 5.0],
+            [4.0, 5.0, 6.0],
+            [5.0, 6.0, 7.0]
+        ]);
+
+        let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]); 
+        
+        let mut graph = ComputationGraph::new();
+        graph.mul(vec![x, w]); 
+        graph.add(vec![b]);
+        graph.tanh(); 
+        graph.mse(y.clone());
+
+        graph.forward();
+
+        let add_output = graph.node(4); 
+        let tan_output = graph.node(5);
+
+        assert_eq!(
+            add_output.output(),
+            arr2(&[[14.0],[20.0],[26.0],[32.0],[38.0]])
+        );
+
+        assert_eq!(
+            tan_output.output(),
+            arr2(&[[0.9999999999986171],[1.0],[1.0],[1.0],[1.0]])
+        );
+
+        graph.backward(); 
+
+        assert_eq!(
+            graph.node(4).grad(),
+            arr2(&[
+                [-9.000000000001382],
+                [-11.0],
+                [-13.0],
+                [-15.0],
+                [-17.0]
+            ])
+        );
+
+    }
+
+}
 
 
 

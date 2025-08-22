@@ -10,13 +10,13 @@ use ndarray::{s, Array2, Axis};
 use indicatif::{ProgressBar, ProgressStyle}; 
 use serde::{Serialize, Deserialize}; 
 
-use dendritic_autodiff::operations::arithmetic::*; 
-use dendritic_autodiff::operations::loss::*;
-use dendritic_autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
+use crate::autodiff::operations::arithmetic::*; 
+use crate::autodiff::operations::loss::*;
+use crate::autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
-use crate::model::*; 
-use crate::regression::sgd::*; 
-use crate::optimizers::Optimizer; 
+use crate::optimizer::model::*; 
+use crate::optimizer::regression::sgd::*; 
+use crate::optimizer::optimizers::Optimizer; 
 
 
 

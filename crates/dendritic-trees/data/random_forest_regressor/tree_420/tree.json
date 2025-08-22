@@ -1,9 +1,0 @@
-{
-  "threshold": 0.0,
-  "feature_idx": 0,
-  "value": 17.6,
-  "mse": null,
-  "information_gain": null,
-  "left": null,
-  "right": null
-}

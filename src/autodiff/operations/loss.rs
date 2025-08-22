@@ -466,3 +466,97 @@ impl Operation<f64> for CategoricalCrossEntropy {
 
     }
 }
+
+
+#[cfg(test)]
+mod loss_ops_test {
+
+    use crate::autodiff::graph::*;
+    use crate::autodiff::operations::activation::*; 
+    use crate::autodiff::operations::arithmetic::*; 
+    use crate::autodiff::operations::loss::*; 
+    use ndarray::prelude::*; 
+    use ndarray::{arr2};
+
+
+    #[test]
+    fn test_mse() {
+
+        let a = arr2(&[[1.0], [2.0], [3.0]]); 
+        let b = arr2(&[[1.0], [2.0], [3.0]]); 
+        let c = arr2(&[[1.0], [1.0], [1.0]]); 
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![a, b]);
+        graph.mse(c);
+
+        assert_eq!(graph.nodes().len(), 5);
+
+        assert_eq!(graph.node(0).inputs().len(), 0); 
+        assert_eq!(graph.node(0).output().shape(), vec![3, 1]); 
+
+        assert_eq!(graph.node(1).inputs().len(), 0); 
+        assert_eq!(graph.node(1).output().shape(), vec![3, 1]); 
+
+        assert_eq!(graph.node(2).inputs().len(), 2); 
+        assert_eq!(graph.node(2).output().shape(), vec![0, 0]); 
+
+        graph.forward();
+
+        assert_eq!(graph.node(2).output().shape(), vec![3, 1]); 
+        assert_eq!(
+            graph.node(2).output(), 
+            arr2(&[[2.0],[4.0],[6.0]])
+        );
+
+        graph.backward();
+
+        assert_eq!(
+            graph.node(2).grad(), 
+            arr2(&[[1.0],[3.0],[5.0]])
+        );
+
+    }
+
+    #[test]
+    fn test_binary_cross_entropy() {
+
+        let a = arr2(&[
+            [0.0], [0.0], [1.0], [0.0], [1.0],
+            [1.0], [1.0], [1.0], [1.0], [1.0]
+        ]);
+
+
+        let b = arr2(&[
+            [0.0], [0.0], [0.0], [0.0], [0.0],
+            [0.0], [0.0], [0.0], [0.0], [0.0]
+        ]);
+
+        let c = arr2(&[
+            [0.19], [0.33], [0.47], [0.7], [0.74],
+            [0.81], [0.86], [0.94], [0.97], [0.99]
+        ]); 
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![c, b]);
+        graph.bce(a);
+
+        assert_eq!(graph.nodes().len(), 5); 
+
+        graph.forward();
+
+        let output = graph.curr_node();
+        let output_nd = output.output();
+        let output_val = output_nd[[0, 0]];
+
+        assert_eq!(output_val, 0.3335227947407202); 
+        assert_eq!(output_nd.shape(), vec![1, 1]);
+
+        graph.backward();
+
+        assert_eq!(graph.node(4).grad().len(), 10); 
+
+    }
+
+
+}

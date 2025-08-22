@@ -11,14 +11,14 @@ use ndarray::{s, stack,  Array2, Axis};
 use indicatif::{ProgressBar, ProgressStyle}; 
 use serde::{Serialize, Deserialize}; 
 
-use dendritic_autodiff::operations::base::*; 
-use dendritic_autodiff::operations::arithmetic::*; 
-use dendritic_autodiff::operations::loss::*;
-use dendritic_autodiff::operations::activation::*;
-use dendritic_autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
+use crate::autodiff::operations::base::*; 
+use crate::autodiff::operations::arithmetic::*; 
+use crate::autodiff::operations::loss::*;
+use crate::autodiff::operations::activation::*;
+use crate::autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
-use crate::model::*;
-use crate::optimizers::Optimizer; 
+use crate::optimizer::model::*;
+use crate::optimizer::optimizers::Optimizer; 
 
 
 pub struct Logistic {

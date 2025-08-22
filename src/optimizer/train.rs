@@ -7,13 +7,13 @@ use ndarray::{s, Array2, Axis};
 use serde::Serialize;
 use serde_json; 
 
-use crate::model::*;
-use crate::optimizers::Optimizer;
-use crate::regression::elastic::*; 
-use crate::regression::lasso::*; 
-use crate::regression::ridge::*; 
-use crate::regression::sgd::*; 
-use crate::regression::logistic::*;
+use crate::optimizer::model::*;
+use crate::optimizer::optimizers::Optimizer;
+use crate::optimizer::regression::elastic::*; 
+use crate::optimizer::regression::lasso::*; 
+use crate::optimizer::regression::ridge::*; 
+use crate::optimizer::regression::sgd::*; 
+use crate::optimizer::regression::logistic::*;
 
 
 pub trait Trainable {
