@@ -82,32 +82,64 @@ fn main() {
 ```
 
 ```rust
+use std::fs;
+use std::fs::File;
 
+
+use ndarray::{arr2, Array2};
+use dendritic::optimizer::model::*;
+use dendritic::optimizer::train::*
+use dendritic::optimizer::regression::logistic::*;
+
+
+fn load_multi_class() -> (Array2<f64>, Array2<f64>) {
+
+	// multi class data
+	let x = arr2(&[	
+		[1.0, 2.0],
+		[1.5, 1.8],
+		[2.0, 1.0], // Class 0
+		[4.0, 4.5],
+		[4.5, 4.8],
+		[5.0, 5.2], // Class 1
+		[7.0, 7.5],
+		[7.5, 8.0],
+		[8.0, 8.5], // Class 2
+	]);
+
+	// Label encoded target values
+	let y = arr2(&[
+		[1.0, 0.0, 0.0],
+		[1.0, 0.0, 0.0],
+		[1.0, 0.0, 0.0],
+		[0.0, 1.0, 0.0],
+		[0.0, 1.0, 0.0],
+		[0.0, 1.0, 0.0],
+		[0.0, 0.0, 1.0],
+		[0.0, 0.0, 1.0],
+		[0.0, 0.0, 1.0],
+	]);
+	
+	(x, y)
+}
 
 fn main() -> std::io::Result<()> {
 
-	// Sample dataset
-	let x = arr2(&[
-		[1.0, 2.0, 3.0],
-		[2.0, 3.0, 4.0],
-		[3.0, 4.0, 5.0],
-		[4.0, 5.0, 6.0],
-		[5.0, 6.0, 7.0]
-	]);
+	// Multi class logistic model
+	let (x, y) = load_sample();
+	let mut model = Logistic::new(&x, &y, false, 0.01).unwrap();
 
-	let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
+	// Multi class logistic model
+	let (x1, y1) = load_multi_class();
+	let mut multi_class_model = Logistic::new(&x1, &y1, true, 0.01).unwrap();
 
-	// Ridge regression model with lambda parameters
-	let mut model = let mut model = Ridge::new(&x, &y, 0.001, 0.001).unwrap();
-	
-	// train & save for later user
-	model.train(1000);
-	model.save("data/ridge")?;
-	
-	// Load saved model to make predictions
-	let mut loaded_model = Ridge::load("data/ridge").unwrap();
-	let output = loaded_model.predict(&x);
-	let diff = output - y;
+	// train and save model
+	multi_class_model.train(2000);
+	multi_class_model.save("data/multiclass_logistic")?;
+
+	let mut loaded = Logistic::load("data/multiclass_logistic").unwrap();
+	let output = loaded.predict(&x1);
+	let class_predictions = output.column(0);
 	Ok(())
 }
 ```
