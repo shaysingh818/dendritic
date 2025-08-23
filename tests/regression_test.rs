@@ -1,7 +1,4 @@
-
 use std::fs;
-use std::fs::File;
-
 use ndarray::arr2;
 
 use dendritic::optimizer::model::*; 

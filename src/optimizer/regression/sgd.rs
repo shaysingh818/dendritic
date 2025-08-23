@@ -1,20 +1,16 @@
 use std::fs;
 use std::fs::File; 
 use std::io::{Write, BufWriter, BufReader};
-use std::collections::HashMap; 
 
-use rand::thread_rng;
-use rand::prelude::SliceRandom;
 use uuid::Uuid;
 use chrono::{Datelike, Utc};  
-use ndarray::{s, Array2, Axis};
+use ndarray::{Array2};
 use serde::{Serialize, Deserialize}; 
 
 use crate::autodiff::operations::arithmetic::*; 
 use crate::autodiff::operations::loss::*;
 use crate::autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
-use crate::optimizer::optimizers::*; 
 use crate::optimizer::model::*; 
 
 

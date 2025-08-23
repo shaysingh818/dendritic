@@ -172,7 +172,7 @@ impl Operation<Array2<f64>> for Add {
             let input_shape = nodes[*input_idx].output().dim();
             if input_shape.0 == 1 {
                 let grad = upstream_grad.sum_axis(Axis(0));
-                let final_grad = grad.clone().into_shape((1, grad.dim())).unwrap();
+                let final_grad = grad.clone().into_shape_with_order((1, grad.dim())).unwrap();
                 nodes[*input_idx].set_grad_output(final_grad);
             } else {
                 nodes[*input_idx].set_grad_output(upstream_grad.clone());
@@ -414,10 +414,8 @@ impl Operation<Array2<f64>> for Mul {
 mod arithmetic_ops_test {
 
     use crate::autodiff::graph::*;
-    use crate::autodiff::operations::activation::*; 
     use crate::autodiff::operations::arithmetic::*; 
     use crate::autodiff::operations::loss::*; 
-    use ndarray::prelude::*; 
     use ndarray::{arr2};
 
     #[test]

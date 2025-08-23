@@ -410,7 +410,6 @@ impl Operation<Array2<f64>> for CategoricalCrossEntropy {
         let inputs = nodes[curr_idx].inputs();
         let logits = nodes[inputs[0]].output(); 
         let y_true = nodes[inputs[1]].output();
-        let n = y_true.clone().len();
 
         if logits.shape() != y_true.shape() {
             panic!("Value shapes for categorical cross entropy not equal");
@@ -472,10 +471,8 @@ impl Operation<f64> for CategoricalCrossEntropy {
 mod loss_ops_test {
 
     use crate::autodiff::graph::*;
-    use crate::autodiff::operations::activation::*; 
     use crate::autodiff::operations::arithmetic::*; 
     use crate::autodiff::operations::loss::*; 
-    use ndarray::prelude::*; 
     use ndarray::{arr2};
 
 

@@ -85,12 +85,9 @@ impl Operation<Array2<f64>> for Sigmoid {
 
         let upstream = nodes[curr_idx].upstream();
 
-        fn sigmoid(x: f64) -> f64 { 1.0 / (1.0 + f64::exp(-x)) }
-
         match upstream.len() {
             1 => {
                 let upstream = nodes[upstream[0]].grad();
-                let input = nodes[inputs[0]].output();
                 let sig_output = nodes[curr_idx].output();
                 let sig_deriv = sig_output.mapv(|s| s * (1.0 - s));
                 let grad = upstream * &sig_deriv;
@@ -237,7 +234,6 @@ mod activation_ops_test {
     use crate::autodiff::operations::activation::*; 
     use crate::autodiff::operations::arithmetic::*; 
     use crate::autodiff::operations::loss::*; 
-    use ndarray::prelude::*; 
     use ndarray::{arr2};
 
 

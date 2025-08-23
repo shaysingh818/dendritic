@@ -1,15 +1,7 @@
-use std::io::Write; 
-
-use chrono::Local; 
-use ndarray::{arr2, Array2, Axis};
+use ndarray::{Array2};
 
 use crate::autodiff::node::*; 
-use crate::autodiff::graph::*;
-use crate::autodiff::operations::activation::*; 
-use crate::autodiff::operations::loss::*; 
-use crate::optimizer::regression::logistic::*; 
 use crate::optimizer::regression::sgd::*;
-use crate::optimizer::train::*;
 use crate::optimizer::model::*;
 
 
@@ -31,7 +23,7 @@ impl Optimizer for DefaultOptimizer {
 
     fn step<M: Model>(&mut self, model: &mut M) {
         let params = model.graph().parameters();
-        for (idx, param) in params.into_iter().enumerate() {
+        for (_idx, param) in params.into_iter().enumerate() {
             let parameter = model.graph().node(param);
             let grad = parameter.grad() * self.alpha;
             let delta = parameter.output() - grad;

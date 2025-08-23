@@ -1,6 +1,5 @@
-use log::debug;
 use std::collections::HashSet; 
-use ndarray::{arr2, Array, Array2, Axis};
+use ndarray::{Array, Array2, Axis};
 use ndarray_stats::QuantileExt;
 
 
@@ -74,7 +73,6 @@ impl Preprocessor for OneHotEncoding {
     /// Encode function for One Hot Encoding
     fn encode(&mut self) -> Array2<f64> {
 
-        let mut row: usize = 0;
         let encoded_shape = (self.data.nrows(), self.num_classes);
         let mut encoded: Array2<f64> = Array2::zeros(encoded_shape);
         for (idx, row) in self.data().iter().enumerate() {
@@ -287,7 +285,7 @@ impl Preprocessor for MinMaxScalar {
 #[cfg(test)]
 mod preprocessing_tests {
 
-    use ndarray::{arr2, Array2, Axis}; 
+    use ndarray::{arr2}; 
     use crate::preprocessing::processor::*;
 
     #[test]

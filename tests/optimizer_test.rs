@@ -1,10 +1,6 @@
-use std::fs;
-use std::fs::File;
-
 use ndarray::{arr2, Array2}; 
 
 use dendritic::optimizer::model::*; 
-use dendritic::optimizer::train::*;
 use dendritic::optimizer::optimizers::*;
 use dendritic::optimizer::optimizers::Optimizer;
 use dendritic::optimizer::regression::sgd::*;

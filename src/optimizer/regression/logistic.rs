@@ -2,23 +2,17 @@ use std::fs;
 use std::fs::File; 
 use std::io::{Write, BufWriter, BufReader}; 
 
-use log::debug; 
-use rand::thread_rng;
-use rand::prelude::SliceRandom;
 use uuid::Uuid;
 use chrono::{Datelike, Utc};  
-use ndarray::{s, stack,  Array2, Axis};
-use indicatif::{ProgressBar, ProgressStyle}; 
+use ndarray::{stack,  Array2, Axis};
 use serde::{Serialize, Deserialize}; 
 
-use crate::autodiff::operations::base::*; 
 use crate::autodiff::operations::arithmetic::*; 
 use crate::autodiff::operations::loss::*;
 use crate::autodiff::operations::activation::*;
 use crate::autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
 use crate::optimizer::model::*;
-use crate::optimizer::optimizers::Optimizer; 
 
 
 pub struct Logistic {

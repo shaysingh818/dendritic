@@ -1,9 +1,7 @@
 use rand::thread_rng;
 use rand::prelude::SliceRandom;
-use uuid::Uuid;
-use chrono::{Datelike, Utc};  
 use indicatif::{ProgressBar, ProgressStyle}; 
-use ndarray::{s, Array2, Axis};
+use ndarray::{s, Axis};
 use serde::Serialize;
 use serde_json; 
 
@@ -118,7 +116,7 @@ macro_rules! train_default {
                         .template("{bar:50} {pos}/{len}")
                         .unwrap());
                 
-                    for epoch in 0..batch_epochs {
+                    for _epoch in 0..batch_epochs {
 
                         let mut row_indices: Vec<_> = (0..rows).collect();
                         row_indices.shuffle(&mut thread_rng());
@@ -237,7 +235,7 @@ macro_rules! train_optimizer {
                         .template("{bar:50} {pos}/{len}")
                         .unwrap());
                 
-                    for epoch in 0..batch_epochs {
+                    for _epoch in 0..batch_epochs {
 
                         let mut row_indices: Vec<_> = (0..rows).collect();
                         row_indices.shuffle(&mut thread_rng());
