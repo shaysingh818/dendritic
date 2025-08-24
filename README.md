@@ -6,82 +6,24 @@
 [![Latest Version](https://img.shields.io/crates/v/dendritic.svg)](https://crates.io/crates/dendritic)
 [![Docs](https://img.shields.io/badge/docs.rs-denritic-green)](https://docs.rs/dendritic)
 
-Dendrite is a general purpose supervised/un-supervised machine learning library written for the rust ecosystem. It contains the required data structures & algorithms needed for general machine learning. It acts as core library with packages for predictive data modeling.
+**Dendritic** is a lightweight and extensible optimization library built with flexibility in mind. Contains utilities for first order optimization with multi variate/vector valued functions using `ndarray`. This crate aims to contain extensible interfaces for common abstractions in optimization & machine learning problems. 
+## 🚀 Features
 
-# Disclaimer
-The dendritic project is a toy machine learning library built for learning and research purposes.
-It is not advised by the maintainer to use this library as a production ready machine learning library.
-This is a project that is still very much a work in progress.
+- 📐 **Auto-Differentiation**: Reverse-mode autodiff for computing gradients using ndarray.
+- ⚙️ **Optimizers**: Built-in optimizers like SGD, Adam etc. 
+- 📈 **Regression Models**: Traditional regression models (Linear, Logistic)
+- 🔣 **Preprocessing**: Lightweight utilities for common preprocessing tasks (e.g., one-hot encoding).
+- 🧱 **Modular**: Designed to be flexible and easy to extend for research or custom pipelines.
 
-# Published Crates
+## Future Enhancements
 
-| Rust Crate                                                                  | Description                                                                            |
-| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [dendritic_ndarray](https://crates.io/crates/dendritic-ndarray)             | N Dimensional array library for numerical computing                                    |
-| [dendritic_datasets](https://crates.io/crates/dendritic-datasets)           | Variety of datasets for regression and classification tasks                                            |
-| [dendritic_autodiff](https://crates.io/crates/dendritic-autodiff)           | Autodifferentiation crate for backward and forward operations                          |
-| [dendritic_metrics](https://crates.io/crates/dendritic-metrics)             | Metrics package for measuring loss and activiation functions for non linear boundaries |
-| [dendritic_preprocessing](https://crates.io/crates/dendritic-preprocessing) | Preprocessing library for normalization and encoding of data                           |
-| [dendritic_bayes](https://crates.io/crates/dendritic-bayes)                 | Bayesian statistics package                                                            |
-| [dendritic_clustering](https://crates.io/crates/dendritic-clustering)       | Clustering package utilizing various distance metrics                                  |
-| [dendritic_knn](https://crates.io/crates/dendritic-knn)                     | K Nearest Neighbors for regression and classification                                  |
-| [dendritic_models](https://crates.io/crates/dendritic-models)                  | Pre-trained models for testing `dendritic` functionality                               |
-| [dendritic_regression](https://crates.io/crates/dendritic-regression)       | Regression package for linear modeling & multi class classification                    |
-| [dendritic_trees](https://crates.io/crates/dendritic-trees)                 | Tree based models using decision trees and random forests                              |
+There are more features on the roadmap for this crate, `v2` of this crate was a redesign of the crate structure and honing in on features that are more aligned with common abstractions in optimization theory. Down below are some ideas for future features that will be incorporated into this crate.
 
-## Building The Dendritic Packages
-Dendritic is made up of multiple indepedent packages that can be built separatley.
-To install a package, add the following to your `Cargo.toml` file.
-
-```toml
-[dependencies]
-dendritic = { version = "<LATEST_VERSION>", features = ["bundled"] }
-```
-
-## Example IRIS Flowers Prediction
-Down below is an example of using a multi class logstic regression model on the well known iris flowers dataset.
-For more examples, refer to the `dendritic-models/src/main.rs` file. 
-
-```rust
-use dendritic_datasets::iris::*;
-use dendritic_regression::logistic::*;
-use dendritic_metrics::loss::*;
-use dendritic_metrics::activations::*;
-use dendritic_preprocessing::encoding::*;
-
-
-fn main() {
-
-    // load data
-    let data_path = "../../datasets/data/iris.parquet";
-    let (x_train, y_train) = load_iris(data_path).unwrap();
-
-    // encode the target variables
-    let mut encoder = OneHotEncoding::new(y_train.clone()).unwrap();
-    let y_train_encoded = encoder.transform();
-
-    // create logistic regression model
-    let mut log_model = MultiClassLogistic::new(
-        &x_train,
-        &y_train_encoded,
-        softmax,
-        0.1
-    ).unwrap();
-
-    log_model.sgd(500, true, 5);
-
-    let sample_index = 100;
-    let x_test = x_train.batch(5).unwrap();
-    let y_test = y_train.batch(5).unwrap();
-    let y_pred = log_model.predict(x_test[sample_index].clone());
-
-    println!("Actual: {:?}", y_test[sample_index]);
-    println!("Prediction: {:?}", y_pred.values());
-
-    let loss = mse(&y_test[sample_index], &y_pred).unwrap(); 
-    println!("LOSS: {:?}", loss);  
-}
-```
+| Feature                       | Description                                                                                                         |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Second Order Optimization** | Using newton/secant methods that leverage the second derivative for faster convergence.                             |
+| **Population Methods**        | Algorithms that involve a "population" of design points to iterate on and converge towards. Genetic algorithms etc. |
+| **Zero Order Methods**        | Optimization methods that don't rely on the first or second derivative for finding the local max or minimum.        |
 
 
 
