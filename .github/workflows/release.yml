@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Publish NDArray Package
+      - name: Publish Package
         run: cargo publish --token $CRATES_IO_TOKEN
         env:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
