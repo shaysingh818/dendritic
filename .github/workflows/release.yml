@@ -15,6 +15,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Publish Package
-        run: cargo publish --token $CRATES_IO_TOKEN
+        run: cargo publish --token $CRATES_IO_TOKEN --allow-dirty
         env:
           CRATES_IO_TOKEN: ${{ secrets.CRATE_TOKEN }}
