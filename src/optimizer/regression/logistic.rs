@@ -1,3 +1,5 @@
+//! Logistic regression model implementation
+
 use std::fs;
 use std::fs::File; 
 use std::io::{Write, BufWriter, BufReader}; 
@@ -56,6 +58,16 @@ pub struct LogisticSerialize {
 
 impl Logistic {
 
+
+    /// Create instance of logistic regression model.
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - Input features for training.
+    /// * `y` - Target labels for training.
+    /// * `multi_class` - Flag for multi-class classification.
+    /// * `learning_rate` - The learning rate for the optimizer.
+    ///
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,

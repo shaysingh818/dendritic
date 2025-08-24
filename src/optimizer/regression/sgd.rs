@@ -1,3 +1,5 @@
+//! Stochastic gradient descent (SGD) model implementation
+
 use std::fs;
 use std::fs::File; 
 use std::io::{Write, BufWriter, BufReader};
@@ -48,6 +50,15 @@ pub struct SGDSerialize {
 
 impl SGD {
 
+
+    /// Create instance of SGD (stochastic gradient descent) model.
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - Input features for training.
+    /// * `y` - Target labels for training.
+    /// * `learning_rate` - The learning rate for the optimizer.
+    ///
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,

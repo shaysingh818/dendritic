@@ -2,13 +2,11 @@
 mod classification_test {
 
     use std::fs;
-    use std::fs::File;
-
     use ndarray::{arr2, Array1};
 
-    use dendritic_optimizer::model::*; 
-    use dendritic_optimizer::train::*;
-    use dendritic_optimizer::regression::logistic::*; 
+    use dendritic::optimizer::model::*; 
+    use dendritic::optimizer::train::*;
+    use dendritic::optimizer::regression::logistic::*; 
  
     #[test]
     fn test_binary_classification() -> std::io::Result<()> {

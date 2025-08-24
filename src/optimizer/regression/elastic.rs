@@ -1,3 +1,5 @@
+//! Elastic regression model implementation
+
 use std::fs;
 use std::fs::File; 
 use std::io::{Write, BufWriter, BufReader}; 
@@ -13,6 +15,7 @@ use crate::optimizer::model::*;
 use crate::optimizer::regression::sgd::*;
 
 
+/// Elastic regression model instance
 pub struct Elastic {
     
     /// Instance of linear regression structure
@@ -25,6 +28,7 @@ pub struct Elastic {
     pub alpha: f64
 }
 
+/// Serialization structure for elastic model instance
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ElasticSerialize {
 
@@ -41,6 +45,16 @@ pub struct ElasticSerialize {
 
 impl Elastic {
 
+    /// Create instance of elastic regression model.
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - Input features for training.
+    /// * `y` - Target labels for training.
+    /// * `learning_rate` - The learning rate for the optimizer.
+    /// * `lambda` - The regularization strength.
+    /// * `alpha` - The mixing parameter for L1/L2 regularization.
+    ///
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,
@@ -57,7 +71,7 @@ impl Elastic {
 
 }
 
-
+/// Elastic model trait implementation
 impl Model for Elastic {
     
     fn input(&self) -> Array2<f64> {

@@ -2,7 +2,7 @@ use ndarray::{Array2};
 
 use crate::autodiff::graph::{ComputationGraph};
 
-
+/// Model trait for sharing reusable optimizer logic
 pub trait Model {
 
     /// Inputs fed to model
@@ -43,6 +43,7 @@ pub trait Model {
 
 }
 
+/// Model serialization trait for saving and loading model parameters
 pub trait ModelSerialize {
 
     /// Save routine for saving single instance of parameters
@@ -65,7 +66,7 @@ pub trait ModelSerialize {
 }
 
 
-/// Traits for creating model pipelines with the library
+/// Model pipeline trait for creating and managing model instances
 pub trait ModelPipeline {
     
     /// Instantiate new model
@@ -73,24 +74,28 @@ pub trait ModelPipeline {
 
 }
 
+/// Load data to model
 pub trait Load: ModelPipeline {
 
     /// Load data to model
     fn load(&self);
 }
 
+/// Transform data to model
 pub trait Transform: ModelPipeline {
 
     /// Transform data to numerical format (if required)
     fn transform(&self);
 }
 
+/// Train method for model pipelines
 pub trait Train: ModelPipeline {
 
     /// Train model on transformed data
     fn train(&self);
 }
 
+/// Inference step for model pipelines
 pub trait Inference: ModelPipeline {
 
     /// Predict data on trained model

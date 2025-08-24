@@ -14,12 +14,25 @@ use crate::optimizer::regression::sgd::*;
 use crate::optimizer::regression::logistic::*;
 
 
+/// Trainable model trait
 pub trait Trainable {
 
-    /// Train method without batching
+    /// Train full dataset.
+    ///
+    /// # Arguments
+    ///
+    /// * `epochs` - Number of iterations to train the model.
+    ///
     fn train(&mut self, epochs: usize);
 
-    /// Batch training method with shuffling 
+    /// Train batches of data with random shuffling.
+    ///
+    /// # Arguments
+    ///
+    /// * `iterations` - The number of iterations to train the model.
+    /// * `batch_size` - The size of each training batch.
+    /// * `batch_epochs` - The number of epochs to train within each batch.
+    ///
     fn train_batch(
         &mut self, 
         iterations: usize,
@@ -30,16 +43,32 @@ pub trait Trainable {
 }
 
 
+/// Trainable model trait with optimizer
 pub trait TrainOptimizer {
 
-    /// Train method without batching using an optimizer
+    /// Train dataset with optimizer.
+    ///
+    /// # Arguments
+    ///
+    /// * `epochs` - The number of epochs to train on dataset.
+    /// * `optimizer` - The optimizer to use for updating parameters on each iteration.
+    ///
     fn train_with_optimizer<O: Optimizer>(
         &mut self, 
         epochs: usize, 
         optimizer: &mut O
     );
 
-    /// Batch training method with shuffling using an optimizer
+    
+    /// Train batches of data with random shuffling & optimizer.
+    ///
+    /// # Arguments
+    ///
+    /// * `iterations` - The number of iterations to train the model.
+    /// * `batch_size` - The size of each training batch.
+    /// * `batch_epochs` - The number of epochs to train within each batch.
+    /// * `optimizer` - The optimizer to use for updating parameters on each iteration.
+    ///
     fn train_batch_with_optimizer<O: Optimizer>(
         &mut self, 
         iterations: usize,

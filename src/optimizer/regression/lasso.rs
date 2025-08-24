@@ -1,3 +1,5 @@
+//! Lasso regression model implementation
+
 use std::fs;
 use std::fs::File; 
 use std::io::{Write, BufWriter, BufReader}; 
@@ -35,6 +37,16 @@ pub struct LassoSerialize {
 
 impl Lasso {
 
+
+    /// Create instance of lasso regression model.
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - Input features for training.
+    /// * `y` - Target labels for training.
+    /// * `learning_rate` - The learning rate for the optimizer.
+    /// * `lambda` - The regularization strength.
+    ///
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,

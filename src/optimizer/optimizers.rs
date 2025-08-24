@@ -4,7 +4,7 @@ use crate::autodiff::node::*;
 use crate::optimizer::regression::sgd::*;
 use crate::optimizer::model::*;
 
-
+/// Optimizer trait for sharing reusable optimization logic
 pub trait Optimizer {
 
     /// Parmeter update method for optimizers
@@ -12,6 +12,7 @@ pub trait Optimizer {
 
 }
 
+/// Default optimizer with basic settings
 pub struct DefaultOptimizer {
 
     /// Learning rate associated with model
@@ -21,6 +22,7 @@ pub struct DefaultOptimizer {
 
 impl Optimizer for DefaultOptimizer {
 
+    /// Use default SGD update rule
     fn step<M: Model>(&mut self, model: &mut M) {
         let params = model.graph().parameters();
         for (_idx, param) in params.into_iter().enumerate() {
@@ -33,6 +35,7 @@ impl Optimizer for DefaultOptimizer {
 
 }
 
+/// Nesterov accelerated gradient optimizer
 pub struct Nesterov {
 
     /// Learning rate associated with model
@@ -70,6 +73,7 @@ impl Nesterov {
 
 impl Optimizer for Nesterov {
 
+    /// Nesterov accelerated gradient update step
     fn step<M: Model>(&mut self, model: &mut M) {
         let params = model.graph().parameters();
         for (idx, param) in params.into_iter().enumerate() {
@@ -87,6 +91,7 @@ impl Optimizer for Nesterov {
 }
 
 
+/// Adagrad optimizer
 pub struct Adagrad {
 
     /// Learning rate associated with model
@@ -95,11 +100,13 @@ pub struct Adagrad {
     /// Momentum factor associated with model
     pub epsilon: f64,
 
-    /// Not known yet
+    /// Parameter accumulation vector
     pub s: Vec<Array2<f64>>
 
 }
 
+
+/// Adagrad optimizer implementation
 impl Adagrad {
 
     /// Default adagrad constructor using SGD
@@ -121,8 +128,10 @@ impl Adagrad {
 
 }
 
+
 impl Optimizer for Adagrad {
 
+    /// Adagrad update step
     fn step<M: Model>(&mut self, model: &mut M) {
         let params = model.graph().parameters();
         for (idx, param) in params.into_iter().enumerate() {
@@ -141,6 +150,7 @@ impl Optimizer for Adagrad {
 }
 
 
+/// RMSProp optimizer
 pub struct RMSProp {
 
     /// Learning rate associated with model
@@ -183,6 +193,7 @@ impl RMSProp {
 
 impl Optimizer for RMSProp {
 
+    /// RMSProp update step
     fn step<M: Model>(&mut self, model: &mut M) {
         let params = model.graph().parameters();
         for (idx, param) in params.into_iter().enumerate() {
@@ -200,6 +211,7 @@ impl Optimizer for RMSProp {
 }
 
 
+/// Adadelta optimizer
 pub struct Adadelta {
 
     /// Learning rate associated with model
@@ -220,6 +232,7 @@ pub struct Adadelta {
 }
 
 
+/// Adadelta optimizer implementation
 impl Adadelta {
 
 
@@ -245,8 +258,10 @@ impl Adadelta {
     }
 }
 
+
 impl Optimizer for Adadelta {
 
+    /// Adadelta update step
     fn step<M: Model>(&mut self, model: &mut M) {
         let params = model.graph().parameters();
         for (idx, param) in params.into_iter().enumerate() {
@@ -264,6 +279,7 @@ impl Optimizer for Adadelta {
 }
 
 
+/// Adam optimizer
 pub struct Adam {
 
     /// Learning rate associated with model
@@ -357,6 +373,7 @@ impl Adam {
 
 impl Optimizer for Adam {
 
+    /// Perform a single optimization step
     fn step<M: Model>(&mut self, model: &mut M) {
         let params = model.graph().parameters();
         for (idx, param) in params.into_iter().enumerate() {
