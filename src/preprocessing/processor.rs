@@ -38,10 +38,13 @@ impl OneHotEncoding {
     /// * `data` - 2D NDArray with features.
     ///
     /// ```
+    /// use ndarray::arr2;
+    /// use dendritic::preprocessing::processor::*;
+    ///
     /// let data = arr2(&[
     ///     [0.0], [0.0], [0.0], [1.0], [1.0], [1.0], [2.0], [2.0], [2.0]
     /// ]);
-    /// let encoder = OneHotEncoding::new(&data);
+    /// let mut encoder = OneHotEncoding::new(&data).unwrap();
     /// let encoded  = encoder.encode();
     /// println!("Encoded column: {:?}", encoded);
     /// ```
@@ -136,6 +139,9 @@ impl StandardScalar {
     /// * `data` - 2D NDArray with feature output column .
     ///
     /// ```
+    /// use ndarray::arr2;
+    /// use dendritic::preprocessing::processor::*;
+    ///
     /// let x = arr2(&[
     ///     [1.0, 2.0],
     ///     [2.0, 4.0],
@@ -242,6 +248,9 @@ impl MinMaxScalar {
     /// * `data` - 2D NDArray with feature output column .
     ///
     /// ```
+    /// use ndarray::arr2;
+    /// use dendritic::preprocessing::processor::*;
+    ///
     /// let x = arr2(&[
     ///     [1.0, 2.0],
     ///     [2.0, 4.0],

@@ -78,26 +78,26 @@ pub trait ModelPipeline {
 pub trait Load: ModelPipeline {
 
     /// Load data to model
-    fn load(&self);
+    fn load(&mut self);
 }
 
 /// Transform data to model
 pub trait Transform: ModelPipeline {
 
     /// Transform data to numerical format (if required)
-    fn transform(&self);
+    fn transform(&mut self);
 }
 
 /// Train method for model pipelines
 pub trait Train: ModelPipeline {
 
     /// Train model on transformed data
-    fn train(&self);
+    fn train(&mut self);
 }
 
 /// Inference step for model pipelines
 pub trait Inference: ModelPipeline {
 
     /// Predict data on trained model
-    fn inference(&self);
+    fn inference(&mut self);
 }
