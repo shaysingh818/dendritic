@@ -1,3 +1,5 @@
+//! Operations for performing activation functions
+
 use std::fmt::Debug;
 
 use ndarray::Array2;

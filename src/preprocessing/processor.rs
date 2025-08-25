@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use ndarray::{Array, Array2, Axis};
 use ndarray_stats::QuantileExt;
 
-
+/// Trait for creating data encoders
 pub trait Preprocessor {
 
     /// Encode data and return type associated with trait type
@@ -13,6 +13,7 @@ pub trait Preprocessor {
 
 }
 
+/// One hot encoding for categorical data
 #[derive(Debug, Clone)]
 pub struct OneHotEncoding {
     
@@ -30,6 +31,20 @@ pub struct OneHotEncoding {
 
 impl OneHotEncoding {
     
+    /// Create instance of OneHot Encoder.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - 2D NDArray with features.
+    ///
+    /// ```
+    /// let data = arr2(&[
+    ///     [0.0], [0.0], [0.0], [1.0], [1.0], [1.0], [2.0], [2.0], [2.0]
+    /// ]);
+    /// let encoder = OneHotEncoding::new(&data);
+    /// let encoded  = encoder.encode();
+    /// println!("Encoded column: {:?}", encoded);
+    /// ```
     pub fn new(data: &Array2<f64>) -> Result<Self, String> {
 
         if data.dim().1 != 1 {
@@ -96,6 +111,7 @@ impl Preprocessor for OneHotEncoding {
 }
 
 
+/// Standard scalar for standarization of feature columns
 #[derive(Debug, Clone)]
 pub struct StandardScalar {
     
@@ -113,6 +129,24 @@ pub struct StandardScalar {
 
 impl StandardScalar {
 
+    /// Create instance of StandardScaler.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - 2D NDArray with feature output column .
+    ///
+    /// ```
+    /// let x = arr2(&[
+    ///     [1.0, 2.0],
+    ///     [2.0, 4.0],
+    ///     [3.0, 6.0],
+    ///     [4.0, 8.0],
+    ///     [5.0, 10.0],
+    /// ]);
+    /// let mut scalar = StandardScalar::new(&x).unwrap();
+    /// let encoded = scalar.encode(); 
+    /// println!("Encoded data: {:?}", encoded);
+    /// ```
     pub fn new(data: &Array2<f64>) -> Result<Self, String> {
          
         Ok(Self {
@@ -123,14 +157,17 @@ impl StandardScalar {
 
     }
 
+    /// Retrieve data passed to one hot encoder
     pub fn data(&self) -> Array2<f64> {
         self.data.clone()
     }
 
+    /// Retrieve the mean values for each feature
     pub fn mean(&self) -> Vec<f64> { 
         self.mean.clone()
     }
 
+    /// Retrieve the standard deviation values for each feature
     pub fn stdev(&self) -> Vec<f64> {
         self.standard_deviation.clone()
     }
@@ -180,7 +217,7 @@ impl Preprocessor for StandardScalar {
 }
 
 
-
+/// Min max scalar for normalization
 #[derive(Debug, Clone)]
 pub struct MinMaxScalar {
     
@@ -198,6 +235,24 @@ pub struct MinMaxScalar {
 
 impl MinMaxScalar {
 
+    /// Create instance of MinMaxScaler.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - 2D NDArray with feature output column .
+    ///
+    /// ```
+    /// let x = arr2(&[
+    ///     [1.0, 2.0],
+    ///     [2.0, 4.0],
+    ///     [3.0, 6.0],
+    ///     [4.0, 8.0],
+    ///     [5.0, 10.0],
+    /// ]);
+    /// let mut scalar = MinMaxScalar::new(&x).unwrap();
+    /// let encoded = scalar.encode(); 
+    /// println!("Encoded data: {:?}", encoded);
+    /// ```
     pub fn new(data: &Array2<f64>) -> Result<Self, String> {
         Ok(MinMaxScalar { 
             data: data.clone(),
@@ -206,14 +261,17 @@ impl MinMaxScalar {
         })
     }
 
+    /// Retrieve the raw data passed to the encoder
     pub fn data(&self) -> &Array2<f64> {
         &self.data
     }
 
+    /// Retrieve the minimum values for each feature
     pub fn min_range(&self) -> &Vec<f64> {
         &self.min_range
     }
 
+    /// Retrieve the maximum values for each feature
     pub fn max_range(&self) -> &Vec<f64> {
         &self.max_range
     }

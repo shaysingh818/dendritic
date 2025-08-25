@@ -15,7 +15,7 @@ use crate::optimizer::model::*;
 use crate::optimizer::regression::sgd::*; 
 
 
-
+/// Ridge regression
 pub struct Ridge {
     
     /// Instance of linear regression structure
@@ -25,6 +25,7 @@ pub struct Ridge {
     pub lambda: f64
 }
 
+/// Serialization structure for ridge regression
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RidgeSerialize {
 

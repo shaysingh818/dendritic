@@ -15,7 +15,7 @@ use crate::autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize
 
 use crate::optimizer::model::*; 
 
-
+/// Stochastic gradient descent (SGD) optimizer
 pub struct SGD {
 
     /// Underlying computation graph with operations for optimizer
@@ -31,6 +31,7 @@ pub struct SGD {
     pub learning_rate: f64
 }
 
+/// Serialization structure for SGD (stochastic gradient descent)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SGDSerialize {
 

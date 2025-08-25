@@ -6,7 +6,7 @@ use crate::autodiff::operations::activation::*;
 use crate::autodiff::operations::arithmetic::*; 
 use crate::autodiff::operations::loss::*; 
 
-
+/// Default registry with operations
 pub trait DefaultOperations<T> {
     
     fn register_default_operations(&mut self);

@@ -1,3 +1,5 @@
+//! Operations for loss functions
+
 use ndarray::{Axis, Array2, stack};
 use log::debug; 
 

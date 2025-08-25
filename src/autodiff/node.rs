@@ -39,6 +39,7 @@ pub struct NodeSerialize<T> {
     pub operation: String
 }
 
+/// Trait for serializing and deserializing node structure
 pub trait NodeSerialization<T> {
 
     /// Trait method to save node and get prettified json string

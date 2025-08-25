@@ -15,6 +15,7 @@ use crate::optimizer::model::*;
 use crate::optimizer::regression::sgd::*;
 
 
+/// Lasso regression
 pub struct Lasso {
     
     /// Instance of linear regression structure
@@ -24,6 +25,7 @@ pub struct Lasso {
     pub lambda: f64
 }
 
+/// Serialization structure for lasso regression
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LassoSerialize {
 

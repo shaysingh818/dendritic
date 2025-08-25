@@ -333,6 +333,7 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
 }
 
 
+/// Trait for constructing computation graphs
 pub trait GraphConstruction<T> {
     
     fn new() -> Self;
@@ -369,7 +370,7 @@ macro_rules! graph_constructor {
 graph_constructor!(f64);
 graph_constructor!(Array2<f64>); 
 
-
+/// Trait for serializing computation graphs
 pub trait GraphSerialize<T> {
     
     fn save(&self, namespace: &str) -> std::io::Result<()>;

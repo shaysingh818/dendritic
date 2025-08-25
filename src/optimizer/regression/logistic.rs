@@ -17,6 +17,7 @@ use crate::autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize
 use crate::optimizer::model::*;
 
 
+/// Logistic regression classifier
 pub struct Logistic {
 
     /// Underlying computation graph with operations for optimizer
@@ -36,6 +37,7 @@ pub struct Logistic {
 }
 
 
+/// Serialization structure for logistic regression
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LogisticSerialize {
 
