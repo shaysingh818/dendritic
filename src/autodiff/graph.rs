@@ -37,7 +37,10 @@ pub struct ComputationGraph<T> {
     pub operations: Vec<usize>,
 
     /// Mapping of strings to behavior traits for operations
-    pub registry: HashMap<String, Box<dyn Operation<T>>> 
+    pub registry: HashMap<String, Box<dyn Operation<T>>>,
+
+    /// Boolean to indicate if path neeeds to be filled after forward pass
+    pub fill_path: bool
 }
 
 
@@ -68,7 +71,7 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
             path: self.path.clone(),
             curr_node_idx: self.curr_node_idx,
             variables: self.variables.clone(),
-            operations: self.operations.clone(),
+            operations: self.operations.clone()
         }
     }
 
@@ -175,12 +178,21 @@ impl<T: Clone + Default + Debug> ComputationGraph<T> {
 
         info!("Starting forward pass..."); 
         for node in &mut nodes {
-            if node.inputs().len() > 0 {
-                self.path.push(idx);
+
+            if node.inputs().len() > 0 { 
+
+                if self.fill_path {
+                    self.path.push(idx);
+                }
+
                 self.forward_node(idx);
-            }       
+            }
+
+
             idx += 1; 
         }
+
+        self.fill_path = false;
     }
 
     /// Perform backward pass on all nodes in the graph
@@ -355,7 +367,8 @@ macro_rules! graph_constructor {
                     curr_node_idx: -1,
                     variables: vec![],
                     operations: vec![],
-                    registry: HashMap::new()
+                    registry: HashMap::new(),
+                    fill_path: true
                 };
                 graph.register_default_operations(); 
                 graph
@@ -470,7 +483,8 @@ macro_rules! graph_serialize {
                     curr_node_idx: g_metadata.curr_node_idx,
                     variables: g_metadata.variables,
                     operations: g_metadata.operations,
-                    registry: HashMap::new()
+                    registry: HashMap::new(),
+                    fill_path: false
                 };
                 graph.register_default_operations();
 
@@ -712,9 +726,9 @@ mod graph_test {
         graph.add(vec![5.0, 10.0]); 
         graph.add(vec![100.0]);
         graph.mul(vec![20.0]);
-        graph.sub(vec![10.0]); 
+        graph.sub(vec![10.0]);
 
-        graph.forward(); 
+        graph.forward();
 
         assert_eq!(graph.path().len(), 4);
         assert_eq!(
@@ -728,6 +742,15 @@ mod graph_test {
             let node_output = graph.node(*node);
             assert_eq!(node_output.output(), expected_outputs[idx]); 
         }
+
+        graph.forward();
+        graph.forward();
+
+        assert_eq!(graph.path().len(), 4);
+        assert_eq!(
+            graph.path(),
+            vec![2, 4, 6, 8]
+        );
     }
 
     #[test]
@@ -767,6 +790,12 @@ mod graph_test {
             let node = graph.node(*op); 
             assert_eq!(node.grad(), expected_op_grads[idx]); 
         }
+
+        assert_eq!(graph.path().len(), 4);
+        assert_eq!(
+            graph.path(),
+            vec![2, 4, 6, 8]
+        );
 
     }
 
