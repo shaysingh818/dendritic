@@ -2,6 +2,26 @@ use std::collections::HashSet;
 use ndarray::{Array, Array2, Axis};
 use ndarray_stats::QuantileExt;
 
+
+#[derive(Debug, Clone)]
+pub enum EncodingType {
+    Standard,
+    MinMax,
+    OneHot,
+    Label
+}
+
+pub trait FeatureEncoder {
+
+    fn fit(&mut self, data: &ArrayView2<f64>);
+    
+    fn transform(&self, data: &ArrayView2<f64>) -> Array2<f64>; 
+
+    fn inverse_transform(&self, data: &ArrayView2<f64>) -> Array2<f64>; 
+
+}
+
+
 /// Trait for creating data encoders
 pub trait Preprocessor {
 
