@@ -50,6 +50,37 @@ impl Ridge {
     /// * `learning_rate` - The learning rate for the optimizer.
     /// * `lambda` - The regularization strength.
     ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use dendritic::optimizer::prelude::*; 
+    ///
+    ///
+    /// fn main() {
+    ///
+    ///     let x = arr2(&[
+    ///         [1.0, 2.0, 3.0],
+    ///         [2.0, 3.0, 4.0],
+    ///         [3.0, 4.0, 5.0],
+    ///         [4.0, 5.0, 6.0],
+    ///         [5.0, 6.0, 7.0]
+    ///     ]);
+    ///
+    ///     let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
+
+    ///     let mut model = Ridge::new(&x, &y, 0.001, 0.001).unwrap();
+    ///     
+    ///     // Save model train and save results
+    ///     model.train(1000);
+    ///     model.save("data/ridge").unwrap();
+
+    ///     
+    ///     // Load model and make predictions
+    ///     let mut loaded_model = Ridge::load("data/ridge").unwrap();
+    ///     let output = loaded_model.predict(&x);
+    ///     println!("Predictions: {:?}", output); 
+    ///
+    /// }
+    /// ```
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,
