@@ -35,6 +35,9 @@ pub trait Model {
     /// Measure loss for a model
     fn loss(&mut self) -> f64;
 
+    /// Set loss function for model
+    fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>);
+
     /// Update all parameters in model (without optimizer)
     fn update_parameters(&mut self);
 

@@ -54,7 +54,38 @@ impl Elastic {
     /// * `learning_rate` - The learning rate for the optimizer.
     /// * `lambda` - The regularization strength.
     /// * `alpha` - The mixing parameter for L1/L2 regularization.
+    /// ```
+    /// use ndarray::arr2;
+    /// use dendritic::optimizer::prelude::*; 
     ///
+    ///
+    /// fn main() {
+    ///
+    ///     let x = arr2(&[
+    ///         [1.0, 2.0, 3.0],
+    ///         [2.0, 3.0, 4.0],
+    ///         [3.0, 4.0, 5.0],
+    ///         [4.0, 5.0, 6.0],
+    ///         [5.0, 6.0, 7.0]
+    ///     ]);
+    ///
+    ///     let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
+
+    ///     let mut model = Elastic::new(&x, &y, 0.001, 0.001, 0.5).unwrap();
+    ///     
+    ///     // Save model train and save results
+    ///     model.train(1000);
+    ///     model.save("data/linear").unwrap();
+
+    ///     
+    ///     // Load model and make predictions
+    ///     let mut loaded_model = Elastic::load("data/linear").unwrap();
+    ///     let output = loaded_model.predict(&x);
+    ///     println!("Predictions: {:?}", output); 
+    ///
+    /// }
+
+    /// ```
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,
@@ -68,7 +99,6 @@ impl Elastic {
             alpha: alpha
         })
     }
-
 }
 
 /// Elastic model trait implementation

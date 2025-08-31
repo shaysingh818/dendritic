@@ -138,6 +138,11 @@ impl Model for SGD {
         loss.as_slice().unwrap()[0]
     }
 
+
+    fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
+        println!("Nothing yet"); 
+    }
+
     fn update_parameters(&mut self) {
 
         let w = self.graph.node(1);

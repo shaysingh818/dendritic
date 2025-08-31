@@ -110,6 +110,10 @@ impl Model for Ridge {
         let loss_val = loss.clone() + (self.lambda * l2);
         loss_val.as_slice().unwrap()[0]
     }
+
+    fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
+        self.sgd.set_loss(op);
+    }
  
     fn update_parameters(&mut self) {
 
