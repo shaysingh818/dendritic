@@ -9,6 +9,7 @@ use chrono::{Datelike, Utc};
 use ndarray::{Array2};
 use serde::{Serialize, Deserialize}; 
 
+use crate::autodiff::operations::base::Operation; 
 use crate::autodiff::graph::{ComputationGraph, GraphSerialize};
 
 use crate::optimizer::model::*; 
@@ -141,6 +142,10 @@ impl Model for Lasso {
         let l1 = weights.mapv(|x| x.abs()).sum();
         let loss_val = loss.clone() + (self.lambda * l1);
         loss_val.as_slice().unwrap()[0]
+    }
+
+    fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
+        self.sgd.set_loss(op); 
     }
 
     fn update_parameters(&mut self) {

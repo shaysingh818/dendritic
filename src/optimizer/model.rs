@@ -1,6 +1,7 @@
 use ndarray::{Array2};
 
 use crate::autodiff::graph::{ComputationGraph};
+use crate::autodiff::prelude::Operation;  
 
 /// Model trait for sharing reusable optimizer logic
 pub trait Model {

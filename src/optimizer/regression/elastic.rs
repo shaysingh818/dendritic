@@ -9,6 +9,7 @@ use chrono::{Datelike, Utc};
 use ndarray::{Array2};
 use serde::{Serialize, Deserialize}; 
 
+use crate::autodiff::operations::base::Operation; 
 use crate::autodiff::graph::{ComputationGraph, GraphSerialize};
 
 use crate::optimizer::model::*; 
@@ -149,6 +150,11 @@ impl Model for Elastic {
         let l2 = weights.mapv(|x| (x as f64).powf(2.0)).sum();
         let exp = self.alpha * l1 + 0.5 * (1.0 - self.alpha) * l2;
         loss.as_slice().unwrap()[0] + (self.lambda * exp)    
+    }
+
+
+    fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
+        self.sgd.set_loss(op); 
     }
 
     fn update_parameters(&mut self) {

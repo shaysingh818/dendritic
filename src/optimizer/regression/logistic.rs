@@ -12,6 +12,7 @@ use serde::{Serialize, Deserialize};
 use crate::autodiff::operations::arithmetic::*; 
 use crate::autodiff::operations::loss::*;
 use crate::autodiff::operations::activation::*;
+use crate::autodiff::operations::base::Operation; 
 use crate::autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
 use crate::optimizer::model::*;
@@ -205,6 +206,12 @@ impl Model for Logistic {
         loss.as_slice().unwrap()[0]
     }
 
+
+    fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
+        let idx = self.graph.nodes().len() - 1;
+        self.graph.nodes[idx].set_operation(op);
+    }
+    
     fn update_parameters(&mut self) {
 
         let w = self.graph.node(1);

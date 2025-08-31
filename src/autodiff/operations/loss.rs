@@ -14,6 +14,9 @@ pub trait LossFunction<T> {
     /// Mean squared error
     fn mse(&mut self, val: T) -> &mut ComputationGraph<T>;
 
+    /// Mean absolute error
+    fn mae(&mut self, val: T) -> &mut ComputationGraph<T>;
+
     /// Binary cross entropy
     fn bce(&mut self, val: T) -> &mut ComputationGraph<T>;
 
@@ -33,6 +36,10 @@ macro_rules! loss_funcs {
 
             fn mse(&mut self, val: $t) -> &mut ComputationGraph<$t> {
                 self.unary(val, Box::new(MSE))
+            }
+
+            fn mae(&mut self, val: $t) -> &mut ComputationGraph<$t> {
+                self.unary(val, Box::new(MAE))
             }
 
             fn bce(&mut self, val: $t) -> &mut ComputationGraph<$t> {
@@ -209,6 +216,108 @@ impl Operation<Array2<f64>> for MSE {
 
 
 impl Operation<f64> for MSE {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node<f64>>, 
+        curr_idx: usize) -> f64 {
+
+        debug!(
+            "Performing forward MSE on node index: {:?}",
+            curr_idx
+        ); 
+
+        let inputs = nodes[curr_idx].inputs();
+        let y_pred = nodes[inputs[0]].output();
+        let y_true = nodes[inputs[1]].output();
+
+        let diff = y_true.clone() - y_pred;
+        diff.powf(2.0) 
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node<f64>>, 
+        curr_idx: usize) {
+
+
+        debug!(
+            "Performing backward multiply on node index: {:?}",
+            curr_idx
+        );
+
+        let inputs = nodes[curr_idx].inputs();
+        let y_pred = nodes[inputs[0]].output(); 
+        let y_true = nodes[inputs[1]].output();
+        let grad = y_pred - y_true;
+        nodes[curr_idx].set_grad_output(grad);
+        nodes[inputs[0]].set_grad_output(grad);
+        nodes[inputs[1]].set_grad_output(grad);
+
+        debug!(
+            "Updated gradients for node input indexes: {:?}",
+            inputs
+        ); 
+
+    }
+}
+
+
+#[derive(Clone, Debug)]
+pub struct MAE;
+
+impl Operation<Array2<f64>> for MAE {
+
+    fn forward(
+        &self, 
+        nodes: &Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) -> Array2<f64> {
+
+        debug!(
+            "Performing forward MSE on node index: {:?}",
+            curr_idx
+        ); 
+
+        let inputs = nodes[curr_idx].inputs();
+        let y_pred = nodes[inputs[0]].output();
+        let y_true = nodes[inputs[1]].output();
+        let sub = y_true.clone() - y_pred;
+        let mae = sub.abs().sum() / y_true.nrows() as f64;
+
+        Array2::from_elem((1, 1), mae) 
+    }
+
+    fn backward(
+        &self, 
+        nodes: &mut Vec<Node<Array2<f64>>>, 
+        curr_idx: usize) {
+
+
+        debug!(
+            "Performing backward MSE on node index: {:?}",
+            curr_idx
+        );
+
+        let inputs = nodes[curr_idx].inputs();
+        let y_pred = nodes[inputs[0]].output(); 
+        let y_true = nodes[inputs[1]].output();
+        let n = y_true.nrows() as f64;
+        let grad = (1.0 / n) * (y_pred - y_true).signum();
+
+        nodes[curr_idx].set_grad_output(grad.clone());
+        nodes[inputs[0]].set_grad_output(grad.clone());
+        nodes[inputs[1]].set_grad_output(grad);
+
+        debug!(
+            "Updated gradients for node input indexes: {:?}",
+            inputs
+        ); 
+
+    }
+}
+
+
+impl Operation<f64> for MAE {
 
     fn forward(
         &self, 
@@ -513,6 +622,28 @@ mod loss_ops_test {
         assert_eq!(
             graph.node(2).grad(), 
             arr2(&[[1.0],[3.0],[5.0]])
+        );
+
+    }
+
+    #[test]
+    fn test_mae() {
+
+        let a = arr2(&[[5.0], [10.0], [6.0],[9.0],[10.0]]); 
+        let b = arr2(&[[5.0], [5.0], [6.0],[9.0],[10.0]]); 
+        let c = arr2(&[[12.0], [15.0], [10.0], [20.0], [18.0]]); 
+
+        let mut graph = ComputationGraph::new();
+        graph.add(vec![a, b]);
+        graph.mae(c);
+
+        graph.forward();
+        graph.backward();
+
+        assert_eq!(graph.curr_node().output().as_slice().unwrap()[0], 1.6);
+        assert_eq!(
+            graph.curr_node().grad(), 
+            arr2(&[[-0.2],[0.2],[0.2],[-0.2],[0.2]])
         );
 
     }

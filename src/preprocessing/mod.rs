@@ -11,3 +11,4 @@
 //! - **One Hot Encoding**: Strategies for converting categorical variables into a binary matrix.
 //!
 pub mod processor;
+pub mod prelude; 

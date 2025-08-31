@@ -10,6 +10,7 @@ use ndarray::{Array2};
 use serde::{Serialize, Deserialize}; 
 
 use crate::autodiff::graph::{ComputationGraph, GraphSerialize};
+use crate::autodiff::operations::base::Operation; 
 
 use crate::optimizer::model::*; 
 use crate::optimizer::regression::sgd::*; 
