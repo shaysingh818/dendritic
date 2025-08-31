@@ -11,6 +11,7 @@ use serde::{Serialize, Deserialize};
 
 use crate::autodiff::operations::arithmetic::*; 
 use crate::autodiff::operations::loss::*;
+use crate::autodiff::operations::base::Operation; 
 use crate::autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
 use crate::optimizer::model::*; 
@@ -138,6 +139,12 @@ impl Model for SGD {
         loss.as_slice().unwrap()[0]
     }
 
+
+    fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
+        let idx = self.graph.nodes().len() - 1;
+        self.graph.nodes[idx].set_operation(op);
+    }
+
     fn update_parameters(&mut self) {
 
         let w = self.graph.node(1);
@@ -250,6 +257,65 @@ impl ModelSerialize for SGD {
             bias_dim: obj.bias_dim,
             learning_rate: obj.learning_rate
         })
+    }
+
+}
+
+
+#[cfg(test)]
+pub mod sgd_tests {
+
+    use ndarray::prelude::*; 
+    use crate::autodiff::prelude::*; 
+    use crate::optimizer::prelude::*;
+
+    fn load_dataset() -> (Array2<f64>, Array2<f64>) {
+
+        let x = arr2(&[
+            [1.0, 2.0, 3.0],
+            [2.0, 3.0, 4.0],
+            [3.0, 4.0, 5.0],
+            [4.0, 5.0, 6.0],
+            [5.0, 6.0, 7.0]
+        ]);
+
+        let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
+
+        (x, y)
+    }
+
+
+    #[test]
+    fn test_set_loss_model() {
+
+        let (x, y) = load_dataset();
+        let mut model = SGD::new(&x, &y, 0.001).unwrap();
+
+        model.forward();
+        model.backward();
+        model.update_parameters();
+        let curr_loss = model.loss();
+
+        for _ in 0..500 {
+            model.forward();
+            model.backward();
+            model.update_parameters();
+        }
+
+        let new_loss = model.loss();
+        assert_eq!(new_loss < curr_loss, true);
+        let curr_loss = new_loss;
+
+        model.set_loss(Box::new(MAE));
+
+        for _ in 0..500 {
+            model.forward();
+            model.backward();
+            model.update_parameters();
+        }
+
+        let new_loss = model.loss();
+        assert_eq!(new_loss < curr_loss, true);
     }
 
 }

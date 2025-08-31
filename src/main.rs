@@ -1,7 +1,3 @@
-use std::fs;
-use std::fs::File;
-
-
 use ndarray::{arr2, Array2};
 
 use dendritic::optimizer::model::*;
@@ -85,11 +81,11 @@ fn main() -> std::io::Result<()> {
 
 	// train and save logistic model
 	model.train(1000);
-	model.save("data/logistic");
+	model.save("data/logistic").unwrap();
 
 	// train and save multi class model using same methods
 	multi_class_model.train(2000);
-	multi_class_model.save("data/multiclass_logistic")?;
+	multi_class_model.save("data/multiclass_logistic").unwrap();
 
 	// load results of multi class model and make predictions
 	let mut loaded = Logistic::load("data/multiclass_logistic").unwrap();

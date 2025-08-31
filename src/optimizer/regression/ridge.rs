@@ -10,6 +10,7 @@ use ndarray::{Array2};
 use serde::{Serialize, Deserialize}; 
 
 use crate::autodiff::graph::{ComputationGraph, GraphSerialize};
+use crate::autodiff::operations::base::Operation; 
 
 use crate::optimizer::model::*; 
 use crate::optimizer::regression::sgd::*; 
@@ -49,6 +50,37 @@ impl Ridge {
     /// * `learning_rate` - The learning rate for the optimizer.
     /// * `lambda` - The regularization strength.
     ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use dendritic::optimizer::prelude::*; 
+    ///
+    ///
+    /// fn main() {
+    ///
+    ///     let x = arr2(&[
+    ///         [1.0, 2.0, 3.0],
+    ///         [2.0, 3.0, 4.0],
+    ///         [3.0, 4.0, 5.0],
+    ///         [4.0, 5.0, 6.0],
+    ///         [5.0, 6.0, 7.0]
+    ///     ]);
+    ///
+    ///     let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
+
+    ///     let mut model = Ridge::new(&x, &y, 0.001, 0.001).unwrap();
+    ///     
+    ///     // Save model train and save results
+    ///     model.train(1000);
+    ///     model.save("data/ridge").unwrap();
+
+    ///     
+    ///     // Load model and make predictions
+    ///     let mut loaded_model = Ridge::load("data/ridge").unwrap();
+    ///     let output = loaded_model.predict(&x);
+    ///     println!("Predictions: {:?}", output); 
+    ///
+    /// }
+    /// ```
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,
@@ -109,6 +141,10 @@ impl Model for Ridge {
         let l2 = weights.mapv(|x| (x as f64).powf(2.0)).sum();
         let loss_val = loss.clone() + (self.lambda * l2);
         loss_val.as_slice().unwrap()[0]
+    }
+
+    fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
+        self.sgd.set_loss(op);
     }
  
     fn update_parameters(&mut self) {

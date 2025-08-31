@@ -9,6 +9,7 @@ use chrono::{Datelike, Utc};
 use ndarray::{Array2};
 use serde::{Serialize, Deserialize}; 
 
+use crate::autodiff::operations::base::Operation; 
 use crate::autodiff::graph::{ComputationGraph, GraphSerialize};
 
 use crate::optimizer::model::*; 
@@ -54,7 +55,38 @@ impl Elastic {
     /// * `learning_rate` - The learning rate for the optimizer.
     /// * `lambda` - The regularization strength.
     /// * `alpha` - The mixing parameter for L1/L2 regularization.
+    /// ```
+    /// use ndarray::arr2;
+    /// use dendritic::optimizer::prelude::*; 
     ///
+    ///
+    /// fn main() {
+    ///
+    ///     let x = arr2(&[
+    ///         [1.0, 2.0, 3.0],
+    ///         [2.0, 3.0, 4.0],
+    ///         [3.0, 4.0, 5.0],
+    ///         [4.0, 5.0, 6.0],
+    ///         [5.0, 6.0, 7.0]
+    ///     ]);
+    ///
+    ///     let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
+
+    ///     let mut model = Elastic::new(&x, &y, 0.001, 0.001, 0.5).unwrap();
+    ///     
+    ///     // Save model train and save results
+    ///     model.train(1000);
+    ///     model.save("data/linear").unwrap();
+
+    ///     
+    ///     // Load model and make predictions
+    ///     let mut loaded_model = Elastic::load("data/linear").unwrap();
+    ///     let output = loaded_model.predict(&x);
+    ///     println!("Predictions: {:?}", output); 
+    ///
+    /// }
+
+    /// ```
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,
@@ -68,7 +100,6 @@ impl Elastic {
             alpha: alpha
         })
     }
-
 }
 
 /// Elastic model trait implementation
@@ -119,6 +150,11 @@ impl Model for Elastic {
         let l2 = weights.mapv(|x| (x as f64).powf(2.0)).sum();
         let exp = self.alpha * l1 + 0.5 * (1.0 - self.alpha) * l2;
         loss.as_slice().unwrap()[0] + (self.lambda * exp)    
+    }
+
+
+    fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
+        self.sgd.set_loss(op); 
     }
 
     fn update_parameters(&mut self) {

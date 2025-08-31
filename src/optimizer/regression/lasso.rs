@@ -9,6 +9,7 @@ use chrono::{Datelike, Utc};
 use ndarray::{Array2};
 use serde::{Serialize, Deserialize}; 
 
+use crate::autodiff::operations::base::Operation; 
 use crate::autodiff::graph::{ComputationGraph, GraphSerialize};
 
 use crate::optimizer::model::*; 
@@ -49,6 +50,37 @@ impl Lasso {
     /// * `learning_rate` - The learning rate for the optimizer.
     /// * `lambda` - The regularization strength.
     ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use dendritic::optimizer::prelude::*; 
+    ///
+    ///
+    /// fn main() {
+    ///
+    ///     let x = arr2(&[
+    ///         [1.0, 2.0, 3.0],
+    ///         [2.0, 3.0, 4.0],
+    ///         [3.0, 4.0, 5.0],
+    ///         [4.0, 5.0, 6.0],
+    ///         [5.0, 6.0, 7.0]
+    ///     ]);
+    ///
+    ///     let y = arr2(&[[10.0], [12.0], [14.0], [16.0], [18.0]]);
+    ///
+    ///     /// Create instance of lasso regression model
+    ///     let mut model = Lasso::new(&x, &y, 0.001, 0.001).unwrap();
+    ///     
+    ///     // Save model train and save results
+    ///     model.train(1000);
+    ///     model.save("lasso").unwrap();
+    ///     
+    ///     // Load model and make predictions
+    ///     let mut loaded_model = Lasso::load("lasso").unwrap();
+    ///     let output = loaded_model.predict(&x);
+    ///     println!("Predictions: {:?}", output); 
+    ///
+    /// }
+    /// ```
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,
@@ -110,6 +142,10 @@ impl Model for Lasso {
         let l1 = weights.mapv(|x| x.abs()).sum();
         let loss_val = loss.clone() + (self.lambda * l1);
         loss_val.as_slice().unwrap()[0]
+    }
+
+    fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
+        self.sgd.set_loss(op); 
     }
 
     fn update_parameters(&mut self) {

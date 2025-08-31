@@ -12,6 +12,7 @@ use serde::{Serialize, Deserialize};
 use crate::autodiff::operations::arithmetic::*; 
 use crate::autodiff::operations::loss::*;
 use crate::autodiff::operations::activation::*;
+use crate::autodiff::operations::base::Operation; 
 use crate::autodiff::graph::{ComputationGraph, GraphConstruction, GraphSerialize};
 
 use crate::optimizer::model::*;
@@ -70,6 +71,54 @@ impl Logistic {
     /// * `multi_class` - Flag for multi-class classification.
     /// * `learning_rate` - The learning rate for the optimizer.
     ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use dendritic::optimizer::regression::logistic::*;
+    /// use dendritic::optimizer::prelude::*;
+    ///
+    ///
+    /// fn main() {
+    ///
+    ///   // binary logistic data
+    ///   let x = arr2(&[
+    ///       [1.0, 2.0],
+    ///       [2.0, 1.0],
+    ///       [1.5, 1.8],
+    ///       [3.0, 3.2],
+    ///       [2.8, 3.0],
+    ///       [5.0, 5.5],
+    ///       [6.0, 5.8],
+    ///       [5.5, 6.0],
+    ///       [6.2, 5.9],
+    ///       [7.0, 6.5]
+    ///   ]);
+
+    ///   let y = arr2(&[
+    ///       [0.0],
+    ///       [0.0],
+    ///       [0.0],
+    ///       [0.0],
+    ///       [0.0],
+    ///       [1.0],
+    ///       [1.0],
+    ///       [1.0],
+    ///       [1.0],
+    ///       [1.0]
+    ///   ]);
+    ///
+    ///   let mut model = Logistic::new(&x, &y, false, 0.001).unwrap();
+    ///
+    ///   // Save model train and save results
+    ///   model.train(1000);
+    ///   model.save("data/binary_logistic").unwrap();
+    ///
+    ///   // Load model and make predictions
+    ///   let mut loaded_model = Logistic::load("data/binary_logistic").unwrap();
+    ///   let output = loaded_model.predict(&x);
+    ///   println!("Predictions: {:?}", output);
+    ///
+    /// }
+    /// ```
     pub fn new(
         x: &Array2<f64>,
         y: &Array2<f64>,
@@ -205,6 +254,12 @@ impl Model for Logistic {
         loss.as_slice().unwrap()[0]
     }
 
+
+    fn set_loss(&mut self, op: Box<dyn Operation<Array2<f64>>>) {
+        let idx = self.graph.nodes().len() - 1;
+        self.graph.nodes[idx].set_operation(op);
+    }
+    
     fn update_parameters(&mut self) {
 
         let w = self.graph.node(1);
