@@ -1,47 +1,26 @@
 use std::collections::HashSet; 
-use ndarray::{Array, Array2, Axis};
+use ndarray::{Array, Array2, ArrayView2, Axis};
 use ndarray_stats::QuantileExt;
 
 
-#[derive(Debug, Clone)]
-pub enum EncodingType {
-    Standard,
-    MinMax,
-    OneHot,
-    Label
-}
-
+/// Trait for housing shared behavior of feature encoders
 pub trait FeatureEncoder {
+ 
+    /// Transform data for specific feature encoder
+    fn transform(&mut self, data: &ArrayView2<f64>) -> Array2<f64>; 
 
-    fn fit(&mut self, data: &ArrayView2<f64>);
-    
-    fn transform(&self, data: &ArrayView2<f64>) -> Array2<f64>; 
-
+    /// Decode transformed data from feature encoder
     fn inverse_transform(&self, data: &ArrayView2<f64>) -> Array2<f64>; 
 
 }
 
 
-/// Trait for creating data encoders
-pub trait Preprocessor {
-
-    /// Encode data and return type associated with trait type
-    fn encode(&mut self) -> Array2<f64>;
-
-    /// Decode data from encoded values with associated trait type
-    fn decode(&mut self, data: &Array2<f64>) -> Array2<f64>;
-
-}
-
-/// One hot encoding for categorical data
+/// One hot encoder
 #[derive(Debug, Clone)]
-pub struct OneHotEncoding {
-    
-    /// Raw data passed to the encoder
-    data: Array2<f64>,
+pub struct OneHot {
 
-    /// Max value associated with encoder
-    num_classes: usize,
+    /// Num classes detected
+    num_classes: usize, 
 
     /// Number of samples that were encoded
     num_samples: usize
@@ -49,8 +28,8 @@ pub struct OneHotEncoding {
 }
 
 
-impl OneHotEncoding {
-    
+impl OneHot {
+
     /// Create instance of OneHot Encoder.
     ///
     /// # Arguments
@@ -64,41 +43,24 @@ impl OneHotEncoding {
     /// let data = arr2(&[
     ///     [0.0], [0.0], [0.0], [1.0], [1.0], [1.0], [2.0], [2.0], [2.0]
     /// ]);
-    /// let mut encoder = OneHotEncoding::new(&data).unwrap();
-    /// let encoded  = encoder.encode();
-    /// println!("Encoded column: {:?}", encoded);
+    /// let mut one_hot = OneHot::new();
+    /// let encoded  = one_hot.transform(&data.view());
+    /// println!("Encoded: {:?}", encoded);
     /// ```
-    pub fn new(data: &Array2<f64>) -> Result<Self, String> {
-
-        if data.dim().1 != 1 {
-            let msg = "Input must be of size (N, 1)";
-            return Err(msg.to_string());
+    pub fn new() -> Self {
+        Self {
+            num_classes: 0,
+            num_samples: 0
         }
 
-        
-        let mut vals = HashSet::new();
-        data.mapv(|x| vals.insert(x as usize)); 
-        let num_classes = vals.len();
-
-        Ok(Self {
-            data: data.clone(),
-            num_classes: num_classes, 
-            num_samples: data.nrows()
-        }) 
-
     }
 
-    /// Retrieve data passed to one hot encoder
-    pub fn data(&self) -> Array2<f64> {
-        self.data.clone()
-    }
-
-    /// Retrieve the number of classes associated with data
+    /// Retrieve number of classes associated with encoded data
     pub fn num_classes(&self) -> usize {
         self.num_classes
     }
 
-    /// Retrieve the total number of samples being encoded
+    /// Retrieve number of samples associated with encoded data
     pub fn num_samples(&self) -> usize {
         self.num_samples
     }
@@ -106,21 +68,32 @@ impl OneHotEncoding {
 }
 
 
-impl Preprocessor for OneHotEncoding {
+impl FeatureEncoder for OneHot {
 
-    /// Encode function for One Hot Encoding
-    fn encode(&mut self) -> Array2<f64> {
+    fn transform(&mut self, data: &ArrayView2<f64>) -> Array2<f64> {
 
-        let encoded_shape = (self.data.nrows(), self.num_classes);
-        let mut encoded: Array2<f64> = Array2::zeros(encoded_shape);
-        for (idx, row) in self.data().iter().enumerate() {
-            encoded[[idx, *row as usize]] = 1.0;
+        if data.dim().1 != 1 {
+            let msg = "Input must be of size (N, 1)";
+            panic!("{}", msg.to_string());
         }
+ 
+        let mut vals = HashSet::new();
+        data.mapv(|x| vals.insert(x as usize)); 
+        let num_classes = vals.len();
+        self.num_classes = num_classes;
+
+        let encoded_shape = (data.nrows(), num_classes);
+        let mut encoded: Array2<f64> = Array2::zeros(encoded_shape);
+        for (idx, row) in data.iter().enumerate() {
+            encoded[[idx, *row as usize]] = 1.0;
+            self.num_samples += 1; 
+        }
+
         encoded
     }
 
-    /// Decode function for decoding One Hot Encoded Values
-    fn decode(&mut self, data: &Array2<f64>) -> Array2<f64> {
+
+    fn inverse_transform(&self, data: &ArrayView2<f64>) -> Array2<f64> {
 
         let mut decoded: Array2<f64> = Array2::zeros((data.nrows(), 1));
         for (idx, row) in data.axis_iter(Axis(0)).enumerate() {
@@ -128,6 +101,122 @@ impl Preprocessor for OneHotEncoding {
                 decoded[[idx, 0]] = col as f64;
             }
         }
+
+        decoded
+    }
+
+}
+
+
+/// One hot encoder 
+pub struct MinMax {
+
+    /// Vector of minimum values associated with each feature
+    min_range: Vec<f64>,
+    
+    /// Vector of maximum values associated with each feature
+    max_range: Vec<f64>
+}
+
+
+impl MinMax {
+
+    /// Create instance of MinMaxScaler.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - 2D NDArray with feature output column .
+    ///
+    /// ```
+    /// use ndarray::arr2;
+    /// use dendritic::preprocessing::processor::*;
+    ///
+    /// let x = arr2(&[
+    ///     [1.0, 2.0],
+    ///     [2.0, 4.0],
+    ///     [3.0, 6.0],
+    ///     [4.0, 8.0],
+    ///     [5.0, 10.0],
+    /// ]);
+    /// let mut scalar = MinMax::new();
+    /// let encoded = scalar.transform(&x.view()); 
+    /// println!("Encoded data: {:?}", encoded);
+    /// ```
+    pub fn new() -> Self {
+        Self {
+            min_range: vec![],
+            max_range: vec![]
+        }
+
+    }
+
+    /// Retrieve the minimum values for each feature
+    pub fn min_range(&self) -> &Vec<f64> {
+        &self.min_range
+    }
+
+    /// Retrieve the maximum values for each feature
+    pub fn max_range(&self) -> &Vec<f64> {
+        &self.max_range
+    }
+
+}
+
+
+impl FeatureEncoder for MinMax {
+
+    fn transform(&mut self, data: &ArrayView2<f64>) -> Array2<f64> {
+
+        let mut encoded: Array2<f64> = Array2::zeros(data.dim());
+        for (idx, col) in data.axis_iter(Axis(1)).enumerate() {
+            
+            let owned_col = col.to_owned();
+            
+            let min = owned_col.min().unwrap();
+            let max = owned_col.max().unwrap();
+
+            self.min_range.push(*min);
+            self.max_range.push(*max);
+
+            let min_vec = Array::from_elem(col.len(), *min);
+            let max_vec = Array::from_elem(col.len(), *max);
+
+            let subtract_min = owned_col - min_vec.clone();
+            let min_max = max_vec - min_vec;
+            let div = subtract_min / min_max;
+
+            encoded.index_axis_mut(Axis(1), idx).assign(&div);
+        }
+
+        encoded
+    }
+
+
+    fn inverse_transform(&self, data: &ArrayView2<f64>) -> Array2<f64> {
+
+        
+        if data.dim() != data.dim() {
+            panic!("Encoded data does not much decoded data dimensions"); 
+        }
+
+        let mut decoded: Array2<f64> = Array2::zeros(data.dim());
+        for (idx, col) in data.axis_iter(Axis(1)).enumerate() {
+
+            let min_vec = Array::from_elem(
+                col.len(), 
+                self.min_range[idx]
+            );
+
+            let max_vec = Array::from_elem(
+                col.len(), 
+                self.max_range[idx]
+            );
+
+            let min_max = max_vec - min_vec.clone();
+            let feature = min_max * col + min_vec;
+            decoded.index_axis_mut(Axis(1), idx).assign(&feature);              
+        }
+
         decoded
     }
 
@@ -138,9 +227,6 @@ impl Preprocessor for OneHotEncoding {
 #[derive(Debug, Clone)]
 pub struct StandardScalar {
     
-    /// Raw data passed to the encoder
-    data: Array2<f64>,
-
     /// Max value associated with encoder
     mean: Vec<f64>,
 
@@ -169,23 +255,17 @@ impl StandardScalar {
     ///     [4.0, 8.0],
     ///     [5.0, 10.0],
     /// ]);
-    /// let mut scalar = StandardScalar::new(&x).unwrap();
-    /// let encoded = scalar.encode(); 
+    /// let mut scalar = StandardScalar::new();
+    /// let encoded = scalar.transform(&x.view()); 
     /// println!("Encoded data: {:?}", encoded);
     /// ```
-    pub fn new(data: &Array2<f64>) -> Result<Self, String> {
+    pub fn new() -> Self {
          
-        Ok(Self {
-            data: data.clone(),
-            mean: vec![0.0; data.ncols()],
-            standard_deviation: vec![0.0; data.ncols()]
-        }) 
+        Self {
+            mean: vec![],
+            standard_deviation: vec![]
+        } 
 
-    }
-
-    /// Retrieve data passed to one hot encoder
-    pub fn data(&self) -> Array2<f64> {
-        self.data.clone()
     }
 
     /// Retrieve the mean values for each feature
@@ -201,29 +281,29 @@ impl StandardScalar {
 }
 
 
-impl Preprocessor for StandardScalar {
+impl FeatureEncoder for StandardScalar {
 
     /// Encode function for One Hot Encoding
-    fn encode(&mut self) -> Array2<f64> {
+    fn transform(&mut self, data: &ArrayView2<f64>) -> Array2<f64> {
 
-        let mut encoded: Array2<f64> = Array2::zeros(self.data.dim());
+        let mut encoded: Array2<f64> = Array2::zeros(data.dim());
      
-        for (idx, col) in self.data.axis_iter(Axis(1)).enumerate() {
+        for (idx, col) in data.axis_iter(Axis(1)).enumerate() {
 
-            self.mean[idx] = col.mean().unwrap();
+            self.mean.push(col.mean().unwrap());
             let mean_vec = Array::from_elem(
-                self.data.nrows(), 
-                self.mean[idx]
+                data.nrows(), 
+                col.mean().unwrap()
             );
 
             let mut diffs = col.to_owned() - mean_vec.clone();
             diffs.mapv_inplace(|x| x * x); 
 
-            let variance = diffs.sum() / self.data.nrows() as f64;
-            self.standard_deviation[idx] = variance.sqrt();
+            let variance = diffs.sum() / data.nrows() as f64;
+            self.standard_deviation.push(variance.sqrt());
             let std_dev_vec = Array::from_elem(
-                self.data.nrows(), 
-                self.standard_deviation[idx]
+                data.nrows(), 
+                variance.sqrt()
             );
 
             let feature_col = (col.to_owned() - mean_vec.clone()) / std_dev_vec.clone();
@@ -234,7 +314,7 @@ impl Preprocessor for StandardScalar {
     }
     
     /// Decode function for decoding One Hot Encoded Values
-    fn decode(&mut self, data: &Array2<f64>) -> Array2<f64> {
+    fn inverse_transform(&self, data: &ArrayView2<f64>) -> Array2<f64> {
         let mean = Array::from_vec(self.mean());
         let std_dev = Array::from_vec(self.stdev());
         data * std_dev + mean
@@ -243,137 +323,12 @@ impl Preprocessor for StandardScalar {
 }
 
 
-/// Min max scalar for normalization
-#[derive(Debug, Clone)]
-pub struct MinMaxScalar {
-    
-    /// Raw data passed to the encoder
-    data: Array2<f64>,
-
-    /// Vector of minimum values associated with each feature
-    min_range: Vec<f64>,
-    
-    /// Vector of maximum values associated with each feature
-    max_range: Vec<f64>
-
-}
-
-
-impl MinMaxScalar {
-
-    /// Create instance of MinMaxScaler.
-    ///
-    /// # Arguments
-    ///
-    /// * `data` - 2D NDArray with feature output column .
-    ///
-    /// ```
-    /// use ndarray::arr2;
-    /// use dendritic::preprocessing::processor::*;
-    ///
-    /// let x = arr2(&[
-    ///     [1.0, 2.0],
-    ///     [2.0, 4.0],
-    ///     [3.0, 6.0],
-    ///     [4.0, 8.0],
-    ///     [5.0, 10.0],
-    /// ]);
-    /// let mut scalar = MinMaxScalar::new(&x).unwrap();
-    /// let encoded = scalar.encode(); 
-    /// println!("Encoded data: {:?}", encoded);
-    /// ```
-    pub fn new(data: &Array2<f64>) -> Result<Self, String> {
-        Ok(MinMaxScalar { 
-            data: data.clone(),
-            min_range: vec![0.0; data.ncols()],
-            max_range: vec![0.0; data.ncols()]
-        })
-    }
-
-    /// Retrieve the raw data passed to the encoder
-    pub fn data(&self) -> &Array2<f64> {
-        &self.data
-    }
-
-    /// Retrieve the minimum values for each feature
-    pub fn min_range(&self) -> &Vec<f64> {
-        &self.min_range
-    }
-
-    /// Retrieve the maximum values for each feature
-    pub fn max_range(&self) -> &Vec<f64> {
-        &self.max_range
-    }
-
-}
-
-
-impl Preprocessor for MinMaxScalar {
-
-    /// Encode function for One Hot Encoding
-    fn encode(&mut self) -> Array2<f64> {
-
-        let mut encoded: Array2<f64> = Array2::zeros(self.data.dim());
-        for (idx, col) in self.data.axis_iter(Axis(1)).enumerate() {
-            
-            let owned_col = col.to_owned();
-            
-            let min = owned_col.min().unwrap();
-            let max = owned_col.max().unwrap();
-
-            self.min_range[idx] = *min;
-            self.max_range[idx] = *max;
-
-            let min_vec = Array::from_elem(col.len(), *min);
-            let max_vec = Array::from_elem(col.len(), *max);
-
-            let subtract_min = owned_col - min_vec.clone();
-            let min_max = max_vec - min_vec;
-            let div = subtract_min / min_max;
-
-            encoded.index_axis_mut(Axis(1), idx).assign(&div);
-        }
-
-        encoded
-    }
-    
-    /// Decode function for decoding One Hot Encoded Values
-    fn decode(&mut self, data: &Array2<f64>) -> Array2<f64> {
-
-        if data.dim() != self.data.dim() {
-            panic!("Encoded data does not much decoded data dimensions"); 
-        }
-
-        let mut decoded: Array2<f64> = Array2::zeros(self.data.dim());
-        for (idx, col) in data.axis_iter(Axis(1)).enumerate() {
-
-            let min_vec = Array::from_elem(
-                col.len(), 
-                self.min_range[idx]
-            );
-
-            let max_vec = Array::from_elem(
-                col.len(), 
-                self.max_range[idx]
-            );
-
-            let min_max = max_vec - min_vec.clone();
-            let feature = min_max * col + min_vec;
-            decoded.index_axis_mut(Axis(1), idx).assign(&feature);              
-        }
-
-        decoded
-    }
-
-}
-
-
-
 #[cfg(test)]
 mod preprocessing_tests {
 
-    use ndarray::{arr2}; 
+    use ndarray::{s, arr2}; 
     use crate::preprocessing::processor::*;
+
 
     #[test]
     fn test_one_hot_encoding() {
@@ -394,27 +349,39 @@ mod preprocessing_tests {
             [0.0,0.0,1.0]
         ]);
 
-        let mut one_hot = OneHotEncoding::new(&x).unwrap();
-        let bad_on_hot = OneHotEncoding::new(
-            &arr2(&[
-                 [0.0, 0.0],
-                 [0.0, 0.0]
-            ])
-        );
+        let mut one_hot = OneHot::new();
+        let transformed = one_hot.transform(&x.view());
 
         assert_eq!(one_hot.num_classes(), 3); 
-        assert_eq!(one_hot.num_samples(), 9); 
-        assert_eq!(one_hot.data().dim(), x.dim());
+        assert_eq!(one_hot.num_samples(), x.nrows());
+
+        assert_eq!(transformed.dim(), encoded.dim());
+        assert_eq!(transformed, encoded);
+
+        let decoded = one_hot.inverse_transform(&transformed.view()); 
+        
+        assert_eq!(decoded.dim(), x.dim());
+        assert_eq!(decoded, x);
+
+
+        let x1 = arr2(&[
+            [1.0,0.0,0.0],
+            [1.0,0.0,0.0],
+            [0.0,1.0,0.0],
+            [0.0,0.0,1.0],
+            [0.0,0.0,1.0],
+            [0.0,0.0,1.0]
+        ]);
+
+        let x1_decoded = one_hot.inverse_transform(&x1.view());
 
         assert_eq!(
-            bad_on_hot.unwrap_err().to_string(),
-            "Input must be of size (N, 1)"
+            x1_decoded, 
+            arr2(&[
+                 [0.0], [0.0], [1.0], 
+                 [2.0], [2.0], [2.0]
+            ])
         );
-
-        assert_eq!(one_hot.encode(), encoded);
-
-        let decoded = one_hot.decode(&encoded);
-        assert_eq!(decoded, x); 
  
     }
 
@@ -430,17 +397,15 @@ mod preprocessing_tests {
             [5.0, 10.0],
         ]);
 
-        let mut scalar = StandardScalar::new(&x).unwrap();
+        let mut scalar = StandardScalar::new();
 
-        assert_eq!(scalar.data(), x); 
-        assert_eq!(scalar.data().dim(), x.dim());
+        let encoded = scalar.transform(&x.view());
+
         assert_eq!(scalar.mean().len(), 2); 
         assert_eq!(scalar.stdev().len(), 2);
 
-        let encoded_data = scalar.encode(); 
-
         assert_eq!(
-            encoded_data.mapv(|x| (x * 10000.0).round() / 10000.0),
+            encoded.mapv(|x| (x * 10000.0).round() / 10000.0),
             arr2(&[
                 [-1.4142, -1.4142],
                 [-0.7071, -0.7071],
@@ -450,8 +415,12 @@ mod preprocessing_tests {
             ])
         );
 
-        assert_eq!(scalar.decode(&encoded_data), x);
+        assert_eq!(scalar.inverse_transform(&encoded.view()), x);
 
+        let uneven = encoded.slice(s![0..3, ..]);
+        let uneven_encoded = scalar.inverse_transform(&uneven);
+
+        assert_eq!(uneven_encoded, x.slice(s![0..3, ..])); 
     }
 
 
@@ -474,20 +443,18 @@ mod preprocessing_tests {
             [1.0, 1.0]
         ]); 
 
-        let mut min_max = MinMaxScalar::new(&x).unwrap();
+        let mut min_max = MinMax::new();
+        let encoded = min_max.transform(&x.view());
 
-        assert_eq!(min_max.data().dim(), x.dim()); 
-        assert_eq!(min_max.data(), &x);
         assert_eq!(min_max.min_range().len(), x.ncols());
         assert_eq!(min_max.max_range().len(), x.ncols());
 
-        let encoded = min_max.encode();
-
         assert_eq!(min_max.min_range(), &vec![1.0, 2.0]); 
         assert_eq!(min_max.max_range(), &vec![5.0, 10.0]);
+
         assert_eq!(&encoded, expected);
 
-        let decoded = min_max.decode(&encoded);
+        let decoded = min_max.inverse_transform(&encoded.view());
         assert_eq!(decoded, x);
 
     }
