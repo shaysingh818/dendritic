@@ -1,3 +1,6 @@
 target/
 .obsidian/
 data/
+.venv/
+.env
+.env/

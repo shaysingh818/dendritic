@@ -1,0 +1,109 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36" version="27.0.9">
+  <diagram name="Page-1" id="i35_vYeTAsWm38z0RtTt">
+    <mxGraphModel dx="1600" dy="992" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-2" value="&lt;b&gt;Descent Interface&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="360.25" y="60" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-5" value="" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="125" y="170" width="580" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="tfSyfiElvlMuKq_Uz_oZ-3" target="tfSyfiElvlMuKq_Uz_oZ-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="tfSyfiElvlMuKq_Uz_oZ-3" target="tfSyfiElvlMuKq_Uz_oZ-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-3" value="&lt;b&gt;Function Definition&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="180" y="215" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="tfSyfiElvlMuKq_Uz_oZ-4" target="tfSyfiElvlMuKq_Uz_oZ-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;" edge="1" parent="1" source="tfSyfiElvlMuKq_Uz_oZ-4" target="tfSyfiElvlMuKq_Uz_oZ-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-4" value="&lt;b&gt;Parameter Update Definition&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="364" y="215" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-6" value="&lt;b&gt;Computation Graph&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="180" y="340" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-14" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Shared Behavior&lt;/b&gt;" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="367.75" y="170" width="122.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-17" value="&lt;b&gt;Iteration Cycle Definition&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="540" y="215" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.465;entryY=-0.045;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=2;" edge="1" parent="1" source="tfSyfiElvlMuKq_Uz_oZ-2" target="tfSyfiElvlMuKq_Uz_oZ-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-21" value="" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="125" y="430" width="580" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-23" value="&lt;b&gt;Save&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="150" y="480" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="tfSyfiElvlMuKq_Uz_oZ-25" target="tfSyfiElvlMuKq_Uz_oZ-44">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-25" value="&lt;b&gt;Save Snapshot&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="290" y="480" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-26" value="&lt;b&gt;Load&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="570" y="480" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="tfSyfiElvlMuKq_Uz_oZ-27" target="tfSyfiElvlMuKq_Uz_oZ-44">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-27" value="&lt;b&gt;Load Snapshot&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="430" y="480" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-28" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Serialization&lt;/b&gt;" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="364" y="440" width="122.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.001;entryY=0.552;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=2;" edge="1" parent="1" source="tfSyfiElvlMuKq_Uz_oZ-5" target="tfSyfiElvlMuKq_Uz_oZ-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="tfSyfiElvlMuKq_Uz_oZ-44" target="tfSyfiElvlMuKq_Uz_oZ-55">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-44" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="185" y="620" width="460" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-31" value="&lt;b&gt;Namepsace&lt;/b&gt;" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.folder;fillColor=#2072B8;" vertex="1" parent="1">
+          <mxGeometry x="240" y="662.5" width="50" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-32" value="&lt;b&gt;YYYY&lt;/b&gt;" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.folder;fillColor=#2072B8;" vertex="1" parent="1">
+          <mxGeometry x="330.25" y="667.5" width="40" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-35" value="&lt;b&gt;MM&lt;/b&gt;" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.folder;fillColor=#2072B8;" vertex="1" parent="1">
+          <mxGeometry x="410" y="667.5" width="40" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-36" value="&lt;b&gt;DD&lt;/b&gt;" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.folder;fillColor=#2072B8;" vertex="1" parent="1">
+          <mxGeometry x="480" y="667.5" width="40" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-39" value="&lt;b&gt;Timestamp&lt;/b&gt;" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.folder;fillColor=#2072B8;" vertex="1" parent="1">
+          <mxGeometry x="560" y="667.5" width="40" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-45" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Historical Snapshot&lt;/b&gt;" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="349.38" y="630" width="141.25" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-55" value="" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="225" y="790" width="380" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-48" value="&lt;font style=&quot;color: rgb(255, 255, 255);&quot;&gt;Cloud Storage&lt;/font&gt;" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#7AA116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="1">
+          <mxGeometry x="313.25" y="834" width="64" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-50" value="File&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;System&lt;/span&gt;" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.folder;fillColor=#2072B8;" vertex="1" parent="1">
+          <mxGeometry x="454.25" y="848" width="61.5" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tfSyfiElvlMuKq_Uz_oZ-56" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Saved Parameters&lt;/b&gt;" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="349.38" y="800" width="141.25" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
