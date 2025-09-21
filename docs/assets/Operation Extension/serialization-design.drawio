@@ -1,0 +1,91 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0" version="27.1.1">
+  <diagram name="Page-1" id="eiJeyHNFtyR1KQrlWp0d">
+    <mxGraphModel dx="1305" dy="795" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="QvSH2AzmyCflkajsTauf-35" value="" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="48" y="370" width="755" height="310" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-21" value="" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="90" y="30" width="660" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontStyle=1;strokeWidth=2;" edge="1" parent="1" source="QvSH2AzmyCflkajsTauf-1" target="QvSH2AzmyCflkajsTauf-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-40" value="&lt;b&gt;Serialize&lt;/b&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="QvSH2AzmyCflkajsTauf-3">
+          <mxGeometry x="-0.05" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-1" value="&lt;b&gt;Node Instance&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="140" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;" edge="1" parent="1" source="QvSH2AzmyCflkajsTauf-2" target="QvSH2AzmyCflkajsTauf-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-2" value="&lt;b&gt;Serialized Node Structure&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="380" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="QvSH2AzmyCflkajsTauf-5" target="QvSH2AzmyCflkajsTauf-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-5" value="Serialized File Output" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3D;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.json_script;" vertex="1" parent="1">
+          <mxGeometry x="620" y="94.68" width="37" height="50.63" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="QvSH2AzmyCflkajsTauf-9" target="QvSH2AzmyCflkajsTauf-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-13" value="&lt;b&gt;Node Reconstruction&lt;/b&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="QvSH2AzmyCflkajsTauf-12">
+          <mxGeometry x="-0.4129" y="-6" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-9" value="&lt;b&gt;Operation Registry&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="380" y="250" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-22" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;Node Serialization&lt;/b&gt;&lt;/font&gt;" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="348" y="40" width="155" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="QvSH2AzmyCflkajsTauf-24" target="QvSH2AzmyCflkajsTauf-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="QvSH2AzmyCflkajsTauf-24" target="QvSH2AzmyCflkajsTauf-31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-24" value="&lt;b&gt;Expression Graph&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="85" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="QvSH2AzmyCflkajsTauf-25" target="QvSH2AzmyCflkajsTauf-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-25" value="&lt;b&gt;Node Vector&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="285" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;" edge="1" parent="1" source="QvSH2AzmyCflkajsTauf-26">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="725" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-26" value="&lt;b&gt;Node Serialization&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="485" y="430" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-27" value="&lt;div&gt;Serialized File&amp;nbsp;&lt;/div&gt;&lt;div&gt;Nodes&lt;/div&gt;" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3D;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.json_script;" vertex="1" parent="1">
+          <mxGeometry x="728" y="430" width="37" height="50.63" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;" edge="1" parent="1" source="QvSH2AzmyCflkajsTauf-31" target="QvSH2AzmyCflkajsTauf-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-31" value="&lt;b&gt;Expression Graph Fields&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="285" y="570" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-33" value="&lt;div&gt;Expression Graph&amp;nbsp;&lt;/div&gt;&lt;div&gt;Metadata&lt;/div&gt;" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3D;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.json_script;" vertex="1" parent="1">
+          <mxGeometry x="526.5" y="574.6800000000001" width="37" height="50.63" as="geometry" />
+        </mxCell>
+        <mxCell id="QvSH2AzmyCflkajsTauf-38" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;Expression Graph Serialization&lt;/b&gt;&lt;/font&gt;" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="301.25" y="380" width="237.5" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

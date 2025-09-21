@@ -1,0 +1,39 @@
+site_name: Dendritic
+
+# theme:
+#   name: material
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Auto Differentiation:
+      - Index: auto-differentiation/autodiff.md
+      - Expression Graph: auto-differentiation/expression-graph.md
+      - Operation Extension: auto-differentiation/operation-extension.md
+  - Optimizer:
+    - Model Abstraction: optimizer/model-abstraction.md
+    - Optimizer: optimizer/optimizer.md
+    - Train: optimizer/train.md
+  - Preprocessing:
+    - Data Preprocessing: preprocessing/data-preprocessing.md
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
